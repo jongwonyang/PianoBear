@@ -1,2 +1,6 @@
 .venv/
 maestro_data/
+sampled_data/
+preprocessed/
+
+temp/
