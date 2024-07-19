@@ -63,6 +63,7 @@ def main(save_dir, use_multiprocessing=True, num_processes=None):
     if num_processes is None:
         num_processes = cpu_count()  # CPU 코어 수만큼 프로세스 설정
 
+    os.makedirs(save_dir, exist_ok=True)
     os.makedirs(os.path.join(save_dir, 'trainX'), exist_ok=True)
     os.makedirs(os.path.join(save_dir, 'validX'), exist_ok=True)
     os.makedirs(os.path.join(save_dir, 'trainONSET'), exist_ok=True)
@@ -84,9 +85,10 @@ def main(save_dir, use_multiprocessing=True, num_processes=None):
                 val_audio_paths.append(row['audio_filename'])
 
     if use_multiprocessing:
+        # Training data processing
         train_segment_length = len(train_midi_paths) // num_processes
         processes = []
-
+        
         for i in range(num_processes):
             start_index = i * train_segment_length
             end_index = None if i == num_processes - 1 else (i + 1) * train_segment_length
@@ -100,20 +102,17 @@ def main(save_dir, use_multiprocessing=True, num_processes=None):
             p.join()
 
         # Validation data processing
-        val_segment_length = len(val_midi_paths) // 2
+        val_segment_length = len(val_midi_paths) // num_processes
         val_processes = []
 
-        p1 = Process(target=process_files, args=(
-            val_midi_paths[:val_segment_length], val_audio_paths[:val_segment_length],
-            os.path.join(save_dir, 'validX'), os.path.join(save_dir, 'validONSET'), os.path.join(save_dir, 'validOFFSET')))
-        val_processes.append(p1)
-        p1.start()
-
-        p2 = Process(target=process_files, args=(
-            val_midi_paths[val_segment_length:], val_audio_paths[val_segment_length:],
-            os.path.join(save_dir, 'validX'), os.path.join(save_dir, 'validONSET'), os.path.join(save_dir, 'validOFFSET')))
-        val_processes.append(p2)
-        p2.start()
+        for i in range(num_processes):
+            start_index = i * val_segment_length
+            end_index = None if i == num_processes - 1 else (i + 1) * val_segment_length
+            p = Process(target=process_files, args=(
+                val_midi_paths[start_index:end_index], val_audio_paths[start_index:end_index],
+                os.path.join(save_dir, 'validX'), os.path.join(save_dir, 'validONSET'), os.path.join(save_dir, 'validOFFSET')))
+            val_processes.append(p)
+            p.start()
 
         for p in val_processes:
             p.join()
