@@ -5,8 +5,8 @@ import librosa
 import note_seq
 from multiprocessing import Process, current_process, cpu_count
 
-DATA_DIR = 'sampled_data'
-SAVE_DIR = 'preprocessed'
+DATA_DIR = '../data/maestro-v3.0.0'
+SAVE_DIR = '../data/preprocessed'
 
 def process_midi_audio(midi_path, audio_path, cqt_save_path, onset_save_path, offset_save_path):
     try:
@@ -14,7 +14,6 @@ def process_midi_audio(midi_path, audio_path, cqt_save_path, onset_save_path, of
         y, sr = librosa.load(audio_path, sr=16000)
         cqt = librosa.cqt(y, sr=sr, fmin=librosa.midi_to_hz(21), n_bins=264, hop_length=160, bins_per_octave=36)
         cqt = np.abs(cqt).T
-
         cqt = np.pad(cqt, ((0, 10), (0, 0)), mode='constant')
 
         # 빈 결과 배열 생성
@@ -34,7 +33,6 @@ def process_midi_audio(midi_path, audio_path, cqt_save_path, onset_save_path, of
             pitch = note.pitch - 21
             start_frame = int(note.start_time * 100)
             end_frame = int(note.end_time * 100)
-
             onset[start_frame:start_frame + 4, pitch] = 1
             offset[start_frame:end_frame, pitch] = 1
 
@@ -70,9 +68,13 @@ def main(save_dir, use_multiprocessing=True, num_processes=None):
     os.makedirs(os.path.join(save_dir, 'validONSET'), exist_ok=True)
     os.makedirs(os.path.join(save_dir, 'trainOFFSET'), exist_ok=True)
     os.makedirs(os.path.join(save_dir, 'validOFFSET'), exist_ok=True)
+    os.makedirs(os.path.join(save_dir, 'testX'), exist_ok=True)
+    os.makedirs(os.path.join(save_dir, 'testONSET'), exist_ok=True)
+    os.makedirs(os.path.join(save_dir, 'testOFFSET'), exist_ok=True)
 
     train_midi_paths, train_audio_paths = [], []
     val_midi_paths, val_audio_paths = [], []
+    test_midi_paths, test_audio_paths = [], []
 
     with open(os.path.join(DATA_DIR, 'maestro-v3.0.0.csv'), 'r', encoding='utf-8') as csv_file:
         reader = csv.DictReader(csv_file)
@@ -83,12 +85,15 @@ def main(save_dir, use_multiprocessing=True, num_processes=None):
             elif row['split'] == 'validation':
                 val_midi_paths.append(row['midi_filename'])
                 val_audio_paths.append(row['audio_filename'])
+            elif row['split'] == 'test':
+                test_midi_paths.append(row['midi_filename'])
+                test_audio_paths.append(row['audio_filename'])
 
     if use_multiprocessing:
         # Training data processing
         train_segment_length = len(train_midi_paths) // num_processes
         processes = []
-        
+
         for i in range(num_processes):
             start_index = i * train_segment_length
             end_index = None if i == num_processes - 1 else (i + 1) * train_segment_length
@@ -116,15 +121,39 @@ def main(save_dir, use_multiprocessing=True, num_processes=None):
 
         for p in val_processes:
             p.join()
+
+        # Test data processing
+        test_segment_length = len(test_midi_paths) // num_processes
+        test_processes = []
+
+        for i in range(num_processes):
+            start_index = i * test_segment_length
+            end_index = None if i == num_processes- 1 else (i + 1) * test_segment_length
+            p = Process(target=process_files, args=(
+                test_midi_paths[start_index:end_index], test_audio_paths[start_index:end_index],
+                os.path.join(save_dir, 'testX'), os.path.join(save_dir, 'testONSET'), os.path.join(save_dir, 'testOFFSET')
+            ))
+            test_processes.append(p)
+            p.start()
+
+        for p in test_processes:
+            p.join()
     else:
+        # Training data processing
         process_files(train_midi_paths, train_audio_paths,
                       os.path.join(save_dir, 'trainX'),
                       os.path.join(save_dir, 'trainONSET'),
                       os.path.join(save_dir, 'trainOFFSET'))
+        # Validation data processing
         process_files(val_midi_paths, val_audio_paths,
                       os.path.join(save_dir, 'validX'),
                       os.path.join(save_dir, 'validONSET'),
                       os.path.join(save_dir, 'validOFFSET'))
+        # Test data processing
+        process_files(test_midi_paths, test_audio_paths,
+                      os.path.join(save_dir, 'testX'),
+                      os.path.join(save_dir, 'testONSET'),
+                      os.path.join(save_dir, 'testOFFSET'))
 
 if __name__ == '__main__':
     main(SAVE_DIR, use_multiprocessing=True)
