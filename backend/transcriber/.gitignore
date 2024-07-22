@@ -1,4 +1,5 @@
 .venv/
+.conda/
 maestro_data/
 sampled_data/
 preprocessed/
