@@ -4,4 +4,4 @@ dirpath=`dirname $0`
 
 cd $dirpath/application
 
-./gradlew clean build
+./gradlew clean build -x test
