@@ -1,5 +1,4 @@
 <template>
-    logmain
     <RouterView/>
 </template>
 <script setup>
