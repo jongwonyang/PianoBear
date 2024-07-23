@@ -4,20 +4,23 @@
             <md-elevation></md-elevation>
             <div class="regist-text">회원가입</div>
             <div class="input-box">
-                <md-outlined-text-field label="아이디" type="text" class="regist-input id"></md-outlined-text-field>
-                <md-outlined-text-field label="이메일" type="email" class="regist-input email"></md-outlined-text-field>
+                <md-outlined-text-field label="아이디" type="text" supporting-text="영문+숫자 4~20자" class="regist-input id"></md-outlined-text-field>
+                <md-outlined-text-field label="이메일" type="email" supporting-text="abc@example.com" class="regist-input email"></md-outlined-text-field>
                 <md-outlined-text-field label="이름" type="text" class="regist-input name"></md-outlined-text-field>
-                <md-outlined-text-field label="비밀번호" type="password" class="regist-input pw"></md-outlined-text-field>
+                <md-outlined-text-field label="비밀번호" type="password" supporting-text="영문+숫자 8~20자" class="regist-input pw"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호 확인" type="password"
                     class="regist-input pwCheck"></md-outlined-text-field>
-                <md-filled-select required>
-                    <md-select-option value="one">
-                        <div slot="headline">One</div>
+                <md-outlined-select label="성별" supporting-text="남/여 중 선택" class="select-box">
+                    <md-select-option value="남">
+                        <div slot="headline">남</div>
                     </md-select-option>
-                    <md-select-option value="two">
-                        <div slot="headline">Two</div>
+                    <md-select-option value="여">
+                        <div slot="headline">여</div>
                     </md-select-option>
-                </md-filled-select>
+                </md-outlined-select>
+                <div class="birth-box">
+                    <md-outlined-text-field label="생년월일" type="date" class="regist-input birth"></md-outlined-text-field>
+                </div>
             </div>
             <md-elevated-button class="regist-button">회원가입</md-elevated-button>
         </div>
@@ -69,6 +72,15 @@
     margin: 10px 0;
     color: #F5E5D1;
     background-color: #947650;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.select-box {
+    width: calc(100% - 40px);
+    margin: 10px 0;
+    color: #F5E5D1;
+    background-color: #FBFCFE;
     border-radius: 10px;
     font-size: 16px;
 }
