@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,7 +29,8 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
-    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**"};
+    // TODO: h2-console 프로덕션에서 삭제!!!!!!!!!!!!!!!!!!!!
+    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**", "/h2-console/**"};
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,6 +53,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().permitAll());
+
+        // TODO: 프로덕션에서 삭제!!!!!!!!!!!!!!!!!!
+        http.headers(headers -> {
+            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
+        });
 
         return http.build();
     }

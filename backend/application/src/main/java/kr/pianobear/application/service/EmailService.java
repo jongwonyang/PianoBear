@@ -43,29 +43,22 @@ public class EmailService {
         emailAuth.setEmailAddress(email);
         emailAuth.setVerified(false);
 
-        MimeMessage message = createVerificationMessage(memberId, email);
+        redisUtil.saveWithExpiration(emailAuth.getUuid(), emailAuth, 5, TimeUnit.MINUTES);
+
+        MimeMessage message = createVerificationMessage(emailAuth);
 
         javaMailSender.send(message);
     }
 
-    private MimeMessage createVerificationMessage(String memberId, String to) throws MessagingException {
+    private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
 
-        message.addRecipients(MimeMessage.RecipientType.TO, to);
+        message.addRecipients(MimeMessage.RecipientType.TO, emailAuth.getEmailAddress());
         message.setSubject("피아노베어 이메일 인증");
         message.setFrom(SENDER_EMAIL);
 
-        String verificationUUID = UUID.randomUUID().toString();
-        String verificationUrl = SERVICE_URL + "/api/v1/email-verification/" + verificationUUID;
+        String verificationUrl = SERVICE_URL + "/api/v1/email-verification/" + emailAuth.getUuid();
         message.setText(setContext(verificationUrl), "utf-8", "html");
-
-        EmailAuth emailAuth = new EmailAuth();
-        emailAuth.setUuid(verificationUUID);
-        emailAuth.setEmailAddress(to);
-        emailAuth.setMemberId(memberId);
-        emailAuth.setVerified(false);
-
-        redisUtil.saveWithExpiration(verificationUUID, emailAuth, 5, TimeUnit.MINUTES);
 
         return message;
     }

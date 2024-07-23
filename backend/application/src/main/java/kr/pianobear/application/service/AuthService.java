@@ -1,23 +1,18 @@
 package kr.pianobear.application.service;
 
+import jakarta.mail.MessagingException;
 import kr.pianobear.application.dto.RegisterRequestDTO;
 import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
-import kr.pianobear.application.repository.EmailAuthRepository;
 import kr.pianobear.application.repository.MemberRepository;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class AuthService {
@@ -25,17 +20,21 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final FileDataService fileDataService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Autowired
     public AuthService(MemberRepository memberRepository,
                        FileDataService fileDataService,
-                       BCryptPasswordEncoder passwordEncoder) {
+                       BCryptPasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.memberRepository = memberRepository;
         this.fileDataService = fileDataService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
-    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic) throws IOException {
+    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic)
+            throws IOException, MessagingException {
         Member member = new Member();
 
         // 아이디 중복 체크
@@ -67,17 +66,23 @@ public class AuthService {
         // 비밀번호 해싱
         member.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
 
-
         // 프로필 사진 업로드
         if (profilePic != null) {
             FileData saved = fileDataService.uploadImage(profilePic, 200, 200);
             member.setProfilePic(saved);
         }
 
+        // 상태 메시지 설정
+        if (registerRequestDTO.getStatusMessage() != null) {
+            member.setStatusMessage(registerRequestDTO.getStatusMessage());
+        }
+
         // 이메일 인증 기본 false
         member.setAuthEmail(false);
 
-        // TODO: 이메일 인증 전송
+        // 이메일 인증 전송
+        emailService.sendVerificationEmail(registerRequestDTO.getId(),
+                registerRequestDTO.getEmail());
 
         return null;
     }
