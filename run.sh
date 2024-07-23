@@ -4,4 +4,4 @@ dirpath=`dirname $0`
 
 sh $dirpath/frontend/build.sh
 
-sh $dirpath/backend/buildNrun.sh
+sh $dirpath/backend/buildNrun.sh 
