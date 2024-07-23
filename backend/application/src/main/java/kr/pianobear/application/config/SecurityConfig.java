@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
-    private static final String[] AUTH_WHITELIST = {"/api/auth/**"};
+    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**"};
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
