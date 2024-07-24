@@ -56,7 +56,7 @@ tasks.named('test') {
 }
 
 ext {
-	springProfilesActive = project.hasProperty('spring.profiles.active') ? project.getProperty('spring.profiles.active') : 'default'
+	springProfilesActive = project.hasProperty('spring.profiles.active') ? project.getProperty('spring.profiles.active') : 'local'
 }
 
 test {
