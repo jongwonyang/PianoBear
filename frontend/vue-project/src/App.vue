@@ -1,10 +1,10 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-</script>
-
 <template>
-  <RouterView />
+    <RouterView />
 </template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -27,7 +27,7 @@ body {
   padding: 0;
   --md-sys-color-outline: #FFFFFF; /* 기본상태 테두리 색상 */
   --md-sys-color-on-surface: #947650; /* 호버상태 테두리 색상 */
-  --md-sys-color-primary: #947650; /* 포커스상태 테두리 색상*/
+  --md-sys-color-primary: #947650; /* 포커스상태 테두리 색상 */
   --md-elevation-level: 5; /* 그림자 레벨 */
   --md-sys-color-shadow: #d2b659; /* 그림자 색상 */
 }

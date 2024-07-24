@@ -4,13 +4,13 @@
             <md-elevation></md-elevation>
             <div class="regist-text">회원가입</div>
             <div class="input-box">
-                <md-outlined-text-field label="아이디" type="text" supporting-text="영문+숫자 4~20자" class="regist-input id"></md-outlined-text-field>
-                <md-outlined-text-field label="이메일" type="email" supporting-text="abc@example.com" class="regist-input email"></md-outlined-text-field>
+                <md-outlined-text-field label="아이디" type="text" placeholder="영문+숫자 4~20자" class="regist-input id"></md-outlined-text-field>
+                <md-outlined-text-field label="이메일" type="email" placeholder="abc@example.com" class="regist-input email"></md-outlined-text-field>
                 <md-outlined-text-field label="이름" type="text" class="regist-input name"></md-outlined-text-field>
-                <md-outlined-text-field label="비밀번호" type="password" supporting-text="영문+숫자 8~20자" class="regist-input pw"></md-outlined-text-field>
+                <md-outlined-text-field label="비밀번호" type="password" placeholder="영문+숫자 8~20자" class="regist-input pw"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호 확인" type="password"
                     class="regist-input pwCheck"></md-outlined-text-field>
-                <md-outlined-select label="성별" supporting-text="남/여 중 선택" class="select-box">
+                <md-outlined-select label="성별" class="select-box">
                     <md-select-option value="남">
                         <div slot="headline">남</div>
                     </md-select-option>
@@ -65,6 +65,7 @@
     background-color: #FBFCFE;
     border-radius: 10px;
     font-size: 16px;
+    --md-outlined-text-field-input-text-placeholder-color: #a5a5a5;
 }
 
 .regist-button {

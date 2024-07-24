@@ -27,20 +27,21 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
 function kakaoLogin() {
+    // Implement kakaoLogin functionality here
 }
 
 function googleLogin() {
+    // Implement googleLogin functionality here
 }
 </script>
 
 <style scoped>
-
-
 .login-container {
     display: flex;
     justify-content: center;
@@ -73,7 +74,6 @@ function googleLogin() {
     background-color: #FBFCFE;
     border-radius: 10px;
     font-size: 16px;
-
 }
 
 .id {
@@ -140,5 +140,4 @@ function googleLogin() {
     border-radius: 4px;
     transition: transform 0.3s;
 }
-
 </style>
