@@ -4,10 +4,13 @@
             <md-elevation></md-elevation>
             <div class="regist-text">회원가입</div>
             <div class="input-box">
-                <md-outlined-text-field label="아이디" type="text" placeholder="영문+숫자 4~20자" class="regist-input id"></md-outlined-text-field>
-                <md-outlined-text-field label="이메일" type="email" placeholder="abc@example.com" class="regist-input email"></md-outlined-text-field>
+                <md-outlined-text-field label="아이디" type="text" placeholder="영문+숫자 4~20자"
+                    class="regist-input id"></md-outlined-text-field>
+                <md-outlined-text-field label="이메일" type="email" placeholder="abc@example.com"
+                    class="regist-input email"></md-outlined-text-field>
                 <md-outlined-text-field label="이름" type="text" class="regist-input name"></md-outlined-text-field>
-                <md-outlined-text-field label="비밀번호" type="password" placeholder="영문+숫자 8~20자" class="regist-input pw"></md-outlined-text-field>
+                <md-outlined-text-field label="비밀번호" type="password" placeholder="영문+숫자 8~20자"
+                    class="regist-input pw"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호 확인" type="password"
                     class="regist-input pwCheck"></md-outlined-text-field>
                 <md-outlined-select label="성별" class="select-box">
@@ -19,7 +22,8 @@
                     </md-select-option>
                 </md-outlined-select>
                 <div class="birth-box">
-                    <md-outlined-text-field label="생년월일" type="date" class="regist-input birth"></md-outlined-text-field>
+                    <md-outlined-text-field label="생년월일" type="date"
+                        class="regist-input birth"></md-outlined-text-field>
                 </div>
             </div>
             <md-elevated-button class="regist-button">회원가입</md-elevated-button>

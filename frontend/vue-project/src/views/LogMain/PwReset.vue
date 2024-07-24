@@ -1,5 +1,4 @@
 <template>
-
     <div class="reset-container">
         <div class="reset-box">
             <md-elevation></md-elevation>
@@ -12,14 +11,12 @@
             <md-elevated-button class="reset-button">임시 비밀번호 발급</md-elevated-button>
         </div>
     </div>
-
 </template>
 <script setup>
 
 </script>
 
 <style scoped>
-
 .reset-container {
     display: flex;
     justify-content: center;
@@ -36,7 +33,6 @@
     text-align: center;
     max-width: 400px;
     width: 100%;
-
 }
 
 .reset-text {
