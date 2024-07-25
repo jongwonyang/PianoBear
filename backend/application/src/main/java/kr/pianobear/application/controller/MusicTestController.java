@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/music") //다시 api 어떤 사용자 안에 있는 리소스 계층 구조
+@RequestMapping("/api/v1/music/test") //다시 api 어떤 사용자 안에 있는 리소스 계층 구조
 @Tag(name = "MusicTest", description = "연주 도전 API")
 public class MusicTestController {
     @Autowired

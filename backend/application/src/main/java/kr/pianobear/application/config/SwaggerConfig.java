@@ -47,4 +47,12 @@ public class SwaggerConfig {
                 .pathsToMatch("/api/v1/auth/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi musicGroup() {
+        return GroupedOpenApi.builder()
+                .group("Music API")
+                .pathsToMatch("/api/v1/music/**")
+                .build();
+    }
 }
