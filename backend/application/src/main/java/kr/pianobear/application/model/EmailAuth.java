@@ -1,8 +1,8 @@
 package kr.pianobear.application.model;
 
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;

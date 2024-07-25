@@ -1,8 +1,9 @@
 <template>
-    사이드바
+    <LayoutNav/>
     <RouterView/>
 </template>
 <script setup>
 import {RouterView} from 'vue-router';
+import LayoutNav from '@/components/Layout/LayoutNav.vue';
 
 </script>

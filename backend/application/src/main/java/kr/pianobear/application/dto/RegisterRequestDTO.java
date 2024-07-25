@@ -39,7 +39,5 @@ public class RegisterRequestDTO {
     @Schema(description = "로그인시 사용될 비밀번호")
     private String password;
 
-    @Schema(description = "프로필 사진")
-    private String profilePic;
     private String statusMessage;
 }
