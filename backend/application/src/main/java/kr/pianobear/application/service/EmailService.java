@@ -1,5 +1,6 @@
 package kr.pianobear.application.service;
 
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeUtility;
@@ -55,16 +56,13 @@ public class EmailService {
 
     private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
 
-        helper.setTo(emailAuth.getEmailAddress());
-        helper.setSubject("피아노베어 이메일 인증");
-        helper.setFrom(SENDER_EMAIL);
-
-        message.setHeader("Content-Transfer-Encoding", MimeUtility.encodeText("base64", "utf-8", "B"));
+        message.setRecipients(Message.RecipientType.TO, emailAuth.getEmailAddress());
+        message.setSubject("피아노베어 이메일 인증");
+        message.setFrom(SENDER_EMAIL);
 
         String verificationUrl = SERVICE_URL + "/api/v1/auth/email-verification/" + emailAuth.getUuid();
-        helper.setText(setContext(verificationUrl), true);
+        message.setText(setContext(verificationUrl), "utf-8", "html");
 
         return message;
     }

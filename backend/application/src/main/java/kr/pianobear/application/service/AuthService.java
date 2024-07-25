@@ -2,17 +2,21 @@ package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
 import kr.pianobear.application.dto.RegisterRequestDTO;
+import kr.pianobear.application.model.EmailAuth;
 import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.MemberRepository;
+import kr.pianobear.application.repository.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -21,16 +25,18 @@ public class AuthService {
     private final FileDataService fileDataService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final RedisRepository redisRepository;
 
     @Autowired
     public AuthService(MemberRepository memberRepository,
                        FileDataService fileDataService,
                        BCryptPasswordEncoder passwordEncoder,
-                       EmailService emailService) {
+                       EmailService emailService, RedisRepository redisRepository) {
         this.memberRepository = memberRepository;
         this.fileDataService = fileDataService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.redisRepository = redisRepository;
     }
 
     public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic) throws IOException, MessagingException {
@@ -49,6 +55,9 @@ public class AuthService {
             throw new DuplicateKeyException("중복된 이메일입니다.");
         }
         member.setEmail(registerRequestDTO.getEmail());
+
+        // 이름 설정
+        member.setName(registerRequestDTO.getName());
 
         // 성별 'M' 또는 'F' 체크
         if (!registerRequestDTO.getGender().equals('M') && !registerRequestDTO.getGender().equals('F')) {
@@ -80,7 +89,7 @@ public class AuthService {
         member.setAuthEmail(false);
 
         // 권한 설정
-        member.setRole("ROLE_USER");
+        member.setRole("ROLE_UNVERIFIED");
 
         memberRepository.save(member);
 
@@ -89,5 +98,21 @@ public class AuthService {
                 registerRequestDTO.getEmail());
 
         return member;
+    }
+
+    @Transactional
+    public boolean verifyEmail(String uuid) {
+        EmailAuth emailAuth = (EmailAuth) redisRepository.find(uuid);
+        if (emailAuth == null) return false;
+
+        String memberId = emailAuth.getMemberId();
+        Optional<Member> member = memberRepository.findById(memberId);
+        if (member.isEmpty()) return false;
+
+        member.get().setAuthEmail(true);
+        member.get().setRole("ROLE_USER");
+        redisRepository.delete(uuid);
+
+        return true;
     }
 }

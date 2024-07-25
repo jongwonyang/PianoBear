@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -51,7 +52,11 @@ public class AuthController {
 
     @PostMapping("/email-verification")
     public ResponseEntity<Void> verifyEmail(@RequestBody Map<String, Object> map) {
-        System.out.println(map);
-        return new ResponseEntity<>(HttpStatus.OK);
+        String uuid = (String) map.get("uuid");
+        boolean result = authService.verifyEmail(uuid);
+
+        if (result)
+            return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
