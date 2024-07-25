@@ -142,4 +142,23 @@ public class AuthService {
 
         return Optional.of(loginResponseDTO);
     }
+
+    public Optional<LoginResponseDTO> refresh(String refreshToken) {
+        if (!jwtUtil.validateToken(refreshToken))
+            return Optional.empty();
+
+        String userId = jwtUtil.parseUsername(refreshToken);
+        Optional<Member> member = memberRepository.findById(userId);
+        if (member.isEmpty())
+            return Optional.empty();
+
+        String newAccessToken = jwtUtil.createAccessToken(member.get());
+        String newRefreshToken = jwtUtil.createRefreshToken(member.get());
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        loginResponseDTO.setAccessToken(newAccessToken);
+        loginResponseDTO.setRefreshToken(newRefreshToken);
+
+        return Optional.of(loginResponseDTO);
+    }
 }

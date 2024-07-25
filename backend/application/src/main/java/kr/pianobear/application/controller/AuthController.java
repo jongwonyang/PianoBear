@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import kr.pianobear.application.dto.LoginRequestDTO;
 import kr.pianobear.application.dto.LoginResponseDTO;
 import kr.pianobear.application.dto.RegisterRequestDTO;
+import kr.pianobear.application.dto.TokenRefreshRequestDTO;
 import kr.pianobear.application.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -87,5 +88,10 @@ public class AuthController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("YOU ARE AUTHORIZED!");
+    }
+
+    @PostMapping("/refresh")
+    public void refresh(@RequestBody TokenRefreshRequestDTO tokenRefreshRequestDTO) {
+
     }
 }
