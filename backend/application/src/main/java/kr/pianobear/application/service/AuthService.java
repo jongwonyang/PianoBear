@@ -33,8 +33,7 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic)
-            throws IOException, MessagingException {
+    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic) throws IOException, MessagingException {
         Member member = new Member();
 
         // 아이디 중복 체크
@@ -45,7 +44,7 @@ public class AuthService {
         member.setId(registerRequestDTO.getId());
 
         // 이메일 중복 체크
-        boolean emailExists = memberRepository.existsById(registerRequestDTO.getEmail());
+        boolean emailExists = memberRepository.existsByEmail(registerRequestDTO.getEmail());
         if (emailExists) {
             throw new DuplicateKeyException("중복된 이메일입니다.");
         }
@@ -80,10 +79,15 @@ public class AuthService {
         // 이메일 인증 기본 false
         member.setAuthEmail(false);
 
-        // 이메일 인증 전송
+        // 권한 설정
+        member.setRole("ROLE_USER");
+
+        memberRepository.save(member);
+
+        // 마지막: 이메일 인증 전송
         emailService.sendVerificationEmail(registerRequestDTO.getId(),
                 registerRequestDTO.getEmail());
 
-        return null;
+        return member;
     }
 }

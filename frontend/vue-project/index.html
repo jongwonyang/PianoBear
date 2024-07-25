@@ -3,16 +3,30 @@
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script
+    src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"
+    integrity="sha384-l+xbElFSnPZ2rOaPrU//2FF5B4LB8FiX5q4fXYTlfcG4PGpMkE1vcL7kNXI6Cci0"
+    crossorigin="anonymous"
+  ></script>
+  <!-- Vuetify -->
+  <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css" rel="stylesheet">
     <title>Vite App</title>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+
     <script type="module">
       import '@material/web/all.js';
       import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
       document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+      import 'vuetify/dist/vuetify.min.css'
     </script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
   </body>
 </html>

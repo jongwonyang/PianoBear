@@ -3,10 +3,11 @@ package kr.pianobear.application.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import kr.pianobear.application.model.EmailAuth;
-import kr.pianobear.application.util.RedisUtil;
+import kr.pianobear.application.repository.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -22,18 +23,18 @@ public class EmailService {
     private final String SERVICE_URL;
     private final String SENDER_EMAIL;
     private final JavaMailSender javaMailSender;
-    private final RedisUtil redisUtil;
+    private final RedisRepository redisRepository;
 
     @Autowired
     public EmailService(
             @Value("${application.service-url}") String serviceUrl,
             @Value("${spring.mail.username}") String senderEmail,
             JavaMailSender javaMailSender,
-            RedisUtil redisUtil) {
+            RedisRepository redisRepository) {
         this.SERVICE_URL = serviceUrl;
         SENDER_EMAIL = senderEmail;
         this.javaMailSender = javaMailSender;
-        this.redisUtil = redisUtil;
+        this.redisRepository = redisRepository;
     }
 
     public void sendVerificationEmail(String memberId, String email) throws MessagingException {
@@ -43,7 +44,7 @@ public class EmailService {
         emailAuth.setEmailAddress(email);
         emailAuth.setVerified(false);
 
-        redisUtil.saveWithExpiration(emailAuth.getUuid(), emailAuth, 5, TimeUnit.MINUTES);
+        redisRepository.save(emailAuth.getUuid(), emailAuth, 5, TimeUnit.MINUTES);
 
         MimeMessage message = createVerificationMessage(emailAuth);
 
@@ -52,13 +53,14 @@ public class EmailService {
 
     private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        message.addRecipients(MimeMessage.RecipientType.TO, emailAuth.getEmailAddress());
-        message.setSubject("피아노베어 이메일 인증");
-        message.setFrom(SENDER_EMAIL);
+        helper.setTo(emailAuth.getEmailAddress());
+        helper.setSubject("피아노베어 이메일 인증");
+        helper.setFrom(SENDER_EMAIL);
 
         String verificationUrl = SERVICE_URL + "/api/v1/email-verification/" + emailAuth.getUuid();
-        message.setText(setContext(verificationUrl), "utf-8", "html");
+        helper.setText(setContext(verificationUrl), true);
 
         return message;
     }

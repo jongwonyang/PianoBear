@@ -10,10 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/api/v1/auth")
@@ -39,5 +41,17 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/email-verification/{uuid}")
+    public String emailVerification(@PathVariable String uuid, Model model) {
+        model.addAttribute("uuid", uuid);
+        return "email-verification";
+    }
+
+    @PostMapping("/email-verification")
+    public ResponseEntity<Void> verifyEmail(@RequestBody Map<String, Object> map) {
+        System.out.println(map);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
