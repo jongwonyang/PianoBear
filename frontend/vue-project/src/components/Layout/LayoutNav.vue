@@ -10,8 +10,8 @@
         <v-list density="compact" nav>
           <v-list-item prepend-icon="mdi-home-variant-outline" title="메인" value="내 정보" @click="router.push({name: 'myInfo'})"></v-list-item>
           <v-list-item prepend-icon="mdi-account-multiple-outline" title="친구들" value="친구들" @click="router.push({name: 'friends'})"></v-list-item>
-          <v-list-item prepend-icon="mdi-music-box-multiple" title="내 악보" value="악보목록" @click="router.push({name: 'pianoSheetView'})"></v-list-item>
-          <v-list-item prepend-icon="mdi-video-account" title="놀이터" value="소통방" @click="router.push({name: 'communityView'})"></v-list-item>
+          <v-list-item prepend-icon="mdi-music-box-multiple" title="내 악보" value="악보목록" @click="router.push({name: 'pianoSheetList'})"></v-list-item>
+          <v-list-item prepend-icon="mdi-video-account" title="놀이터" value="소통방" @click="router.push({name: 'community'})"></v-list-item>
           <v-list-item prepend-icon="mdi-bell-outline" title="알림" value="알림"></v-list-item>
         </v-list>
       </v-navigation-drawer>
