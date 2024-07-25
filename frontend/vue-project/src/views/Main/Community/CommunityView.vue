@@ -1,7 +1,7 @@
 <template>
-    communityView
     <RouterView />
 </template>
-<script setup>
+<script lang="ts" setup>
 import {RouterView} from 'vue-router';
+import Video from '@/components/Community/Video.vue';
 </script>
