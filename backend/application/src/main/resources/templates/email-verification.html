@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>피아노배어 이메일 인증</title>
+</head>
+<body>
+
+<h1>아래 버튼을 클릭하면 인증이 완료됩니다.</h1>
+
+<button id="btn-verify">인증하기</button>
+
+<div id="server-data" style="display:none;"
+     data-uuid="/*[[${uuid}]]*/"></div>
+
+<script type="text/javascript">
+    window.onload = function() {
+        const serverData = document.getElementById('server-data');
+        const uuid = serverData.getAttribute('data-uuid');
+
+        const btnVerify = document.getElementById('btn-verify');
+        btnVerify.onclick = () => {
+            fetch('/api/v1/auth/email-verification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'uuid': uuid
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Success: ', data);
+                })
+                .catch(err => {
+                    console.error('Error: ', err);
+                })
+
+        }
+    };
+</script>
+
+</body>
+</html>
