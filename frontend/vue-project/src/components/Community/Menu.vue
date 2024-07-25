@@ -31,17 +31,6 @@
     const arr = ref(['a1', 'a2', 'a3', 'a4', 'a5', 'a6']);
     const a1 = ref<Element | null>(null);
 
-    const menuOpen = function(): void {
-        arr.value.forEach(ele => {
-            if (ele === props.next) {
-                ele.
-            }
-        });
-        if (a1.value) {
-            a1.value.open = !a1.value.open;
-        }
-    };
-
 </script>
 
 <style scoped>
