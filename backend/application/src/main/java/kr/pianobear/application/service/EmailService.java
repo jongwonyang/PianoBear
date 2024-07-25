@@ -2,6 +2,7 @@ package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeUtility;
 import kr.pianobear.application.model.EmailAuth;
 import kr.pianobear.application.repository.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +39,7 @@ public class EmailService {
         this.redisRepository = redisRepository;
     }
 
-    public void sendVerificationEmail(String memberId, String email) throws MessagingException {
+    public void sendVerificationEmail(String memberId, String email) throws MessagingException, UnsupportedEncodingException {
         EmailAuth emailAuth = new EmailAuth();
         emailAuth.setUuid(UUID.randomUUID().toString());
         emailAuth.setMemberId(memberId);
@@ -51,15 +53,17 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
-    private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException {
+    private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
 
         helper.setTo(emailAuth.getEmailAddress());
         helper.setSubject("피아노베어 이메일 인증");
         helper.setFrom(SENDER_EMAIL);
 
-        String verificationUrl = SERVICE_URL + "/api/v1/email-verification/" + emailAuth.getUuid();
+        message.setHeader("Content-Transfer-Encoding", MimeUtility.encodeText("base64", "utf-8", "B"));
+
+        String verificationUrl = SERVICE_URL + "/api/v1/auth/email-verification/" + emailAuth.getUuid();
         helper.setText(setContext(verificationUrl), true);
 
         return message;

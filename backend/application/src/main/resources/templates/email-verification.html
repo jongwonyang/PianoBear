@@ -10,8 +10,7 @@
 
 <button id="btn-verify">인증하기</button>
 
-<div id="server-data" style="display:none;"
-     data-uuid="/*[[${uuid}]]*/"></div>
+<div id="server-data" style="display:none;" th:attr="data-uuid=${uuid}"></div>
 
 <script type="text/javascript">
     window.onload = function() {
