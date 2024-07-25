@@ -26,6 +26,24 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation group: 'ognl', name: 'ognl', version: '3.3.4'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+
+	implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.20'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.17.2'
+
+	testImplementation 'org.springframework.security:spring-security-test'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
@@ -37,4 +55,16 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+ext {
+	springProfilesActive = project.hasProperty('spring.profiles.active') ? project.getProperty('spring.profiles.active') : 'local'
+}
+
+test {
+	systemProperty 'spring.profiles.active', springProfilesActive
+}
+
+bootRun {
+	systemProperty 'spring.profiles.active', springProfilesActive
 }
