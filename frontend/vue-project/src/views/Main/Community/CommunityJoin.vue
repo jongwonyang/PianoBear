@@ -8,7 +8,7 @@
                 <Video class="video"/>
             </div>
             <div class="btn">
-                <md-elevated-button @click="join">참가</md-elevated-button>
+                <v-btn @click="join" :width="100" :height="45" rounded="lg">참가</v-btn>
             </div>
         </div>
     </div>
@@ -34,7 +34,7 @@ const join = function() {
 <style scoped>
 .btn {
     position: absolute;
-    margin-left: 70%;
+    margin-left: 100%;
     width: 200px;
     height: 100px;
 }

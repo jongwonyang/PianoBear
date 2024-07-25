@@ -8,7 +8,7 @@
                 <Video class="video"/>
             </div>
             <div class="btn">
-                <md-elevated-button @click="create">생성</md-elevated-button>
+                <v-btn @click="create" :width="100" :height="45" rounded="lg">생성</v-btn>
             </div>
         </div>
         <Create v-if="createCheck" @exit="exit"/>
@@ -35,8 +35,8 @@ const exit = function() {
 <style scoped>
 .btn {
     position: absolute;
-    margin-left: 70%;
-    width: 200px;
+    margin-left: 100%;
+    width: 250px;
     height: 100px;
 }
 .bear-frame {

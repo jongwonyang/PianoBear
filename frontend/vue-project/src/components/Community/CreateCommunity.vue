@@ -2,8 +2,7 @@
     <div class="back">
     </div>
     <div class="create-form">
-        <div class="surface">
-            <md-elevation></md-elevation>
+        <v-sheet class="surface" :elevation="5" rounded="lg">
             <div class="create-input">
                 <p>방 만들기</p>
                 <md-outlined-text-field label="방 제목" v-model="roomSetting.title">
@@ -16,10 +15,10 @@
                 </md-outlined-text-field>
             </div>
             <div class="btns">
-                <md-elevated-button @click="router.push({name:'communiting', params:{id: join}})">생성하기</md-elevated-button>
-                <md-elevated-button @click="emit('exit')">나가기</md-elevated-button>
+                <v-btn @click="router.push({name:'communiting', params:{id: join}})" :width="130" :height="45" rounded="lg">생성하기</v-btn>
+                <v-btn @click="emit('exit')" :width="130" :height="45" rounded="lg">나가기</v-btn>
             </div>
-        </div>
+        </v-sheet>
     </div>
 </template>
 <script lang="ts" setup>
@@ -55,6 +54,7 @@ const roomSetting = ref<RoomSetting>({
     width: 100%;
     height: 100%;
     top: 0px;
+    left: 0px;
     z-index:99;
     opacity: 0.7;
 }
@@ -93,15 +93,13 @@ const roomSetting = ref<RoomSetting>({
     margin: auto;
 }
 
-.btns * {
-    width: 130px;
-    height: 60px;
-}
 .create-form{
     position:fixed;
     top: 20px;
+    left: 0px;
     width: 100%;
     z-index: 100;
 }
+
 
 </style>
