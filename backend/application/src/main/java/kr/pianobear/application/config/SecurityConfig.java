@@ -1,0 +1,69 @@
+package kr.pianobear.application.config;
+
+import kr.pianobear.application.security.CustomAccessDeniedHandler;
+import kr.pianobear.application.security.CustomAuthenticationEntryPoint;
+import kr.pianobear.application.security.CustomUserDetailsService;
+import kr.pianobear.application.security.JwtAuthFilter;
+import kr.pianobear.application.util.JwtUtil;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@AllArgsConstructor
+public class SecurityConfig {
+
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    // TODO: h2-console 프로덕션에서 삭제!!!!!!!!!!!!!!!!!!!!
+    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**", "/h2-console/**"};
+
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(AbstractHttpConfigurer::disable);
+
+        http.sessionManagement(
+                sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
+
+        http.addFilterBefore(new JwtAuthFilter(jwtUtil, customUserDetailsService),
+                UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler));
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(AUTH_WHITELIST).permitAll()
+                .anyRequest().permitAll());
+
+        // TODO: 프로덕션에서 삭제!!!!!!!!!!!!!!!!!!
+        http.headers(headers -> {
+            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
+        });
+
+        return http.build();
+    }
+
+    @Bean
+    BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
