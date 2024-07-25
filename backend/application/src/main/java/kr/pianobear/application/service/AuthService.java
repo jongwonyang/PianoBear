@@ -1,12 +1,15 @@
 package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
+import kr.pianobear.application.dto.LoginRequestDTO;
+import kr.pianobear.application.dto.LoginResponseDTO;
 import kr.pianobear.application.dto.RegisterRequestDTO;
 import kr.pianobear.application.model.EmailAuth;
 import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.RedisRepository;
+import kr.pianobear.application.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,17 +29,19 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final RedisRepository redisRepository;
+    private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthService(MemberRepository memberRepository,
                        FileDataService fileDataService,
                        BCryptPasswordEncoder passwordEncoder,
-                       EmailService emailService, RedisRepository redisRepository) {
+                       EmailService emailService, RedisRepository redisRepository, JwtUtil jwtUtil) {
         this.memberRepository = memberRepository;
         this.fileDataService = fileDataService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.redisRepository = redisRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic) throws IOException, MessagingException {
@@ -114,5 +119,27 @@ public class AuthService {
         redisRepository.delete(uuid);
 
         return true;
+    }
+
+    public boolean isUserIdExists(String userId) {
+        return memberRepository.existsById(userId);
+    }
+
+    public Optional<LoginResponseDTO> login(String id, String password) {
+        Optional<Member> member = memberRepository.findById(id);
+
+        if (member.isEmpty()) return Optional.empty();
+
+        if (!passwordEncoder.matches(password, member.get().getPassword()))
+            return Optional.empty();
+
+        String accessToken = jwtUtil.createAccessToken(member.get());
+        String refreshToken = jwtUtil.createRefreshToken(member.get());
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        loginResponseDTO.setAccessToken(accessToken);
+        loginResponseDTO.setRefreshToken(refreshToken);
+
+        return Optional.of(loginResponseDTO);
     }
 }
