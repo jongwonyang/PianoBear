@@ -51,11 +51,9 @@
                 <div class="practice-calendar">
                     <!-- 연습 기록 버튼 -->
                     <template v-for="(day, index) in practiceDays" :key="index">
-                        <v-tooltip :content="`${currentMonth}월 ${index + 1}일`" location="top">
                             <button class="honey-button">
                                 <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
                             </button>
-                        </v-tooltip>
                     </template>
                 </div>
             </div>
@@ -89,7 +87,7 @@ const honeyEmpty = honeyEmptyImg;
 .my-profile-box {
     background: #FFF9E0;
     position: relative;
-    padding: 50px 50px;
+    padding: 60px 60px;
     border-radius: 30px;
     text-align: center;
     max-width: 2000px;
@@ -104,8 +102,8 @@ const honeyEmpty = honeyEmptyImg;
 }
 
 .profile-image {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     background: url(@/assets/images/정수_어렸을적.png);
     background-size: cover;
     background-position: center;
