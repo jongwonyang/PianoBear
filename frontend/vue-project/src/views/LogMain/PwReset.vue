@@ -31,7 +31,7 @@
     padding: 60px 40px;
     border-radius: 30px;
     text-align: center;
-    max-width: 400px;
+    max-width: 600px;
     width: 100%;
 }
 

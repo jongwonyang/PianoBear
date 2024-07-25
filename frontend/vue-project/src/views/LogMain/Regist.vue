@@ -2,6 +2,7 @@
     <div class="regist-container">
         <div class="regist-box">
             <md-elevation></md-elevation>
+            <!-- 유저랑 연결 필요 -->
             <div class="regist-text">회원가입</div>
             <div class="input-box">
                 <md-outlined-text-field label="아이디" type="text" placeholder="영문+숫자 4~20자"
@@ -49,7 +50,7 @@
     padding: 60px 40px;
     border-radius: 30px;
     text-align: center;
-    max-width: 400px;
+    max-width: 600px;
     width: 100%;
 
 }
