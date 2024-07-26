@@ -3,12 +3,10 @@ package kr.pianobear.application.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
-import kr.pianobear.application.dto.LoginRequestDTO;
-import kr.pianobear.application.dto.LoginResponseDTO;
-import kr.pianobear.application.dto.RegisterRequestDTO;
-import kr.pianobear.application.dto.TokenRefreshRequestDTO;
+import kr.pianobear.application.dto.*;
 import kr.pianobear.application.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,17 +33,25 @@ public class AuthController {
     }
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "회원 가입")
-    public ResponseEntity<Void> register(
+    @Operation(summary = "회원 가입 (구현 완료)")
+    public ResponseEntity<RegisterResponseDTO> register(
             @RequestPart(name = "registerRequestDTO") RegisterRequestDTO registerRequestDTO,
             @RequestPart(name = "profilePic") MultipartFile profilePic) {
+        RegisterResponseDTO response = new RegisterResponseDTO();
+
         try {
             authService.register(registerRequestDTO, profilePic);
+            response.setSuccess(true);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (DuplicateKeyException | IllegalArgumentException e) {
+            response.setSuccess(false);
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (IOException | MessagingException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setSuccess(false);
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/email-verification/{uuid}")
@@ -66,9 +71,9 @@ public class AuthController {
     }
 
     @GetMapping("/check-user-id")
-    @Operation(summary = "아이디 중복 검사")
+    @Operation(summary = "아이디 중복 검사 (구현 완료)")
     public ResponseEntity<Boolean> checkUserId(@RequestParam String userId) {
-        boolean exists = authService.isUserIdExists(userId);
+        boolean exists = authService.userIdExists(userId);
         return ResponseEntity.ok(exists);
     }
 
@@ -85,7 +90,7 @@ public class AuthController {
 
     @GetMapping("/test")
     @Operation(summary = "test")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("YOU ARE AUTHORIZED!");
     }

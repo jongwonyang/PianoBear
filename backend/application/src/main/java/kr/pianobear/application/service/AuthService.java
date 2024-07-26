@@ -1,7 +1,6 @@
 package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
-import kr.pianobear.application.dto.LoginRequestDTO;
 import kr.pianobear.application.dto.LoginResponseDTO;
 import kr.pianobear.application.dto.RegisterRequestDTO;
 import kr.pianobear.application.model.EmailAuth;
@@ -44,7 +43,11 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic) throws IOException, MessagingException {
+    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic)
+            throws IOException,
+            MessagingException,
+            DuplicateKeyException,
+            IllegalArgumentException {
         Member member = new Member();
 
         // 아이디 중복 체크
@@ -94,7 +97,7 @@ public class AuthService {
         member.setAuthEmail(false);
 
         // 권한 설정
-        member.setRole("ROLE_UNVERIFIED");
+        member.setRole("ROLE_GUEST");
 
         memberRepository.save(member);
 
@@ -115,13 +118,13 @@ public class AuthService {
         if (member.isEmpty()) return false;
 
         member.get().setAuthEmail(true);
-        member.get().setRole("ROLE_USER");
+        member.get().setRole("ROLE_MEMBER");
         redisRepository.delete(uuid);
 
         return true;
     }
 
-    public boolean isUserIdExists(String userId) {
+    public boolean userIdExists(String userId) {
         return memberRepository.existsById(userId);
     }
 
