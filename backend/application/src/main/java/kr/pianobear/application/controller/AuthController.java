@@ -95,7 +95,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "토큰 리프레시")
+    @Operation(summary = "토큰 리프레시 (구현 완료)")
     public ResponseEntity<TokenPairDTO> refresh(@RequestBody TokenRefreshRequestDTO tokenRefreshRequestDTO) {
         Optional<TokenPairDTO> result = authService.refresh(tokenRefreshRequestDTO.getRefreshToken());
 
@@ -105,6 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃 (구현 완료)")
     public ResponseEntity<Void> logout(@RequestBody TokenPairDTO tokenPair) {
         String accessToken = tokenPair.getAccessToken();
         String refreshToken = tokenPair.getRefreshToken();
