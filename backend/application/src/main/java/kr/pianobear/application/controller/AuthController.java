@@ -10,6 +10,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -113,5 +115,11 @@ public class AuthController {
         authService.logout(accessToken, refreshToken);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/password-reset")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    public void passwordReset(@RequestBody PasswordResetRequestDTO request) {
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
     }
 }
