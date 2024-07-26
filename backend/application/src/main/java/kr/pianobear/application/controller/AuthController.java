@@ -10,7 +10,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -72,15 +71,22 @@ public class AuthController {
 
     @GetMapping("/check-user-id")
     @Operation(summary = "아이디 중복 검사 (구현 완료)")
-    public ResponseEntity<Boolean> checkUserId(@RequestParam String userId) {
+    public ResponseEntity<ExistsResponseDTO> checkUserId(@RequestParam String userId) {
         boolean exists = authService.userIdExists(userId);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(new ExistsResponseDTO(exists));
+    }
+
+    @GetMapping("/check-email")
+    @Operation(summary = "이메일 중복 검사 (구현 완료)")
+    public ResponseEntity<ExistsResponseDTO> checkEmail(@RequestParam String email) {
+        boolean exists = authService.emailExists(email);
+        return ResponseEntity.ok(new ExistsResponseDTO(exists));
     }
 
     @PostMapping("/login")
-    @Operation(summary = "로그인")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
-        Optional<LoginResponseDTO> result = authService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
+    @Operation(summary = "로그인 (구현 완료)")
+    public ResponseEntity<TokenPairDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+        Optional<TokenPairDTO> result = authService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
 
         if (result.isEmpty())
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -88,15 +94,23 @@ public class AuthController {
         return ResponseEntity.ok(result.get());
     }
 
-    @GetMapping("/test")
-    @Operation(summary = "test")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("YOU ARE AUTHORIZED!");
+    @PostMapping("/refresh")
+    @Operation(summary = "토큰 리프레시")
+    public ResponseEntity<TokenPairDTO> refresh(@RequestBody TokenRefreshRequestDTO tokenRefreshRequestDTO) {
+        Optional<TokenPairDTO> result = authService.refresh(tokenRefreshRequestDTO.getRefreshToken());
+
+        if (result.isEmpty())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.ok(result.get());
     }
 
-    @PostMapping("/refresh")
-    public void refresh(@RequestBody TokenRefreshRequestDTO tokenRefreshRequestDTO) {
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody TokenPairDTO tokenPair) {
+        String accessToken = tokenPair.getAccessToken();
+        String refreshToken = tokenPair.getRefreshToken();
 
+        authService.logout(accessToken, refreshToken);
+
+        return ResponseEntity.ok().build();
     }
 }

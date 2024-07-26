@@ -1,7 +1,7 @@
 package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
-import kr.pianobear.application.dto.LoginResponseDTO;
+import kr.pianobear.application.dto.TokenPairDTO;
 import kr.pianobear.application.dto.RegisterRequestDTO;
 import kr.pianobear.application.model.EmailAuth;
 import kr.pianobear.application.model.FileData;
@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthService {
@@ -128,7 +129,7 @@ public class AuthService {
         return memberRepository.existsById(userId);
     }
 
-    public Optional<LoginResponseDTO> login(String id, String password) {
+    public Optional<TokenPairDTO> login(String id, String password) {
         Optional<Member> member = memberRepository.findById(id);
 
         if (member.isEmpty()) return Optional.empty();
@@ -139,14 +140,14 @@ public class AuthService {
         String accessToken = jwtUtil.createAccessToken(member.get());
         String refreshToken = jwtUtil.createRefreshToken(member.get());
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-        loginResponseDTO.setAccessToken(accessToken);
-        loginResponseDTO.setRefreshToken(refreshToken);
+        TokenPairDTO tokenPairDTO = new TokenPairDTO();
+        tokenPairDTO.setAccessToken(accessToken);
+        tokenPairDTO.setRefreshToken(refreshToken);
 
-        return Optional.of(loginResponseDTO);
+        return Optional.of(tokenPairDTO);
     }
 
-    public Optional<LoginResponseDTO> refresh(String refreshToken) {
+    public Optional<TokenPairDTO> refresh(String refreshToken) {
         if (!jwtUtil.validateToken(refreshToken))
             return Optional.empty();
 
@@ -158,10 +159,25 @@ public class AuthService {
         String newAccessToken = jwtUtil.createAccessToken(member.get());
         String newRefreshToken = jwtUtil.createRefreshToken(member.get());
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-        loginResponseDTO.setAccessToken(newAccessToken);
-        loginResponseDTO.setRefreshToken(newRefreshToken);
+        TokenPairDTO tokenPairDTO = new TokenPairDTO();
+        tokenPairDTO.setAccessToken(newAccessToken);
+        tokenPairDTO.setRefreshToken(newRefreshToken);
 
-        return Optional.of(loginResponseDTO);
+        return Optional.of(tokenPairDTO);
+    }
+
+    public boolean emailExists(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    public void logout(String accessToken, String refreshToken) {
+        String accessTokenJti = jwtUtil.parseJti(accessToken);
+        String refreshTokenJti = jwtUtil.parseJti(refreshToken);
+
+        int accessExp = jwtUtil.parseExp(accessToken) - jwtUtil.parseIat(accessToken);
+        int refreshExp = jwtUtil.parseExp(refreshToken) - jwtUtil.parseIat(refreshToken);
+
+        redisRepository.save(accessTokenJti, "logged_out", accessExp, TimeUnit.SECONDS);
+        redisRepository.save(refreshTokenJti, "logged_out", refreshExp, TimeUnit.SECONDS);
     }
 }
