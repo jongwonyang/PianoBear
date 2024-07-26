@@ -1,12 +1,14 @@
 package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
+import kr.pianobear.application.dto.TokenPairDTO;
 import kr.pianobear.application.dto.RegisterRequestDTO;
 import kr.pianobear.application.model.EmailAuth;
 import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.RedisRepository;
+import kr.pianobear.application.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthService {
@@ -26,20 +29,26 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final RedisRepository redisRepository;
+    private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthService(MemberRepository memberRepository,
                        FileDataService fileDataService,
                        BCryptPasswordEncoder passwordEncoder,
-                       EmailService emailService, RedisRepository redisRepository) {
+                       EmailService emailService, RedisRepository redisRepository, JwtUtil jwtUtil) {
         this.memberRepository = memberRepository;
         this.fileDataService = fileDataService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.redisRepository = redisRepository;
+        this.jwtUtil = jwtUtil;
     }
 
-    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic) throws IOException, MessagingException {
+    public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic)
+            throws IOException,
+            MessagingException,
+            DuplicateKeyException,
+            IllegalArgumentException {
         Member member = new Member();
 
         // 아이디 중복 체크
@@ -89,7 +98,7 @@ public class AuthService {
         member.setAuthEmail(false);
 
         // 권한 설정
-        member.setRole("ROLE_UNVERIFIED");
+        member.setRole("ROLE_GUEST");
 
         memberRepository.save(member);
 
@@ -110,9 +119,65 @@ public class AuthService {
         if (member.isEmpty()) return false;
 
         member.get().setAuthEmail(true);
-        member.get().setRole("ROLE_USER");
+        member.get().setRole("ROLE_MEMBER");
         redisRepository.delete(uuid);
 
         return true;
+    }
+
+    public boolean userIdExists(String userId) {
+        return memberRepository.existsById(userId);
+    }
+
+    public Optional<TokenPairDTO> login(String id, String password) {
+        Optional<Member> member = memberRepository.findById(id);
+
+        if (member.isEmpty()) return Optional.empty();
+
+        if (!passwordEncoder.matches(password, member.get().getPassword()))
+            return Optional.empty();
+
+        String accessToken = jwtUtil.createAccessToken(member.get());
+        String refreshToken = jwtUtil.createRefreshToken(member.get());
+
+        TokenPairDTO tokenPairDTO = new TokenPairDTO();
+        tokenPairDTO.setAccessToken(accessToken);
+        tokenPairDTO.setRefreshToken(refreshToken);
+
+        return Optional.of(tokenPairDTO);
+    }
+
+    public Optional<TokenPairDTO> refresh(String refreshToken) {
+        if (!jwtUtil.validateToken(refreshToken))
+            return Optional.empty();
+
+        String userId = jwtUtil.parseUsername(refreshToken);
+        Optional<Member> member = memberRepository.findById(userId);
+        if (member.isEmpty())
+            return Optional.empty();
+
+        String newAccessToken = jwtUtil.createAccessToken(member.get());
+        String newRefreshToken = jwtUtil.createRefreshToken(member.get());
+
+        TokenPairDTO tokenPairDTO = new TokenPairDTO();
+        tokenPairDTO.setAccessToken(newAccessToken);
+        tokenPairDTO.setRefreshToken(newRefreshToken);
+
+        return Optional.of(tokenPairDTO);
+    }
+
+    public boolean emailExists(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    public void logout(String accessToken, String refreshToken) {
+        String accessTokenJti = jwtUtil.parseJti(accessToken);
+        String refreshTokenJti = jwtUtil.parseJti(refreshToken);
+
+        int accessExp = jwtUtil.parseExp(accessToken) - jwtUtil.parseIat(accessToken);
+        int refreshExp = jwtUtil.parseExp(refreshToken) - jwtUtil.parseIat(refreshToken);
+
+        redisRepository.save(accessTokenJti, "logged_out", accessExp, TimeUnit.SECONDS);
+        redisRepository.save(refreshTokenJti, "logged_out", refreshExp, TimeUnit.SECONDS);
     }
 }
