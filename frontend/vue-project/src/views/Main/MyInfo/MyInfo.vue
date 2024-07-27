@@ -6,7 +6,14 @@
                 <div class="profile-image"></div>
                 <div class="profile-info">
                     <!-- 편집 버튼 -->
-                    <v-btn icon="mdi-pencil-outline" class="edit-btn" density="comfortable"></v-btn>
+                    <v-dialog v-model="isDialogOpen" max-width="500">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn" density="comfortable"></v-btn>
+                        </template>
+                        <template v-slot:default="{ isActive }">
+                            <ProfileEdit v-if="isActive" :closeDialog="closeDialog" />
+                        </template>
+                    </v-dialog>
                     <!-- user name 가져오게 -->
                     <div class="profile-name">하정수 님 반갑습니다!</div>
                     <!-- user가 전날까지 연속 연습 날짜를 가져오기 -->
@@ -38,22 +45,17 @@
         <div class="practice-online">
             <div class="practice-box">
                 <md-elevation></md-elevation>
-                <!-- 오른쪽 버튼을 클릭했을 때 이번달이 마지막이면 "가장 최신 달이에요!" 라는 표시 뜨게
-                     왼쪽 버튼을 클릭했을 때 이번달이 처음이면 "가장 오래된 달이에요!" 라는 표시 뜨게
-                     한줄에 7개씩 연습 기록이 보이게(맨처음 왼쪽부터 1일부터 시작)
-                        연습 기록은 클릭하면 연습 기록 상세 페이지로 이동
-                -->
                 <div class="practice-header">
-                    <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact"></v-btn> <!-- 이전 달로 이동하는 버튼 -->
-                    <div>{{ currentMonth }}월달 나의 연습 기록</div> <!-- O는 월을 나타내는 변수 -->
-                    <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact"></v-btn> <!-- 다음 달로 이동하는 버튼 -->
+                    <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact"></v-btn>
+                    <div>{{ currentMonth }}월달 나의 연습 기록</div>
+                    <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact"></v-btn>
                 </div>
                 <div class="practice-calendar">
-                    <!-- 연습 기록 버튼 -->
                     <template v-for="(day, index) in practiceDays" :key="index">
-                            <button class="honey-button">
-                                <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
-                            </button>
+                        <button class="honey-button">
+                            <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
+                            <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
+                        </button>
                     </template>
                 </div>
             </div>
@@ -66,24 +68,42 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import honeyFilledImg from '@/assets/images/채워진 벌꿀.png';
 import honeyEmptyImg from '@/assets/images/빈 벌꿀.png';
+import ProfileEdit from '@/components/MyInfo/ProfileEdit.vue';
 
+const router = useRouter();
+
+const isDialogOpen = ref(false);
 const currentMonth = ref(7);
 
 const practiceDays = ref([
-  false, true, false, true, true, false, false,
-  true, true, false, true, false, true, true,
-  false, false, true, true, false, true, false,
-  true, false, true, true, false, true, false,
-  true, true
+    false, true, false, true, true, false, false,
+    true, true, false, true, false, true, true,
+    false, false, true, true, false, true, false,
+    true, false, true, true, false, true, false,
+    true, true
 ]);
 
 const honeyFilled = honeyFilledImg;
 const honeyEmpty = honeyEmptyImg;
+
+const closeDialog = () => {
+    isDialogOpen.value = false;
+};
 </script>
 
 <style scoped>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .my-profile-box {
     background: #FFF9E0;
     position: relative;
@@ -93,6 +113,7 @@ const honeyEmpty = honeyEmptyImg;
     max-width: 2000px;
     width: 100%;
     margin-bottom: 20px;
+    animation: fadeIn 2s ease-in-out;
 }
 
 .profile-content {
@@ -129,6 +150,7 @@ const honeyEmpty = honeyEmptyImg;
     display: flex;
     justify-content: space-between;
     gap: 20px;
+    animation: fadeIn 2s ease-in-out;
 }
 
 .practice-box,

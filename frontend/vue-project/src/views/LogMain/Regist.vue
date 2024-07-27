@@ -23,7 +23,7 @@
                     </md-select-option>
                 </md-outlined-select>
                 <div class="birth-box">
-                    <md-outlined-text-field label="생년월일" type="date"
+                    <md-outlined-text-field label="생년월일" placeholder="YYYYMMDD ex) 19990101"
                         class="regist-input birth"></md-outlined-text-field>
                 </div>
             </div>

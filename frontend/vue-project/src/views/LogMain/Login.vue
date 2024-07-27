@@ -42,6 +42,7 @@ function googleLogin() {
 </script>
 
 <style scoped>
+
 .login-container {
     display: flex;
     justify-content: center;
