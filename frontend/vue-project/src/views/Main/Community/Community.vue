@@ -8,10 +8,9 @@
                 <Video class="video"/>
             </div>
             <div class="btn">
-                <v-btn @click="create" :width="100" :height="45" rounded="lg">생성</v-btn>
+                <Create  @exit="exit"/>
             </div>
         </div>
-        <Create v-if="createCheck" @exit="exit"/>
     </div>
 </template>
 <script lang="ts" setup>
@@ -22,10 +21,6 @@ import Bear from '@/components/Community/Bear.vue';
 import Create from '@/components/Community/CreateCommunity.vue';
 
 const createCheck = ref(false);
-
-const create = function() {
-    createCheck.value = true;
-}
 
 const exit = function() {
     createCheck.value = false;

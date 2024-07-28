@@ -11,7 +11,7 @@
                     <v-btn icon="mdi-music-note" v-if="!playCheck" @click="switchPlay" />
                     <v-btn icon="mdi-music-note" v-else @click="switchPlay" variant="tonal" />
                     <FriendList variant="tonal"/>
-                    <v-btn @click="exit">나가기</v-btn>
+                    <DialogsModal text="나가기" content="나가시겠습니까?" @join="exit" />
                 </div>
             </v-sheet>
         <div class="emote">
@@ -23,6 +23,7 @@
     import {onMounted, ref, defineProps, defineEmits} from 'vue';
     import {useRouter, useRoute} from 'vue-router';
     import FriendList from './FriendListTest.vue';
+    import DialogsModal from './DialogsModal.vue';
 
     const emits = defineEmits([
         'play'
@@ -85,7 +86,7 @@
     position: fixed;
     background-color: #FFF8D8;
     bottom: 2%;
-    left: 30%;
+    left: 35%;
     padding: 0;
 }
 .controller {

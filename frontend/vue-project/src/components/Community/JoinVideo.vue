@@ -37,14 +37,14 @@
 .surface2 {
     position: relative;
     height: 140px;
-    width: 140px;
+    width: 100%;
     margin: 10px;
 }
 .videos2 {
     display: flex;
     background-color: #FFF8D8;
     border-radius: 20px;
-    width: 960px;
+    width: 60%;
 }
 
 .menus {

@@ -37,7 +37,7 @@
     position: absolute;
     top: 10px;
     left: 0%;
-    width: 1500px;
-    height: 640px;
+    width: 100%;
+    height: 90%;
 }
 </style>

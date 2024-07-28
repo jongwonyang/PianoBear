@@ -8,7 +8,7 @@
                 <Video class="video"/>
             </div>
             <div class="btn">
-                <v-btn @click="join" :width="100" :height="45" rounded="lg">참가</v-btn>
+                <DialogsModal text="참가하기" content="참가하시겠습니까?" @join="join"/>
             </div>
         </div>
     </div>
@@ -18,14 +18,13 @@ import {ref} from 'vue';
 import {useRouter, useRoute} from 'vue-router';
 import Video from '@/components/Community/Video.vue';
 import Bear from '@/components/Community/Bear.vue';
+import DialogsModal from '@/components/Community/DialogsModal.vue';
 
 const router = useRouter();
 const route = useRoute();
 const createCheck = ref(false);
 
 const join = function() {
-    createCheck.value = true;
-    console.log(route);
     router.push({name:'communiting', params:{id: route.query.value as string}})
 }
 

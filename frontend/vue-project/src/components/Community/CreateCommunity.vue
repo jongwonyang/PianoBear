@@ -1,35 +1,44 @@
 <template>
-    <div class="back">
-    </div>
-    <div class="create-form">
-        <v-sheet class="surface" :elevation="5" rounded="lg">
-            <div class="create-input">
-                <p>방 만들기</p>
-                <md-outlined-text-field label="방 제목" v-model="roomSetting.title">
-                </md-outlined-text-field>
-                <md-outlined-text-field label="인원" value="6" disabled v-model="roomSetting.num">
-                </md-outlined-text-field>
-                <md-outlined-text-field label="초대 메시지" v-model="roomSetting.message">
-                </md-outlined-text-field>
-                <md-outlined-text-field label="설명" v-model="roomSetting.text">
-                </md-outlined-text-field>
-            </div>
-            <div class="btns">
-                <v-btn @click="router.push({name:'communiting', params:{id: join}})" :width="130" :height="45" rounded="lg">생성하기</v-btn>
-                <v-btn @click="emit('exit')" :width="130" :height="45" rounded="lg">나가기</v-btn>
-            </div>
-        </v-sheet>
-    </div>
+    <v-dialog max-width="500">
+        <template v-slot:activator="{ props: activatorProps }">
+            <v-btn
+            v-bind="activatorProps"
+            text="생성하기"
+            ></v-btn>
+        </template>
+
+        <template v-slot:default="{ isActive }">
+            <v-card title="방 만들기" color="#FFF9E0">
+                <div class="create-input">
+                    <md-outlined-text-field label="방 제목" v-model="roomSetting.title">
+                    </md-outlined-text-field>
+                    <md-outlined-text-field label="인원" value="6" disabled v-model="roomSetting.num">
+                    </md-outlined-text-field>
+                    <md-outlined-text-field label="초대 메시지" v-model="roomSetting.message">
+                    </md-outlined-text-field>
+                    <md-outlined-text-field label="설명" v-model="roomSetting.text">
+                    </md-outlined-text-field>
+                </div>
+
+            <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <v-btn text="생성하기" @click="router.push({name:'communiting', params:{id: join}})"></v-btn>
+                <v-btn
+                text="나가기"
+                @click="isActive.value = false"
+                ></v-btn>
+            </v-card-actions>
+            </v-card>
+        </template>
+    </v-dialog>
 </template>
 <script lang="ts" setup>
 import {useRouter} from 'vue-router';
-import {ref, defineEmits} from 'vue';
+import {ref} from 'vue';
 
 const join = ref(1);
 const router = useRouter();
-const emit = defineEmits([
-    'exit'
-]);
 
 interface RoomSetting {
     title: string;
@@ -48,40 +57,19 @@ const roomSetting = ref<RoomSetting>({
 </script>
 
 <style scoped>
-.back {
-    position: fixed;
-    background-color: gray;
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    z-index:99;
-    opacity: 0.7;
-}
-
-.surface {
-    position: relative;
-    border-radius: 16px;
-    height: 700px;
-    width: 700px;
-    transition-duration: 250ms;
-    transition-timing-function: ease-in-out;
-    background-color: #FFF8D8;
-    margin: auto;
-    opacity: 1;
-
-    --md-elevation-level: 3;
-}
 
 .create-input * {
     width: 80%;
     margin: 20px;
+    background-color: white;
+    border-radius: 10px;
 }
 
 .create-input {
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: #F5E5D1;
     padding: 50px 0px;
     text-align: center;
 }
@@ -93,13 +81,6 @@ const roomSetting = ref<RoomSetting>({
     margin: auto;
 }
 
-.create-form{
-    position:fixed;
-    top: 20px;
-    left: 0px;
-    width: 100%;
-    z-index: 100;
-}
 
 
 </style>
