@@ -19,10 +19,8 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'BasicSheet',
-}
+<script setup>
+import { ref } from 'vue';
 </script>
 
 <style scoped>
@@ -36,12 +34,11 @@ height: 70vh; /* 전체 화면 높이 */
 
 .bookshelf {
 flex-direction: column;
-width: 800px; 
+width: 900px; 
 background-color: #D2B48C;
 padding: 35px;
-padding-left: 70px;
-padding-right: 70px;
-margin: 30px;
+margin-top: 30px;
+margin-bottom: 30px;
 }
 
 .shelf {
