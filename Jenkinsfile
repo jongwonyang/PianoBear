@@ -11,7 +11,6 @@ pipeline {
 
         stage('Build') {
             steps {
-                // 빌드 명령어 (예: Maven)
                 sh 'sh ./build.sh'
             }
         }
@@ -20,7 +19,7 @@ pipeline {
             steps {
                 script {
                     dir('backend/application') {
-                        sh 'sh ./build.sh'
+                        sh './gradlew sonar'
                     }
                     
                 }
