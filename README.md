@@ -1,1 +1,0 @@
-[![Quality Gate Status](https://sonarqube.sgr.cspark.kr/api/project_badges/measure?project=S11P12B103&metric=alert_status&token=sqb_7783c10be1bb9bd51a41fd108eace8ee89f62c20)](https://sonarqube.sgr.cspark.kr/dashboard?id=S11P12B103)
