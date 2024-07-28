@@ -1,7 +1,5 @@
 #!/bin/bash
 
-dirpath=`dirname $0`
+sh ./build.sh
 
-cd $dirpath/application
-
-./gradlew bootRun
+docker compose -p pianobear up
