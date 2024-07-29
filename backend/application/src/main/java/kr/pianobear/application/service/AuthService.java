@@ -126,10 +126,6 @@ public class AuthService {
         return true;
     }
 
-    public boolean userIdExists(String userId) {
-        return memberRepository.existsById(userId);
-    }
-
     public Optional<TokenPairDTO> login(String id, String password) {
         Optional<Member> member = memberRepository.findById(id);
 
@@ -165,10 +161,6 @@ public class AuthService {
         tokenPairDTO.setRefreshToken(newRefreshToken);
 
         return Optional.of(tokenPairDTO);
-    }
-
-    public boolean emailExists(String email) {
-        return memberRepository.existsByEmail(email);
     }
 
     public void logout(String accessToken, String refreshToken) {

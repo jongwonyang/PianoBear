@@ -3,6 +3,8 @@ package kr.pianobear.application.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.ExistsResponseDTO;
+import kr.pianobear.application.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,17 +16,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "User", description = "회원 정보 API")
 public class UserController {
 
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @GetMapping("/check-user-id")
     @Operation(summary = "아이디 중복 검사 (구현 완료)")
     public ResponseEntity<ExistsResponseDTO> checkUserId(@RequestParam String userId) {
-        boolean exists = authService.userIdExists(userId);
+        boolean exists = userService.userIdExists(userId);
         return ResponseEntity.ok(new ExistsResponseDTO(exists));
     }
 
     @GetMapping("/check-email")
     @Operation(summary = "이메일 중복 검사 (구현 완료)")
     public ResponseEntity<ExistsResponseDTO> checkEmail(@RequestParam String email) {
-        boolean exists = authService.emailExists(email);
+        boolean exists = userService.emailExists(email);
         return ResponseEntity.ok(new ExistsResponseDTO(exists));
     }
 }
