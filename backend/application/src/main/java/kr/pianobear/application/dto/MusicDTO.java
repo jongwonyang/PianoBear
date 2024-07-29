@@ -48,7 +48,7 @@ public class MusicDTO {
 
     @NotBlank
     @Schema(description = "악보 업로드 날짜")
-    private String uploadDate; // Ensure this is String
+    private String uploadDate;
 
     @NotBlank
     @Schema(description = "악보 작곡가")
