@@ -6,12 +6,13 @@
                 <div class="profile-image"></div>
                 <div class="profile-info">
                     <!-- 편집 버튼 -->
-                    <v-dialog v-model="isDialogOpen" max-width="500">
+                    <v-dialog v-model="profileDialogOpen" max-width="500">
                         <template v-slot:activator="{ props: activatorProps }">
-                            <v-btn v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn" density="comfortable"></v-btn>
+                            <v-btn v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn"
+                                density="comfortable"></v-btn>
                         </template>
                         <template v-slot:default="{ isActive }">
-                            <ProfileEdit v-if="isActive" :closeDialog="closeDialog" />
+                            <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" />
                         </template>
                     </v-dialog>
                     <!-- user name 가져오게 -->
@@ -47,20 +48,66 @@
                 <md-elevation></md-elevation>
                 <div class="practice-header">
                     <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact"></v-btn>
-                    <div>{{ currentMonth }}월달 나의 연습 기록</div>
+                    <div>{{ currentMonth }}월 나의 연습 기록</div>
                     <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact"></v-btn>
                 </div>
                 <div class="practice-calendar">
                     <template v-for="(day, index) in practiceDays" :key="index">
-                        <button class="honey-button">
-                            <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
-                            <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
-                        </button>
+                        <v-dialog v-model="dialogState[index]" max-width="500">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <button class="honey-button" v-bind="activatorProps">
+                                    <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
+                                    <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
+                                </button>
+                            </template>
+                            <template v-slot:default="{ isActive }">
+                                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" @close="closeDialog(index)" />
+                            </template>
+                        </v-dialog>
                     </template>
                 </div>
+                <v-divider style="margin-bottom: 15px;"></v-divider>
+                <div class="practice-day">연속 연습일수 나오게</div>
             </div>
             <div class="online-friends-box">
                 <md-elevation></md-elevation>
+                <!-- 온라인 친구 최대 3명 나타내기
+                 v-for 사용해서 현재 로그인 된 친구 3명 나타내기(가장 최근 대화한 순으로) -->
+                <div class="online-friend-title">현재 온라인 친구들</div>
+                <div class="online-friend">
+                    <div class="friend-box">
+                        <div class="friend-image"></div>
+                        <div class="friend-name">친구 이름</div>
+                        <div class="friend-chat">
+                            <v-icon aria-hidden="false">
+                                mdi-chat
+                            </v-icon>
+                            <v-tooltip activator="parent" location="bottom">채팅하기</v-tooltip>
+
+                        </div>
+                    </div>
+                    <v-divider></v-divider>
+                    <div class="friend-box">
+                        <div class="friend-image"></div>
+                        <div class="friend-name">친구 이름</div>
+                        <div class="friend-chat">
+                            <v-icon aria-hidden="false">
+                                mdi-chat 
+                            </v-icon>
+                        </div>
+                    </div>
+                    <v-divider></v-divider>
+
+                    <div class="friend-box">
+                        <div class="friend-image"></div>
+                        <div class="friend-name">친구 이름</div>
+                        <div class="friend-chat">
+                            <v-icon aria-hidden="false">
+                                mdi-chat
+                            </v-icon>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -72,10 +119,11 @@ import { useRouter } from 'vue-router';
 import honeyFilledImg from '@/assets/images/채워진 벌꿀.png';
 import honeyEmptyImg from '@/assets/images/빈 벌꿀.png';
 import ProfileEdit from '@/components/MyInfo/ProfileEdit.vue';
+import DayPracticeDetail from '@/components/MyInfo/DayPracticeDetail.vue';
 
 const router = useRouter();
 
-const isDialogOpen = ref(false);
+const profileDialogOpen = ref(false);
 const currentMonth = ref(7);
 
 const practiceDays = ref([
@@ -86,11 +134,17 @@ const practiceDays = ref([
     true, true
 ]);
 
+const dialogState = ref(practiceDays.value.map(() => false));
+
 const honeyFilled = honeyFilledImg;
 const honeyEmpty = honeyEmptyImg;
 
-const closeDialog = () => {
-    isDialogOpen.value = false;
+const closeProfileDialog = () => {
+    profileDialogOpen.value = false;
+};
+
+const closeDialog = (index) => {
+    dialogState.value[index] = false;
 };
 </script>
 
@@ -99,6 +153,7 @@ const closeDialog = () => {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -192,8 +247,8 @@ const closeDialog = () => {
 }
 
 .honey-button img {
-    width: 28px;
-    height: 30px;
+    width: 32px;
+    height: 35px;
 }
 
 .profile-name {
@@ -229,5 +284,42 @@ const closeDialog = () => {
 .next-month-btn {
     color: #947650;
     background: #F5E5D1;
+}
+
+.friend-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.friend-image {
+    width: 70px;
+    height: 70px;
+    background: url(@/assets/images/정수_어렸을적.png);
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+}
+
+.friend-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: #947650;
+}
+
+.friend-chat {
+    color: #947650;
+    background: #F5E5D1;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.online-friend-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #947650;
 }
 </style>
