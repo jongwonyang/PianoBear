@@ -2,7 +2,6 @@ package kr.pianobear.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
@@ -12,7 +11,7 @@ import lombok.*;
 @ToString
 @Data
 @Schema(description = "음악 악보 DTO")
-public class Music {
+public class MusicDTO {
 
     @NotBlank
     @Schema(description = "악보 아이디")
@@ -50,4 +49,12 @@ public class Music {
     @NotBlank
     @Schema(description = "악보 업로드 날짜")
     private String uploadDate;
+
+    @NotBlank
+    @Schema(description = "악보 작곡가")
+    private String artist;
+
+    @NotBlank
+    @Schema(description = "악보 도전 최고 점수")
+    private int highestScore;
 }
