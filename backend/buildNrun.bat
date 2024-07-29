@@ -1,5 +1,5 @@
-#!/bin/bash
+@echo off
 
-sh ./build.sh
+call %~dp0//build.bat
 
 docker compose -p pianobear up

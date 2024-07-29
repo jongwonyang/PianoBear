@@ -10,9 +10,21 @@
 
 <button id="btn-verify">인증하기</button>
 
+<div id="result"></div>
+
 <div id="server-data" style="display:none;" th:attr="data-uuid=${uuid}"></div>
 
 <script type="text/javascript">
+    function handleSuccess() {
+        const result = document.getElementById("result");
+        result.innerText = "인증이 성공했습니다.";
+    }
+
+    function handleError(msg) {
+        const result = document.getElementById("result");
+        result.innerText = "인증이 실패했습니다: " + msg;
+    }
+
     window.onload = function() {
         const serverData = document.getElementById('server-data');
         const uuid = serverData.getAttribute('data-uuid');
@@ -28,9 +40,12 @@
                     'uuid': uuid
                 })
             })
-                .then(res => res.json())
-                .then(data => {
-                    console.log('Success: ', data);
+                .then(res => {
+                    if (res.ok) {
+                        handleSuccess();
+                    } else {
+                        handleError(res.status);
+                    }
                 })
                 .catch(err => {
                     console.error('Error: ', err);
