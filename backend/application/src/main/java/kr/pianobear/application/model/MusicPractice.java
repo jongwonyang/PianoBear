@@ -1,9 +1,10 @@
 package kr.pianobear.application.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,9 +15,8 @@ public class MusicPractice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private Date practiceDate;
+    private LocalDateTime practiceDate;
     private int practiceCount;
     private int musicId;
     private String userId;
-
 }

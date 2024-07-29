@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 @Data
 @Schema(description = "연주 연습 DTO")
-public class MusicPractice {
+public class MusicPracticeDTO {
 
     @NotBlank
     @Schema(description = "연습 아이디")
@@ -23,7 +23,7 @@ public class MusicPractice {
 
     @NotBlank
     @Schema(description = "날짜별 연습량")
-    private int practiceCount;
+    private int practiceCount; //겹치는 날짜는 하나씩 증가하게 하기
 
     @NotBlank
     @Schema(description = "악보 아이디")
