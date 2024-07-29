@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -56,10 +57,9 @@ public class FileDataService {
         File tempFile = File.createTempFile("temp-", imageFile.getOriginalFilename());
         imageFile.transferTo(tempFile);
 
-        File resizedImage = new File(path);
         Thumbnails.of(tempFile)
                 .size(width, height)
-                .toFile(resizedImage);
+                .toOutputStream(new FileOutputStream(path));
 
         tempFile.delete();
 

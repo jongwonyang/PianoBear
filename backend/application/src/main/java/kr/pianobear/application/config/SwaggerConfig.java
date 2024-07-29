@@ -55,4 +55,20 @@ public class SwaggerConfig {
                 .pathsToMatch("/api/v1/music/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi userGroup() {
+        return GroupedOpenApi.builder()
+                .group("User")
+                .pathsToMatch("/api/v1/users/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi fileGroup() {
+        return GroupedOpenApi.builder()
+                .group("File")
+                .pathsToMatch("/api/v1/files/**")
+                .build();
+    }
 }

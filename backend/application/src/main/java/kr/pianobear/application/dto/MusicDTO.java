@@ -12,7 +12,7 @@ import lombok.*;
 @ToString
 @Data
 @Schema(description = "음악 악보 DTO")
-public class Music {
+public class MusicDTO {
 
     @NotBlank
     @Schema(description = "악보 아이디")

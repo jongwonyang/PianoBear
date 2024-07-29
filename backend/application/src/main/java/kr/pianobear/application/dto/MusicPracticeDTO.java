@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 @Data
 @Schema(description = "연주 연습 DTO")
-public class MusicPractice {
+public class MusicPracticeDTO {
 
     @NotBlank
     @Schema(description = "연습 아이디")
