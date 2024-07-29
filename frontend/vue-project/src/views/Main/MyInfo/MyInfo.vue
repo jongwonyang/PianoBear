@@ -53,7 +53,7 @@
                 </div>
                 <div class="practice-calendar">
                     <template v-for="(day, index) in practiceDays" :key="index">
-                        <v-dialog v-model="dialogState[index]" max-width="500">
+                        <v-dialog v-model="dialogState[index]" width="70%">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <button class="honey-button" v-bind="activatorProps">
                                     <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
@@ -67,7 +67,7 @@
                     </template>
                 </div>
                 <v-divider style="margin-bottom: 15px;"></v-divider>
-                <div class="practice-day">연속 연습일수 나오게</div>
+                <div class="practice-day">연습일수 나오게</div>
             </div>
             <div class="online-friends-box">
                 <md-elevation></md-elevation>
@@ -322,4 +322,5 @@ const closeDialog = (index) => {
     font-weight: 500;
     color: #947650;
 }
+
 </style>

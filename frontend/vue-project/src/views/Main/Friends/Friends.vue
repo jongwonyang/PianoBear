@@ -1,6 +1,19 @@
 <template>
-    friends
+    <div>
+        friend
+    </div>
 </template>
-<script setup>
 
+<script>
+export default {
+    setup () {
+        
+
+        return {}
+    }
+}
 </script>
+
+<style scoped>
+
+</style>
