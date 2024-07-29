@@ -1,6 +1,10 @@
 <template>
     <div :class="props.videos">
         <v-sheet :class="surface"  v-for="i in num" :key="i" :elevation="3" rounded="lg">
+            <Bear v-if="i === 'a1' && props.bearCheck" class="bear"/>
+            <div class="video">
+                Video
+            </div>
             <div class="menus">
                 <Menu :next="i" />
             </div>
@@ -8,13 +12,15 @@
     </div>
 </template>
 <script lang="ts" setup>
+    import Bear from '@/components/Community/Bear.vue';
     import {ref, defineProps} from 'vue';
     import Menu from './Menu.vue';
     
     const num = ref(['a1', 'a2', 'a3', 'a4', 'a5', 'a6']);
     const props = defineProps({
         videos: String,
-        surface: String
+        surface: String,
+        bearCheck: String
     })
 
 </script>
@@ -52,5 +58,22 @@
     justify-content: right;
     padding: 2%;
     opacity: 0.7;
+    z-index: 100;
+}
+.bear {
+    position:absolute;
+    width: 205px;
+    height: 205px;
+    z-index: 0;
+    top: -30px;
+    left: -36px;
+}
+.video {
+    position: absolute;
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border: 1px solid black;
 }
 </style>

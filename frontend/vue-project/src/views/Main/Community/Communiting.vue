@@ -5,7 +5,7 @@
             <Chat v-show="chatOn" chat="chat1"/>
         </div>
         <div class="screen" v-else>
-            <JoinVideo videos="videos2" surface="surface2"/>
+            <JoinVideo videos="videos2" surface="surface2" bear-check="true"/>
             <Test />
             <Chat v-show="chatOn" chat="chat2"/>
         </div>
@@ -35,7 +35,7 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 10px;
+    top: 25px;
     left: 0%;
     width: 100%;
     height: 90%;

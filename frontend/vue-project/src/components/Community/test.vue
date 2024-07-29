@@ -1,14 +1,16 @@
 <template>
     <div class="test">
         <h2>피아노</h2>
+        <Piano />
     </div>
 </template>
 <script lang="ts" setup>
+    import Piano from '@/components/PianoSheet/Piano.vue';
 
 </script>
 <style scoped>
 .test {
-    width: 900px;
+    width: 910px;
     height: 470px;
     border-radius: 20px;
     background-color: aqua;
