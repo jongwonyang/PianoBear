@@ -5,13 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import kr.pianobear.application.dto.*;
 import kr.pianobear.application.service.AuthService;
-import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -71,20 +69,6 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/check-user-id")
-    @Operation(summary = "아이디 중복 검사 (구현 완료)")
-    public ResponseEntity<ExistsResponseDTO> checkUserId(@RequestParam String userId) {
-        boolean exists = authService.userIdExists(userId);
-        return ResponseEntity.ok(new ExistsResponseDTO(exists));
-    }
-
-    @GetMapping("/check-email")
-    @Operation(summary = "이메일 중복 검사 (구현 완료)")
-    public ResponseEntity<ExistsResponseDTO> checkEmail(@RequestParam String email) {
-        boolean exists = authService.emailExists(email);
-        return ResponseEntity.ok(new ExistsResponseDTO(exists));
-    }
-
     @PostMapping("/login")
     @Operation(summary = "로그인 (구현 완료)")
     public ResponseEntity<TokenPairDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
@@ -118,13 +102,16 @@ public class AuthController {
     }
 
     @PostMapping("/password-reset")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @Operation(summary = "비밀번호 초기화")
+    @Operation(summary = "비밀번호 초기화 (구현 완료)")
     public ResponseEntity<Void> passwordReset(@RequestBody PasswordResetRequestDTO request) {
-        String userId = SecurityUtil.getCurrentUserId();
-
-//        authService.resetPassword();
-
-        return ResponseEntity.ok().build();
+        try {
+            boolean result = authService.resetPassword(request.getId(), request.getName(), request.getEmail());
+            if (result)
+                return ResponseEntity.ok().build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
