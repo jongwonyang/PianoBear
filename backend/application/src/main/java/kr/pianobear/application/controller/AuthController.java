@@ -69,20 +69,6 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/check-user-id")
-    @Operation(summary = "아이디 중복 검사 (구현 완료)")
-    public ResponseEntity<ExistsResponseDTO> checkUserId(@RequestParam String userId) {
-        boolean exists = authService.userIdExists(userId);
-        return ResponseEntity.ok(new ExistsResponseDTO(exists));
-    }
-
-    @GetMapping("/check-email")
-    @Operation(summary = "이메일 중복 검사 (구현 완료)")
-    public ResponseEntity<ExistsResponseDTO> checkEmail(@RequestParam String email) {
-        boolean exists = authService.emailExists(email);
-        return ResponseEntity.ok(new ExistsResponseDTO(exists));
-    }
-
     @PostMapping("/login")
     @Operation(summary = "로그인 (구현 완료)")
     public ResponseEntity<TokenPairDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
@@ -113,5 +99,19 @@ public class AuthController {
         authService.logout(accessToken, refreshToken);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/password-reset")
+    @Operation(summary = "비밀번호 초기화 (구현 완료)")
+    public ResponseEntity<Void> passwordReset(@RequestBody PasswordResetRequestDTO request) {
+        try {
+            boolean result = authService.resetPassword(request.getId(), request.getName(), request.getEmail());
+            if (result)
+                return ResponseEntity.ok().build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
