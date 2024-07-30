@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script {
                     dir('backend') {
-                        sh 'docker compose -p pianobear up -d'
+                        sh 'docker compose -p pianobear up -d --build'
                     }
                 }
             }
