@@ -98,4 +98,8 @@ public class FileDataService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileData.getOriginalName() + "\"")
                 .body(resource);
     }
+
+    public static String getDownloadPath(Long fileId) {
+        return "/api/v1/files/" + fileId;
+    }
 }

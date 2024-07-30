@@ -3,8 +3,10 @@ package kr.pianobear.application.service;
 import kr.pianobear.application.dto.MusicPracticeDTO;
 import kr.pianobear.application.model.Music;
 import kr.pianobear.application.model.MusicPractice;
+import kr.pianobear.application.model.UserStreak;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
+import kr.pianobear.application.repository.UserStreakRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +22,13 @@ public class MusicPracticeService {
 
     private final MusicPracticeRepository musicPracticeRepository;
     private final MusicRepository musicRepository;
+    private final UserStreakRepository userStreakRepository;
 
     @Autowired
-    public MusicPracticeService(MusicPracticeRepository musicPracticeRepository, MusicRepository musicRepository) {
+    public MusicPracticeService(MusicPracticeRepository musicPracticeRepository, MusicRepository musicRepository, UserStreakRepository userStreakRepository) {
         this.musicPracticeRepository = musicPracticeRepository;
         this.musicRepository = musicRepository;
+        this.userStreakRepository = userStreakRepository;
     }
 
     @Transactional
@@ -55,7 +59,33 @@ public class MusicPracticeService {
         }
 
         MusicPractice savedPractice = musicPracticeRepository.save(musicPractice);
+
+        updateStreak(savedPractice);
+
         return mapToDTO(savedPractice);
+    }
+
+    private void updateStreak(MusicPractice practice) {
+        UserStreak streak = userStreakRepository.findById(practice.getUserId())
+                .orElse(new UserStreak());
+
+        LocalDate practiceDate = practice.getPracticeDate().toLocalDate();
+        if (streak.getLastPracticedDate() != null && practiceDate.minusDays(1).equals(streak.getLastPracticedDate())) {
+            streak.setCurrentStreak(streak.getCurrentStreak() + 1);
+        } else {
+            streak.setCurrentStreak(1);
+        }
+
+        if (streak.getCurrentStreak() > streak.getMaxStreak()) {
+            streak.setMaxStreak(streak.getCurrentStreak());
+        }
+
+        streak.setLastPracticedDate(practiceDate);
+        userStreakRepository.save(streak);
+    }
+
+    public Optional<UserStreak> getUserStreak(String userId) {
+        return userStreakRepository.findById(userId);
     }
 
     public List<MusicPracticeDTO> getPracticeDataByUserAndMusic(int musicId, String userId) {
