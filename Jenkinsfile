@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // 소스 코드 체크아웃
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: '12f362a0-6064-4020-b1f1-cacfdb203aa5', url: 'https://lab.ssafy.com/s11-webmobile1-sub2/S11P12B103']])
+                checkout scmGit(branches: [[name: '*/api-test']], extensions: [], userRemoteConfigs: [[credentialsId: '12f362a0-6064-4020-b1f1-cacfdb203aa5', url: 'https://lab.ssafy.com/s11-webmobile1-sub2/S11P12B103']])
             }
         }
 
