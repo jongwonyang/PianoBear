@@ -1,75 +1,131 @@
 <template>
     <div class="page">
-        <div class="bookshelf">
-            <div class="shelf">
-                <router-link :to="`/main/piano-sheet/${1}`"><div class="book">사용자악보1</div></router-link>
-                <div class="book">사용자악보1</div>
-                <div class="book">사용자악보1</div>
+        <v-card elevation="5">
+            <div>
+                <div class="bookshelf1">
+                    <div class="shelf">
+                        <router-link v-for="(book, index) in books1" :key="index" :to="`/main/piano-sheet/${index + 1}`" class="router">
+                            <div class="book">사용자악보표지{{ index + 1 }}</div>
+                        </router-link>
+                    </div>
+                </div>
+                <div class="support1">
+                    <div class="support">
+                        <div v-for="(book, index) in books1" :key="index" class="title">악보제목</div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="bookshelf">
-            <div class="shelf">
-                <div class="book">사용자악보1</div>
-                <div class="book">사용자악보1</div>
-                <div class="book">사용자악보1</div>
+        </v-card>
+        <div class="my-5"></div>
+        <v-card elevation="5">
+            <div>
+                <div class="bookshelf2">
+                    <div class="shelf">
+                        <router-link v-for="(book, index) in books2" :key="index" :to="`/main/piano-sheet/${index + 6}`" class="router">
+                            <div class="book">사용자악보표지{{ index + 6 }}</div>
+                        </router-link>
+                    </div>
+                </div>
+                <div class="support2">
+                    <div class="support">
+                        <div v-for="(book, index) in books2" :key="index" class="title">악보제목</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <router-link to="/main/piano-sheet/upload">
-        <v-btn variant="outlined">악보 업로드</v-btn>
-    </router-link>
-
-    <v-btn variant="outlined">
-        <v-icon prepend>book-plus-outline</v-icon>
-        악보 업로드
-    </v-btn>
-    <v-icon icon="home" />
-    여기임
-
-    
+        </v-card>
+    </div>   
 </template>
 
-<script>
-export default {
-    name: 'UserSheet',
-}
+<script setup>
+import { ref } from 'vue';
+
+const books1 = ref([1, 2, 3, 4]);
+// const books2 = ref([6, 7, 8, 9, 10]);
 </script>
 
 <style scoped>
 .page {
-display: flex;
-flex-direction: column;
-justify-content: center; /* 수평 중앙 배치 */
-align-items: center; /* 수직 중앙 배치 */
-height: 70vh; /* 전체 화면 높이 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 수직 중앙 배치 */
+    height: 70vh; /* 전체 화면 높이 */
 }
 
-.bookshelf {
-flex-direction: column;
-width: 800px; 
-background-color: #D2B48C;
-padding: 35px;
-padding-left: 70px;
-padding-right: 70px;
-margin: 30px;
+.bookshelf1 {
+    flex-direction: column;
+    width: 900px; 
+    height: 195px;
+    background-color: #D2B48C;
+    padding: 35px;
+    padding-bottom: 0px;
+}
+
+.bookshelf2 {
+    flex-direction: column;
+    width: 900px; 
+    height: 195px;
+    background-color: #E8C8A0;
+    padding: 35px;
+    padding-bottom: 0px;
 }
 
 .shelf {
-display: flex;
-justify-content: space-between;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.support{
+    display: flex;
+    justify-content: flex-start;
 }
 
 .book {
-width: 130px; 
-height: 160px; 
-background-color: #e1e1e1;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: all 0.3s linear; /* 악보 천천히 커지게 하는 효과 */
+    width: 126px; 
+    height: 160px; 
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s linear; /* 악보 천천히 커지게 하는 효과 */
+    margin-left: 20px;
+    margin-right: 20px; /* 악보들 사이의 고정된 간격 */
+}
+
+.title{
+    width: 126px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .book:hover {
-    transform: scale(1.2); /* 악보 키우는 효과 */
+    transform: scale(1.1); /* 악보 키우는 효과 */
+}
+
+.support1{
+    background-color: #E8C8A0;
+    padding: 3px;
+    width: 900px;
+    height: 30px;
+    flex-direction: column;
+    padding-left: 35px;
+    padding-right: 35px;
+}
+
+.support2{
+    background-color: #D2B48C;
+    padding: 3px;
+    width: 900px;
+    height: 30px;
+    flex-direction: column;
+    padding-left: 35px;
+    padding-right: 35px;
+}
+
+.router{
+    text-decoration: none;
+    color: black;
 }
 </style>

@@ -1,5 +1,4 @@
 <template>
-    pianosheetView
     <RouterView />
 </template>
 <script setup>
