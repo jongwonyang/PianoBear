@@ -8,12 +8,12 @@ services:
     ports:
       - "7000:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: local
     depends_on:
       - postgres-server
       - redis-server
     volumes:
-      - pianobear-app-data:/app
+      - pianobear-app-data:/app/data
 
   redis-server:
     image: redis:latest

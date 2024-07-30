@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -44,6 +45,7 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic)
             throws IOException,
             MessagingException,
@@ -125,10 +127,6 @@ public class AuthService {
         return true;
     }
 
-    public boolean userIdExists(String userId) {
-        return memberRepository.existsById(userId);
-    }
-
     public Optional<TokenPairDTO> login(String id, String password) {
         Optional<Member> member = memberRepository.findById(id);
 
@@ -166,10 +164,6 @@ public class AuthService {
         return Optional.of(tokenPairDTO);
     }
 
-    public boolean emailExists(String email) {
-        return memberRepository.existsByEmail(email);
-    }
-
     public void logout(String accessToken, String refreshToken) {
         String accessTokenJti = jwtUtil.parseJti(accessToken);
         String refreshTokenJti = jwtUtil.parseJti(refreshToken);
@@ -179,5 +173,35 @@ public class AuthService {
 
         redisRepository.save(accessTokenJti, "logged_out", accessExp, TimeUnit.SECONDS);
         redisRepository.save(refreshTokenJti, "logged_out", refreshExp, TimeUnit.SECONDS);
+    }
+
+    @Transactional
+    public boolean resetPassword(String id, String name, String email) throws MessagingException {
+        Optional<Member> member = memberRepository.findById(id);
+
+        if (member.isEmpty())
+            return false;
+
+        if (!member.get().getName().equals(name))
+            return false;
+
+        if (!member.get().getEmail().equals(email))
+            return false;
+
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        int length = 10;
+        Random random = new Random();
+        StringBuilder randomString = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            randomString.append(characters.charAt(index));
+        }
+        String newPassword = randomString.toString();
+
+        member.get().setPassword(passwordEncoder.encode(newPassword));
+
+        emailService.sendPasswordResetEmail(email, newPassword);
+
+        return true;
     }
 }

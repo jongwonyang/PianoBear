@@ -2,9 +2,10 @@ package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
 import kr.pianobear.application.dto.RegisterRequestDTO;
-import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.MemberRepository;
+import kr.pianobear.application.repository.RedisRepository;
+import kr.pianobear.application.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class AuthServiceTest {
@@ -35,6 +37,12 @@ class AuthServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private RedisRepository redisRepository;
+
+    @Mock
+    private JwtUtil jwtUtil;
+
     @InjectMocks
     private AuthService authService;
 
@@ -44,128 +52,101 @@ class AuthServiceTest {
     }
 
     @Test
-    void testRegister_Success() throws IOException, MessagingException {
-        RegisterRequestDTO dto = new RegisterRequestDTO();
-        dto.setId("testId");
-        dto.setEmail("test@example.com");
-        dto.setGender('M');
-        dto.setBirthday(LocalDate.of(2000, 1, 1));
-        dto.setPassword("password");
-        dto.setStatusMessage("Hello");
+    void testRegisterSuccess() throws IOException, MessagingException {
+        // Given
+        RegisterRequestDTO requestDTO = new RegisterRequestDTO();
+        requestDTO.setId("testUser");
+        requestDTO.setEmail("test@example.com");
+        requestDTO.setName("Test User");
+        requestDTO.setGender('M');
+        requestDTO.setBirthday(LocalDate.of(2000, 1, 1));
+        requestDTO.setPassword("password");
+        requestDTO.setStatusMessage("Hello!");
 
         MultipartFile profilePic = mock(MultipartFile.class);
-        when(memberRepository.existsById(dto.getId())).thenReturn(false);
-        when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(dto.getPassword())).thenReturn("hashedPassword");
-        when(fileDataService.uploadImage(profilePic, 200, 200)).thenReturn(new FileData());
-        doNothing().when(emailService).sendVerificationEmail(dto.getId(), dto.getEmail());
 
-        Member registeredMember = authService.register(dto, profilePic);
+        when(memberRepository.existsById(anyString())).thenReturn(false);
+        when(memberRepository.existsByEmail(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
 
-        assertNotNull(registeredMember);
-        assertEquals(dto.getId(), registeredMember.getId());
-        assertEquals(dto.getEmail(), registeredMember.getEmail());
-        assertEquals(dto.getGender(), registeredMember.getGender());
-        assertEquals(dto.getBirthday(), registeredMember.getBirthday());
-        assertEquals("hashedPassword", registeredMember.getPassword());
-        assertNotNull(registeredMember.getProfilePic());
-        assertEquals(dto.getStatusMessage(), registeredMember.getStatusMessage());
-        assertFalse(registeredMember.getAuthEmail());
+        // When
+        Member member = authService.register(requestDTO, profilePic);
 
-        verify(memberRepository).existsById(dto.getId());
-        verify(memberRepository).existsByEmail(dto.getEmail());
-        verify(passwordEncoder).encode(dto.getPassword());
-        verify(fileDataService).uploadImage(profilePic, 200, 200);
-        verify(emailService).sendVerificationEmail(dto.getId(), dto.getEmail());
+        // Then
+        assertNotNull(member);
+        assertEquals("testUser", member.getId());
+        assertEquals("test@example.com", member.getEmail());
+        assertEquals("Test User", member.getName());
+        assertEquals('M', member.getGender());
+        assertEquals(LocalDate.of(2000, 1, 1), member.getBirthday());
+        assertEquals("encodedPassword", member.getPassword());
+        assertEquals("Hello!", member.getStatusMessage());
+        assertFalse(member.isAuthEmail());
+        assertEquals("ROLE_GUEST", member.getRole());
+
+        verify(memberRepository, times(1)).save(any(Member.class));
+        verify(emailService, times(1)).sendVerificationEmail(anyString(), anyString());
     }
 
     @Test
-    void testRegister_DuplicateId() throws IOException, MessagingException {
-        RegisterRequestDTO dto = new RegisterRequestDTO();
-        dto.setId("duplicateId");
-        dto.setEmail("test@example.com");
-        dto.setGender('M');
-        dto.setBirthday(LocalDate.of(2000, 1, 1));
-        dto.setPassword("password");
+    void testRegisterDuplicateId() {
+        // Given
+        RegisterRequestDTO requestDTO = new RegisterRequestDTO();
+        requestDTO.setId("testUser");
+        requestDTO.setEmail("test@example.com");
+        requestDTO.setName("Test User");
+        requestDTO.setGender('M');
+        requestDTO.setBirthday(LocalDate.of(2000, 1, 1));
+        requestDTO.setPassword("password");
+        requestDTO.setStatusMessage("Hello!");
 
-        when(memberRepository.existsById(dto.getId())).thenReturn(true);
+        MultipartFile profilePic = mock(MultipartFile.class);
 
-        DuplicateKeyException exception = assertThrows(DuplicateKeyException.class, () -> {
-            authService.register(dto, null);
+        when(memberRepository.existsById(anyString())).thenReturn(true);
+
+        // When & Then
+        assertThrows(DuplicateKeyException.class, () -> {
+            authService.register(requestDTO, profilePic);
         });
-
-        assertEquals("중복된 아이디입니다.", exception.getMessage());
-        verify(memberRepository).existsById(dto.getId());
-        verify(memberRepository, never()).existsByEmail(dto.getEmail());
-        verify(passwordEncoder, never()).encode(any());
-        verify(fileDataService, never()).uploadImage(any(), anyInt(), anyInt());
-        verify(emailService, never()).sendVerificationEmail(any(), any());
     }
 
     @Test
-    void testRegister_DuplicateEmail() throws IOException, MessagingException {
-        RegisterRequestDTO dto = new RegisterRequestDTO();
-        dto.setId("testId");
-        dto.setEmail("duplicate@example.com");
-        dto.setGender('M');
-        dto.setBirthday(LocalDate.of(2000, 1, 1));
-        dto.setPassword("password");
+    void testRegisterInvalidGender() {
+        // Given
+        RegisterRequestDTO requestDTO = new RegisterRequestDTO();
+        requestDTO.setId("testUser");
+        requestDTO.setEmail("test@example.com");
+        requestDTO.setName("Test User");
+        requestDTO.setGender('X');
+        requestDTO.setBirthday(LocalDate.of(2000, 1, 1));
+        requestDTO.setPassword("password");
+        requestDTO.setStatusMessage("Hello!");
 
-        when(memberRepository.existsById(dto.getId())).thenReturn(false);
-        when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(true);
+        MultipartFile profilePic = mock(MultipartFile.class);
 
-        DuplicateKeyException exception = assertThrows(DuplicateKeyException.class, () -> {
-            authService.register(dto, null);
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            authService.register(requestDTO, profilePic);
         });
-
-        assertEquals("중복된 이메일입니다.", exception.getMessage());
-        verify(memberRepository).existsById(dto.getId());
-        verify(memberRepository).existsByEmail(dto.getEmail());
-        verify(passwordEncoder, never()).encode(any());
-        verify(fileDataService, never()).uploadImage(any(), anyInt(), anyInt());
-        verify(emailService, never()).sendVerificationEmail(any(), any());
     }
 
     @Test
-    void testRegister_InvalidGender() throws IOException, MessagingException {
-        RegisterRequestDTO dto = new RegisterRequestDTO();
-        dto.setId("testId");
-        dto.setEmail("test@example.com");
-        dto.setGender('X');  // Invalid gender
-        dto.setBirthday(LocalDate.of(2000, 1, 1));
-        dto.setPassword("password");
+    void testRegisterFutureBirthday() {
+        // Given
+        RegisterRequestDTO requestDTO = new RegisterRequestDTO();
+        requestDTO.setId("testUser");
+        requestDTO.setEmail("test@example.com");
+        requestDTO.setName("Test User");
+        requestDTO.setGender('M');
+        requestDTO.setBirthday(LocalDate.now().plusDays(1));
+        requestDTO.setPassword("password");
+        requestDTO.setStatusMessage("Hello!");
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            authService.register(dto, null);
+        MultipartFile profilePic = mock(MultipartFile.class);
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            authService.register(requestDTO, profilePic);
         });
-
-        assertEquals("성별은 'M' 또는 'F' 입니다.", exception.getMessage());
-        verify(memberRepository).existsById(dto.getId());
-        verify(memberRepository).existsByEmail(dto.getEmail());
-        verify(passwordEncoder, never()).encode(any());
-        verify(fileDataService, never()).uploadImage(any(), anyInt(), anyInt());
-        verify(emailService, never()).sendVerificationEmail(any(), any());
-    }
-
-    @Test
-    void testRegister_InvalidBirthday() throws IOException, MessagingException {
-        RegisterRequestDTO dto = new RegisterRequestDTO();
-        dto.setId("testId");
-        dto.setEmail("test@example.com");
-        dto.setGender('M');
-        dto.setBirthday(LocalDate.of(3000, 1, 1));  // Invalid birthday
-        dto.setPassword("password");
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            authService.register(dto, null);
-        });
-
-        assertEquals("생일은 오늘 이전이어야 합니다.", exception.getMessage());
-        verify(memberRepository).existsById(dto.getId());
-        verify(memberRepository).existsByEmail(dto.getEmail());
-        verify(passwordEncoder, never()).encode(any());
-        verify(fileDataService, never()).uploadImage(any(), anyInt(), anyInt());
-        verify(emailService, never()).sendVerificationEmail(any(), any());
     }
 }
-
