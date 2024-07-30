@@ -11,10 +11,8 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'DetailPractice'
-}
+<script setup>
+import { ref } from 'vue';
 </script>
 
 <style scoped>

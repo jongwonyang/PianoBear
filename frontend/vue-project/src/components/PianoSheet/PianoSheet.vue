@@ -15,10 +15,8 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'PianoSheet'
-}
+<script setup>
+import { ref } from 'vue';
 </script>
 
 <style scoped>
