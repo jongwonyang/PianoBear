@@ -1,54 +1,90 @@
 <template>
     <div>
-        <h1>Piano Sheet List</h1>
-        <v-card>
-            <v-tabs v-model="tab" align-tabs="end" color="#D2B48C">
-                <v-tab :value="1" @click="setCurrentTab('UserSheet')">
-                    <span><img src="@/assets/images/tab1.png" alt=""></span>
-                    <span>ㅇㅇ이의 악보</span>
-                </v-tab>
-                <v-tab :value="2" @click="setCurrentTab('BasicSheet')">기본 제공 악보</v-tab>
-            </v-tabs>
-
-            <v-tabs-window v-model="tab">
-                <v-tabs-window-item :value="1">
-                    <component :is="currentTab"></component>
-                </v-tabs-window-item>
-                <v-tabs-window-item :value="2">
-                    <component :is="currentTab"></component>
-                </v-tabs-window-item>
-            </v-tabs-window>
-        </v-card>
+      <div>
+        <div class="searchbar">
+          <SearchBar />
+        </div>
+        <div class="card">
+          <v-tabs v-model="tab" align-tabs="start" color="#D2B48C" hide-slider height="80px">
+            <v-tab :value="1" @click="setCurrentTab('UserSheet')" :class="{ active: currentTab === 'UserSheet' }">
+              <v-tooltip text="oo이 악보">
+                <template v-slot:activator="{ props }">
+                  <span><img src="@/assets/characters/토니/토니머리.png" alt="" v-bind="props"/></span>
+                </template>
+              </v-tooltip>
+            </v-tab>
+            <v-tab :value="2" @click="setCurrentTab('BasicSheet')" :class="{ active: currentTab === 'BasicSheet' }">
+              <v-tooltip text="기본 악보">
+                <template v-slot:activator="{ props }">
+                  <span><img src="@/assets/characters/피치/피치머리.png" alt="" v-bind="props"/></span>
+                </template>
+              </v-tooltip>
+            </v-tab>
+          </v-tabs>
+          <component :is="currentTabComponent" />
+        </div>
+      </div>
+      <div class="upload">
+        <router-link to="/main/piano-sheet/upload">
+          <v-btn variant="tonal" height="7vh" color="#81C784" size="x-large">
+            <!-- <v-icon prepend>mdi-book-plus-outline</v-icon> -->
+            악보 업로드
+          </v-btn>
+        </router-link>
+      </div>
     </div>
-</template>
-
-<script>
-import UserSheet from "@/components/PianoSheet/UserSheet.vue";
-import BasicSheet from "@/components/PianoSheet/BasicSheet.vue";
-
-export default {
-    name: 'PianoSheetList',
-    components: {
-        BasicSheet,
-        UserSheet
-    },
-    data() {
-        return {
-            currentTab: 'UserSheet',
-            tab: 1 // 기본으로 1번째 탭 선택
-        };
-    },
-    methods: {
-        setCurrentTab(tab) {
-            this.currentTab = tab;
-        }
-    }
-}
-</script>
-
-<style scoped>
-img {
-    width: 30px;
-    height: 40px;
-}
-</style>
+  </template>
+  
+  <script setup>
+  import { ref, computed } from 'vue';
+  import UserSheet from '@/components/PianoSheet/UserSheet.vue';
+  import BasicSheet from '@/components/PianoSheet/BasicSheet.vue';
+  import SearchBar from '@/components/PianoSheet/SearchBar.vue';
+  
+  const tab = ref(1); 
+  const currentTab = ref('UserSheet'); 
+  
+  const setCurrentTab = (tabName) => {
+    currentTab.value = tabName;
+  };
+  
+  const currentTabComponent = computed(() => {
+    return currentTab.value === 'UserSheet' ? UserSheet : BasicSheet;
+  });
+  </script>
+  
+  <style scoped>
+  img {
+    width: 80px;
+    height: 80px;
+    margin-top: 30px;
+  }
+  
+  .v-tab.active img {
+    margin-top: 5px;
+    width: 80px;
+    height: 80px;
+  }
+  
+  .a {
+    margin-top: 17px;
+  }
+  
+  .upload {
+    margin-top: 10px;
+    float: right;
+  }
+  
+  a {
+    text-decoration: none;
+    color: #D2B48C;
+  }
+  
+  .searchbar {
+    width: 300px;
+    margin-left: auto;
+    margin-top: 50px;
+    margin-bottom: -20px;
+  }
+  </style>
+  

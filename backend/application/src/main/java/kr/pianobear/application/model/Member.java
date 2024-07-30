@@ -16,14 +16,14 @@ public class Member {
 
     private String email;
     private String name;
-    private Character gender;
+    private char gender;
     private LocalDate birthday;
     private String password;
 
-    @OneToOne(targetEntity = FileData.class, optional = true)
+    @OneToOne(targetEntity = FileData.class)
     private FileData profilePic;
 
     private String statusMessage;
-    private Boolean authEmail;
+    private boolean authEmail;
     private String role;
 }
