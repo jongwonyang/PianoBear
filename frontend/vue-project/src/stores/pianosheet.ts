@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import router from '@/router';
 
-// const REST_MATCH_API = `http://localhost:8080/`;
+// const REST_MATCH_API = `http://apitest/pianobear.kr/`;
 
 interface PianoSheet {
   id: number;
