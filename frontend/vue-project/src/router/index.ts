@@ -26,6 +26,12 @@ import CommunityJoin from '@/views/Main/Community/CommunityJoin.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // test
+    {
+      path: "/",
+      name: "main2",
+      component: Main,
+    },
     {
       path: "/login",
       name: "logmain",
