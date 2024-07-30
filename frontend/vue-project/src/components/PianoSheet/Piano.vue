@@ -5,7 +5,7 @@
                 <div class="black"
                     v-for="(key, index) in blakcs.filter((key, index) =>
                     ((oct !== 0 && oct !== 8) || (oct === 0 && index > 4)))"
-                    @click="keyPush(oct, key)"
+                    @mousedown="keyPush(oct, key)"
                     :key="key"
                     :class="{hide : (key === 'N')}">
                 </div>
@@ -14,7 +14,7 @@
                 <div class="white"
                     v-for="(key, index) in whites.filter((key, index) =>
                     ((oct !== 0 && oct !== 8) || (oct === 0 && index > 4) || (oct === 8 && key === 'C')))"
-                    @click="keyPush(oct, key)"
+                    @mousedown="keyPush(oct, key)"
                     :key="key">
                 </div>
             </div>
@@ -43,6 +43,7 @@
     height: 95px;
     padding-top: 13px;
     border-radius: 5px;
+    box-shadow: inset -1px -1px 2px hsla(0, 0%, 100%, .2), inset 0 -5px 2px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
 }
 .octave {
     display: flex;
@@ -60,11 +61,13 @@
     z-index: 1;
 }
 .black {
+    background-color: black;
     width: 12px;
     height: 100%;
-    background-color: black;
+    cursor: pointer;
     border: 1px solid black;
-    border-radius: 2px;
+    border-radius: 0 0 3px 3px;
+    box-shadow: inset -1px -1px 2px hsla(0, 0%, 100%, .2), inset 0 -5px 2px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
 }
 .whites {
     display: flex;
@@ -73,11 +76,14 @@
     margin: auto;
 }
 .white {
-    background-color: white;
+    background: white;
     width: 17px;
     height: 100%;
     margin: auto;
+    cursor: pointer;
     border: 1px solid black;
+    border-radius: 0 0 2px 2px;
+    box-shadow: inset 0 0 0 hsla(0, 0%, 100%, .8), inset -2px -5px 3px #ccc, 0 0 3px rgba(0, 0, 0, .5);
 }
 .hide {
     visibility: hidden;
