@@ -6,16 +6,17 @@
             <div class="regist-text">회원가입</div>
             <div class="input-box">
                 <md-outlined-text-field label="아이디" type="text" placeholder="영문+숫자 4~20자" class="regist-input id"
-                    v-model="user.id" @blur="checkDuplicateId" :error="idError"
+                    :value="userId" @change="checkDuplicateId" :error="idError"
                     :error-text="idErrorMessage"></md-outlined-text-field>
                 <md-outlined-text-field label="이메일" type="email" placeholder="abc@example.com"
-                    class="regist-input email" v-model="user.email"></md-outlined-text-field>
-                <md-outlined-text-field label="이름" type="text" class="regist-input name"
-                    v-model="user.name"></md-outlined-text-field>
+                    class="regist-input email" :value="userEmail" @change="checkDuplicateEmail" :error="emailError"
+                    :error-text="emailErrorMessage"></md-outlined-text-field>
+                <md-outlined-text-field label="이름" type="text" class="regist-input name" 
+                :value="userName"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호" type="password" placeholder="영문+숫자 8~20자" class="regist-input pw"
-                    v-model="user.pw"></md-outlined-text-field>
+                    :value="userPassword"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호 확인" type="password" class="regist-input pwCheck"
-                    v-model="user.pwCheck"></md-outlined-text-field>
+                    :value="PasswordCheck"></md-outlined-text-field>
                 <md-outlined-select label="성별" class="select-box" v-model="user.gender">
                     <md-select-option value="남">
                         <div slot="headline">남</div>
@@ -34,25 +35,47 @@
     </div>
 </template>
 <script setup>
-import { useUserStore } from '@/stores/user';
+import { useUserStore, CheckUserId, CheckUserEmail } from '@/stores/user';
 import { ref } from 'vue';
 
 
 const { user, registUser } = useUserStore();
 const idError = ref(false);
 const idErrorMessage = ref('');
+const userId = ref('');
+const emailError = ref(false);
+const emailErrorMessage = ref('');
+const userEmail = ref('');
 
-const checkDuplicateId = () => {
-    // Sample function to simulate ID check
-    // Replace with actual API call to check ID
-    const existingIds = ['user1', 'testuser', 'sample123'];
-    if (existingIds.includes(user.id)) {
-        idError.value = true;
-        idErrorMessage.value = '중복된 아이디입니다.';
-    } else {
-        idError.value = false;
-        idErrorMessage.value = '';
-    }
+
+const checkDuplicateId = (e) => {
+    userId.value = e.target.value;
+    CheckUserId(userId.value).then((res) => {
+        if (res.data.exists === true) {
+            console.log('중복된 아이디');
+            idError.value = true;
+            idErrorMessage.value = '중복된 아이디입니다.';
+        } else {
+            console.log('사용 가능한 아이디');
+            idError.value = false;
+            idErrorMessage.value = '';
+        }
+    });
+};
+
+const checkDuplicateEmail = (e) => {
+    userEmail.value = e.target.value;
+    CheckUserEmail(userEmail.value).then((res) => {
+        if (res.data.exists === true) {
+            console.log('중복된 이메일');
+            emailError.value = true;
+            emailErrorMessage.value = '중복된 이메일입니다.';
+        } else {
+            console.log('사용 가능한 이메일');
+            emailError.value = false;
+            emailErrorMessage.value = '';
+        }
+    });
 };
 </script>
 

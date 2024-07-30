@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
 import { useRouter } from "vue-router";
-const REST_USER_API = "http://localhost:8080/users";
+const REST_USER_API = "https://apitest.pianobear.kr/api/v1/users/";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref({
@@ -26,9 +26,22 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+
   return {
     user,
     RegistUser,
   };
+
+
 });
+
+export const CheckUserId = function (userId: string) {
+  console.log(userId);
+  return axios.get(REST_USER_API + "check-user-id?userId=" + userId);
+};
+
+export const CheckUserEmail = function (email: string) {
+  return axios.get(REST_USER_API + "check-email?email=" + email);
+};
+
 
