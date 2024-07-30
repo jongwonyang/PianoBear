@@ -12,12 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+
+import static org.springframework.http.MediaType.parseMediaType;
 
 @Service
 public class FileDataService {
@@ -56,10 +58,9 @@ public class FileDataService {
         File tempFile = File.createTempFile("temp-", imageFile.getOriginalFilename());
         imageFile.transferTo(tempFile);
 
-        File resizedImage = new File(path);
         Thumbnails.of(tempFile)
                 .size(width, height)
-                .toFile(resizedImage);
+                .toOutputStream(new FileOutputStream(path));
 
         tempFile.delete();
 
@@ -90,15 +91,10 @@ public class FileDataService {
             throw new RuntimeException("Error while reading file: " + fileData.getPath(), e);
         }
 
-        String contentType;
-        try {
-            contentType = Files.probeContentType(filePath);
-        } catch (IOException e) {
-            contentType = "application/octet-stream";
-        }
+        String contentType = fileData.getType();
 
         return ResponseEntity.ok()
-                .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                .contentType(parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileData.getOriginalName() + "\"")
                 .body(resource);
     }

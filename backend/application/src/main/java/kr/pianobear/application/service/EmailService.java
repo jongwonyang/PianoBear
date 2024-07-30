@@ -1,5 +1,6 @@
 package kr.pianobear.application.service;
 
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import kr.pianobear.application.model.EmailAuth;
@@ -7,13 +8,13 @@ import kr.pianobear.application.repository.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +38,7 @@ public class EmailService {
         this.redisRepository = redisRepository;
     }
 
-    public void sendVerificationEmail(String memberId, String email) throws MessagingException {
+    public void sendVerificationEmail(String memberId, String email) throws MessagingException, UnsupportedEncodingException {
         EmailAuth emailAuth = new EmailAuth();
         emailAuth.setUuid(UUID.randomUUID().toString());
         emailAuth.setMemberId(memberId);
@@ -51,21 +52,38 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
-    private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException {
+    public void sendPasswordResetEmail(String email, String newPassword) throws MessagingException {
+        MimeMessage message = createPasswordResetMessage(email, newPassword);
+
+        javaMailSender.send(message);
+    }
+
+    private MimeMessage createVerificationMessage(EmailAuth emailAuth) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        helper.setTo(emailAuth.getEmailAddress());
-        helper.setSubject("피아노베어 이메일 인증");
-        helper.setFrom(SENDER_EMAIL);
+        message.setRecipients(Message.RecipientType.TO, emailAuth.getEmailAddress());
+        message.setSubject("피아노베어 이메일 인증");
+        message.setFrom(SENDER_EMAIL);
 
-        String verificationUrl = SERVICE_URL + "/api/v1/email-verification/" + emailAuth.getUuid();
-        helper.setText(setContext(verificationUrl), true);
+        String verificationUrl = SERVICE_URL + "/api/v1/auth/email-verification/" + emailAuth.getUuid();
+        message.setText(setVerificationContext(verificationUrl), "utf-8", "html");
 
         return message;
     }
 
-    private String setContext(String verificationUrl) {
+    private MimeMessage createPasswordResetMessage(String email, String newPassword) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        message.setRecipients(Message.RecipientType.TO, email);
+        message.setSubject("피아노배어 비밀번호 초기화");
+        message.setFrom(SENDER_EMAIL);
+
+        message.setText(setPasswordResetContext(newPassword), "utf-8", "html");
+
+        return message;
+    }
+
+    private String setVerificationContext(String verificationUrl) {
         Context context = new Context();
         TemplateEngine templateEngine = new TemplateEngine();
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
@@ -80,5 +98,22 @@ public class EmailService {
         templateEngine.setTemplateResolver(templateResolver);
 
         return templateEngine.process("auth-mail", context);
+    }
+
+    private String setPasswordResetContext(String newPassword) {
+        Context context = new Context();
+        TemplateEngine templateEngine = new TemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+
+        context.setVariable("newPassword", newPassword);
+
+        templateResolver.setPrefix("templates/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCacheable(false);
+
+        templateEngine.setTemplateResolver(templateResolver);
+
+        return templateEngine.process("password-reset-mail", context);
     }
 }
