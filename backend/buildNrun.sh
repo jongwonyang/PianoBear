@@ -2,7 +2,9 @@
 
 dirpath=`dirname $0`
 
-sh $dirpath/build.sh
+cd $dirpath
+
+sh ./build.sh
 
 #docker compose build
 
