@@ -1,5 +1,9 @@
 #!/bin/bash
 
-sh ./build.sh
+dirpath=`dirname $0`
 
-docker compose -p pianobear up
+sh $dirpath/build.sh
+
+#docker compose build
+
+docker compose -p pianobear up -d --build
