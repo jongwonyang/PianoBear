@@ -38,9 +38,14 @@ export const usePianoSheetStore = defineStore('pianosheet', () => {
         // 매개변수 필요할듯?
     };
 
+    const postPDFConvert = () => {
+        console.log("악보 변환!!")
+    };
+
     return {
         pianoSheetList,
         handleFavorite,
         handleDelete,
+        postPDFConvert,
     };
 });
