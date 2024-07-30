@@ -19,7 +19,7 @@ export const useUserStore = defineStore("user", () => {
 
   const RegistUser = async () => {
     try {
-      await axios.post(REST_USER_API, user.value);
+      await axios.post(REST_USER_API+"", user.value);
       router.push("/login");
     } catch (e) {
       console.error(e);
@@ -31,3 +31,4 @@ export const useUserStore = defineStore("user", () => {
     RegistUser,
   };
 });
+
