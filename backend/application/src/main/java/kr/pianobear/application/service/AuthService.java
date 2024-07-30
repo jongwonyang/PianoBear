@@ -45,6 +45,7 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public Member register(RegisterRequestDTO registerRequestDTO, MultipartFile profilePic)
             throws IOException,
             MessagingException,

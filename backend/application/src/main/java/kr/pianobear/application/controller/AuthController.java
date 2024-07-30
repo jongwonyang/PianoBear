@@ -35,7 +35,7 @@ public class AuthController {
     @Operation(summary = "회원 가입 (구현 완료)")
     public ResponseEntity<RegisterResponseDTO> register(
             @RequestPart(name = "registerRequestDTO") RegisterRequestDTO registerRequestDTO,
-            @RequestPart(name = "profilePic") MultipartFile profilePic) {
+            @RequestPart(name = "profilePic", required = false) MultipartFile profilePic) {
         RegisterResponseDTO response = new RegisterResponseDTO();
 
         try {

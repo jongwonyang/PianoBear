@@ -39,7 +39,7 @@ public class UserService {
                 member.get().getBirthday(),
                 "/api/v1/files/" + member.get().getProfilePic().getId(),
                 member.get().getStatusMessage(),
-                member.get().getAuthEmail(),
+                member.get().isAuthEmail(),
                 member.get().getRole()
         );
 
