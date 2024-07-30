@@ -8,10 +8,9 @@
                 <Video class="video"/>
             </div>
             <div class="btn">
-                <md-elevated-button @click="create">생성</md-elevated-button>
+                <Create  @exit="exit"/>
             </div>
         </div>
-        <Create v-if="createCheck" @exit="exit"/>
     </div>
 </template>
 <script lang="ts" setup>
@@ -23,10 +22,6 @@ import Create from '@/components/Community/CreateCommunity.vue';
 
 const createCheck = ref(false);
 
-const create = function() {
-    createCheck.value = true;
-}
-
 const exit = function() {
     createCheck.value = false;
 }
@@ -35,8 +30,8 @@ const exit = function() {
 <style scoped>
 .btn {
     position: absolute;
-    margin-left: 70%;
-    width: 200px;
+    margin-left: 100%;
+    width: 250px;
     height: 100px;
 }
 .bear-frame {

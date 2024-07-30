@@ -8,7 +8,7 @@
                 <Video class="video"/>
             </div>
             <div class="btn">
-                <md-elevated-button @click="join">참가</md-elevated-button>
+                <DialogsModal text="참가하기" content="참가하시겠습니까?" @join="join"/>
             </div>
         </div>
     </div>
@@ -18,14 +18,13 @@ import {ref} from 'vue';
 import {useRouter, useRoute} from 'vue-router';
 import Video from '@/components/Community/Video.vue';
 import Bear from '@/components/Community/Bear.vue';
+import DialogsModal from '@/components/Community/DialogsModal.vue';
 
 const router = useRouter();
 const route = useRoute();
 const createCheck = ref(false);
 
 const join = function() {
-    createCheck.value = true;
-    console.log(route);
     router.push({name:'communiting', params:{id: route.query.value as string}})
 }
 
@@ -34,7 +33,7 @@ const join = function() {
 <style scoped>
 .btn {
     position: absolute;
-    margin-left: 70%;
+    margin-left: 100%;
     width: 200px;
     height: 100px;
 }
