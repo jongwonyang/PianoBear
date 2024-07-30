@@ -1,24 +1,16 @@
 <template>
     <div>
         <video ref="videoEl" autoplay height="500px"></video>
-        <div class="surface">
-            <md-elevation></md-elevation>
+        <v-sheet class="surface" :elevation="5" rounded="lg">
             <div class="controller">
-                <md-filled-icon-button toggle @click="turnOnVideo">
-                    <md-icon v-if="videoCheck">videocam</md-icon>
-                    <md-icon v-else>videocam_off</md-icon>
-                </md-filled-icon-button>
-                <md-filled-icon-button toggle @click="turnOnAudio">
-                    <md-icon v-if="audioCheck">mic</md-icon>
-                    <md-icon v-else>mic_off</md-icon>
-                </md-filled-icon-button>
-                <md-filled-tonal-button toggle @click="playing">
-                    <md-icon v-if="play">play_arrow</md-icon>
-                    <md-icon v-else>pause</md-icon>
-                    테스트
-                </md-filled-tonal-button>
+                <v-btn icon="mdi-video-off" v-if="!videoCheck" @click="turnOnVideo" />
+                <v-btn icon="mdi-video"  v-else @click="turnOnVideo" variant="tonal" />
+                <v-btn icon="mdi-microphone-off" v-if="!audioCheck" @click="turnOnAudio" />
+                <v-btn icon="mdi-microphone" v-else  @click="turnOnAudio" variant="tonal" />
+                <v-btn prepend-icon="mdi-play" v-if="!play" @click="playing">테스트</v-btn>
+                <v-btn prepend-icon="mdi-pause" v-else @click="playing" variant="tonal">테스트</v-btn>
             </div>
-        </div>
+        </v-sheet>
     </div>
 
 </template>
@@ -37,18 +29,18 @@
 
 
     const turnOnVideo = function() {
-        if(!videoCheck.value) {
-            videoCheck.value = true;
-            navigator.mediaDevices.getUserMedia(constraints.value).then((stream) => {
-                console.log(stream)
-                videoEl.value.srcObject = stream;
-            });
-        }else {
-            videoCheck.value = false;
-            navigator.mediaDevices.getUserMedia(constraints.value).then((stream) => {
-            console.log(stream)
-            videoEl.value.srcObject = stream;
-        });
+        if (videoEl.value) {
+            if(!videoCheck.value) {
+                videoCheck.value = true;
+                navigator.mediaDevices.getUserMedia(constraints.value).then((stream) => {
+                    (videoEl.value as HTMLVideoElement).srcObject = stream;
+                });
+            }else {
+                videoCheck.value = false;
+                navigator.mediaDevices.getUserMedia(constraints.value).then((stream : MediaStream) => {
+                    (videoEl.value as HTMLVideoElement).srcObject = stream;
+                });
+            }
         }
     }
 
@@ -56,12 +48,12 @@
         if (!audioCheck.value) {
             audioCheck.value = true;
             navigator.mediaDevices.getUserMedia(constraints.value).then((stream) => {
-                videoEl.value.srcObject = stream;
+                (videoEl.value as HTMLVideoElement).srcObject = stream;
             });
         }else {
             audioCheck.value = false;
             navigator.mediaDevices.getUserMedia(constraints.value).then((stream) => {
-            videoEl.value.srcObject = stream;
+                (videoEl.value as HTMLVideoElement).srcObject = stream;
         });
         }
     }
@@ -75,7 +67,7 @@
     onMounted(() => {
         if (!videoEl.value) return;
         navigator.mediaDevices.getUserMedia(constraints.value).then((stream) => {
-            videoEl.value.srcObject = stream;
+            (videoEl.value as HTMLVideoElement).srcObject = stream;
         });
     });
     
@@ -95,15 +87,10 @@ video {
 }
 .surface {
     position: relative;
-    border-radius: 16px;
     height: 64px;
     width: 300px;
-    --md-elevation-level: 5;
     margin: auto;
     background-color: #FFF8D8;
-}
-md-filled-tonal-button {
-    align-content: center;
 }
 .controller {
     display : flex;

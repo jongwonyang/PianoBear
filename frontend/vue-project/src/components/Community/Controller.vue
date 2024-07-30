@@ -1,58 +1,33 @@
 <template>
     <div>
-        <div class="surface">
-            <md-elevation></md-elevation>
-            <div class="controller">
-
-                <md-filled-tonal-icon-button v-if="!videoCheck" @click="turnOnVideo">
-                    <md-icon>videocam_off</md-icon>
-                </md-filled-tonal-icon-button>
-                <md-filled-icon-button v-else @click="turnOnVideo">
-                    <md-icon>videocam</md-icon>
-                </md-filled-icon-button>
-
-                <md-filled-tonal-icon-button v-if="!audioCheck" @click="turnOnAudio">
-                    <md-icon>mic_off</md-icon>
-                </md-filled-tonal-icon-button>
-                <md-filled-icon-button v-else @click="turnOnAudio">
-                    <md-icon>mic</md-icon>
-                </md-filled-icon-button>
-
-                <md-filled-tonal-icon-button v-if="!emoteCheck" @click="switchEmote">
-                    <md-icon>sentiment_satisfied</md-icon>
-                </md-filled-tonal-icon-button>
-                <md-filled-icon-button v-else @click="switchEmote">
-                    <md-icon>sentiment_satisfied</md-icon>
-                </md-filled-icon-button>
-
-                <md-filled-tonal-icon-button v-if="!playCheck" @click="switchPlay">
-                    <md-icon>music_note</md-icon>
-                </md-filled-tonal-icon-button>
-                <md-filled-icon-button v-else @click="switchPlay">
-                    <md-icon>music_note</md-icon>
-                </md-filled-icon-button>
-
-
-                <md-filled-tonal-icon-button v-if="!inviteCheck" @click="switchInvite">
-                    <md-icon>group_add</md-icon>
-                </md-filled-tonal-icon-button>
-                <md-filled-icon-button v-else @click="switchInvite">
-                    <md-icon>group_add</md-icon>
-                </md-filled-icon-button>
-
-                <md-filled-tonal-button @click="exit">
-                    나가기
-                </md-filled-tonal-button>
-            </div>
-        </div>
+            <v-sheet class="surface" :elevation="10" :height="64" :width="600" rounded="lg">
+                <div class="controller">
+                    <v-btn icon="mdi-video-off" v-if="!videoCheck" @click="turnOnVideo" />
+                    <v-btn icon="mdi-video"  v-else @click="turnOnVideo" variant="tonal" />
+                    <v-btn icon="mdi-microphone-off" v-if="!audioCheck" @click="turnOnAudio" />
+                    <v-btn icon="mdi-microphone" v-else  @click="turnOnAudio" variant="tonal" />
+                    <v-btn icon="mdi-emoticon" v-if="!emoteCheck" @click="switchEmote" />
+                    <v-btn icon="mdi-emoticon" v-else @click="switchEmote" variant="tonal" />
+                    <v-btn icon="mdi-music-note" v-if="!playCheck" @click="switchPlay" />
+                    <v-btn icon="mdi-music-note" v-else @click="switchPlay" variant="tonal" />
+                    <FriendList variant="tonal"/>
+                    <DialogsModal text="나가기" content="나가시겠습니까?" @join="exit" />
+                </div>
+            </v-sheet>
         <div class="emote">
 
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-    import {onMounted, ref} from 'vue';
+    import {onMounted, ref, defineProps, defineEmits} from 'vue';
     import {useRouter, useRoute} from 'vue-router';
+    import FriendList from './FriendListTest.vue';
+    import DialogsModal from './DialogsModal.vue';
+
+    const emits = defineEmits([
+        'play'
+    ])
 
     const router = useRouter();
     const route = useRoute();
@@ -60,7 +35,6 @@
     const audioCheck = ref(false);
     const emoteCheck = ref(false);
     const playCheck = ref(false);
-    const inviteCheck = ref(false);
     const master = ref(false);
 
     const turnOnVideo = function() {
@@ -90,16 +64,10 @@
     const switchPlay = function() {
         if (!playCheck.value) {
             playCheck.value = true;
+            emits('play', false)
         }else {
             playCheck.value = false;
-        }
-    }
-
-    const switchInvite = function() {
-        if (!inviteCheck.value) {
-            inviteCheck.value = true;
-        }else {
-            inviteCheck.value = false;
+            emits('play', true)
         }
     }
 
@@ -116,19 +84,16 @@
 <style scoped>
 .surface {
     position: fixed;
-    border-radius: 16px;
-    height: 64px;
-    width: 600px;
-    --md-elevation-level: 5;
-    margin: auto;
     background-color: #FFF8D8;
     bottom: 2%;
-    left: 30%;
+    left: 35%;
+    padding: 0;
 }
 .controller {
     display : flex;
+    position: relative;
+    top: 7px;
     justify-content: space-evenly;
     align-items: center;
-    transform: translate(0, 30%);
 }
 </style>
