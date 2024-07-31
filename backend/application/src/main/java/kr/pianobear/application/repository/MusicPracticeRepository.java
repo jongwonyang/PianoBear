@@ -11,5 +11,4 @@ public interface MusicPracticeRepository extends JpaRepository<MusicPractice, In
     Optional<MusicPractice> findByMusicIdAndUserIdAndPracticeDate(int musicId, String userId, LocalDateTime practiceDate);
     List<MusicPractice> findByUserIdAndMusicId(String userId, int musicId);
     List<MusicPractice> findByMusicIdOrderByPracticeDateAsc(int musicId);
-    List<MusicPractice> findTop3ByUserIdOrderByPracticeCountDesc(String userId);
 }
