@@ -20,15 +20,15 @@
                     </md-outlined-text-field>
                 </div>
 
-            <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
 
-                <v-btn text="생성하기" @click="router.push({name:'communiting', params:{id: join}})"></v-btn>
-                <v-btn
-                text="나가기"
-                @click="isActive.value = false"
-                ></v-btn>
-            </v-card-actions>
+                    <v-btn text="생성하기" @click="router.push({name:'communiting', params:{id: join}})"></v-btn>
+                    <v-btn
+                    text="나가기"
+                    @click="isActive.value = false"
+                    ></v-btn>
+                </v-card-actions>
             </v-card>
         </template>
     </v-dialog>
