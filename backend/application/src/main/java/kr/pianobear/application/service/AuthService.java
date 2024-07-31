@@ -1,6 +1,7 @@
 package kr.pianobear.application.service;
 
 import jakarta.mail.MessagingException;
+import kr.pianobear.application.dto.LoginResultDTO;
 import kr.pianobear.application.dto.TokenPairDTO;
 import kr.pianobear.application.dto.RegisterRequestDTO;
 import kr.pianobear.application.model.EmailAuth;
@@ -127,13 +128,17 @@ public class AuthService {
         return true;
     }
 
-    public Optional<TokenPairDTO> login(String id, String password) {
+    public LoginResultDTO login(String id, String password) {
         Optional<Member> member = memberRepository.findById(id);
 
-        if (member.isEmpty()) return Optional.empty();
+        if (member.isEmpty())
+            return new LoginResultDTO(false, false, null);
 
         if (!passwordEncoder.matches(password, member.get().getPassword()))
-            return Optional.empty();
+            return new LoginResultDTO(false, false, null);
+
+        if (!member.get().getRole().equals("ROLE_MEMBER"))
+            return new LoginResultDTO(true, false, null);
 
         String accessToken = jwtUtil.createAccessToken(member.get());
         String refreshToken = jwtUtil.createRefreshToken(member.get());
@@ -142,7 +147,7 @@ public class AuthService {
         tokenPairDTO.setAccessToken(accessToken);
         tokenPairDTO.setRefreshToken(refreshToken);
 
-        return Optional.of(tokenPairDTO);
+        return new LoginResultDTO(true, true, tokenPairDTO);
     }
 
     public Optional<TokenPairDTO> refresh(String refreshToken) {

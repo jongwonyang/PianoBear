@@ -145,6 +145,12 @@ const closeProfileDialog = () => {
 const closeDialog = (index) => {
     dialogState.value[index] = false;
 };
+
+/////////////// 웹소켓 테스트 ////////////////////
+import { useWebSocketStore } from "@/stores/useWebSocketStore";
+const webSocketStore = useWebSocketStore();
+webSocketStore.connectWebSocket();
+/////////////////////////////////////////////////
 </script>
 
 <style scoped>

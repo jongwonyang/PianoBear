@@ -121,4 +121,8 @@ public class MusicService {
         summaryDTO.setFavorite(music.getFavorite());
         return summaryDTO;
     }
+
+    public List<Music> getTop3Practiced(String userId) {
+        return musicRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId);
+    }
 }
