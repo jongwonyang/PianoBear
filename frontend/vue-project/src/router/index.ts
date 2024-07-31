@@ -143,11 +143,16 @@ router.beforeEach((to, from, next) => {
 
   if (to.name === "login" && isAuthenticated) {
     next("/main");
+  } else if (
+    !isAuthenticated &&
+    to.name !== "login" &&
+    to.name !== "regist" &&
+    to.name !== "pwReset"
+  ) {
+    next({ name: "login" });
   } else {
     next();
   }
 });
-
-
 
 export default router;
