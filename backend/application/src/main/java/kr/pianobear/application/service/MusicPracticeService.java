@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -106,5 +107,13 @@ public class MusicPracticeService {
         dto.setMusicId(musicPractice.getMusicId());
         dto.setUserId(musicPractice.getUserId());
         return dto;
+    }
+
+    public List<MusicPractice> getMonthlyPracticeRecords(String userId, int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDate = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
+
+        return musicPracticeRepository.findAllByUserIdAndMonth(userId, startDate, endDate);
     }
 }

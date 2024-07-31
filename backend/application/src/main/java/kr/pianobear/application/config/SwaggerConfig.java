@@ -85,4 +85,12 @@ public class SwaggerConfig {
                 .pathsToMatch("/api/v1/files/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi dashboardGroup() {
+        return GroupedOpenApi.builder()
+                .group("Dashboard")
+                .pathsToMatch("/api/v1/dashboard/**")
+                .build();
+    }
 }

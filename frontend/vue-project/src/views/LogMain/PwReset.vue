@@ -2,6 +2,9 @@
     <div class="reset-container">
         <div class="reset-box">
             <md-elevation></md-elevation>
+            <div class="back-btn">
+                <v-icon @click="router.push({ name: 'login' })">mdi-arrow-left</v-icon>
+            </div>
             <div class="reset-text">비밀번호 재설정</div>
             <div class="input-box">
                 <md-outlined-text-field label="아이디" type="text" class="reset-input id"></md-outlined-text-field>
@@ -13,6 +16,10 @@
     </div>
 </template>
 <script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 </script>
 
@@ -59,5 +66,13 @@
     color: #FFF9E0;
     border-radius: 10px;
     font-size: 16px;
+}
+
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    font-size: 24px;
 }
 </style>
