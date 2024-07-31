@@ -5,7 +5,11 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.RedisRepository;
+import kr.pianobear.application.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -20,11 +24,13 @@ public class JwtUtil {
     private final long accessTokenExpTime;
     private final long refreshTokenExpTime;
     private final RedisRepository redisRepository;
+    private final CustomUserDetailsService userDetailsService;
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey,
                    @Value("${jwt.access-expiration-time}") long accessTokenExpTime,
                    @Value("${jwt.refresh-expiration-time}") long refreshTokenExpTime,
-                   RedisRepository redisRepository) {
+                   RedisRepository redisRepository, CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = accessTokenExpTime;
@@ -108,5 +114,11 @@ public class JwtUtil {
     public int parseExp(String token) {
         Claims claims = parseClaims(token);
         return claims.get("exp", Integer.class);
+    }
+
+    public Authentication getAuthentication(String token) {
+        String username = parseUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

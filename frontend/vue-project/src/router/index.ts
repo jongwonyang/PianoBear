@@ -119,7 +119,7 @@ const routes = [
   },
   {
     path: "/",
-    redirect: (to) => {
+    redirect: (to: any) => {
       const tokenStore = useTokenStore();
       const isAuthenticated = !!tokenStore.GetAccessToken();
 
