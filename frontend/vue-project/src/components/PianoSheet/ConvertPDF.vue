@@ -2,7 +2,7 @@
     <!--PDF로 MXL파일을 만드는 버튼-->
     <div>
         <!-- <Loading :visible="isLoading" /> -->
-        <button @click="convert">변환</button>
+        <button @click="convertFile">변환</button>
     </div>
 </template>
 
@@ -11,7 +11,7 @@ import { ref } from "vue";
 import Loading from "./Loading.vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
-const isLoading = ref<boolean>(false);
+// const isLoading = ref<boolean>(false);
 const store = usePianoSheetStore();
 
 // const fetchData = () => {
@@ -22,8 +22,11 @@ const store = usePianoSheetStore();
 //   }, 2000);
 // };
 
-const convert = () => {
-  store.postPDFConvert();
+const convertFile = async (): Promise<void> => {
+    const selectedFile = store.selectedFile;
+    if (selectedFile) {
+        store.convertFile(selectedFile);
+    }
 };
 </script>
 
