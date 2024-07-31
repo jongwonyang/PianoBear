@@ -29,8 +29,7 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
-    // TODO: h2-console 프로덕션에서 삭제!!!!!!!!!!!!!!!!!!!!
-    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**", "/h2-console/**"};
+    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**"};
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -53,11 +52,6 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().permitAll());
-
-        // TODO: 프로덕션에서 삭제!!!!!!!!!!!!!!!!!!
-        http.headers(headers -> {
-            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
-        });
 
         return http.build();
     }

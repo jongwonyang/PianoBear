@@ -29,6 +29,9 @@ public class DashboardController {
         String currentUserId = SecurityUtil.getCurrentUserId();
         Optional<DashboardSummaryDTO> summary = dashboardService.getSummary(currentUserId);
 
-        return ResponseEntity.ok(null);
+        if (summary.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(summary.get());
     }
 }

@@ -11,4 +11,5 @@ public interface MusicRepository extends JpaRepository<Music, Integer> {
     List<Music> findByTitleContainingIgnoreCase(String title);
     List<Music> findByArtistContainingIgnoreCase(String artist);
     Page<Music> findAll(Pageable pageable);
+    List<Music> findTop3ByUserIdOrderByPracticeCountDesc(String userId);
 }
