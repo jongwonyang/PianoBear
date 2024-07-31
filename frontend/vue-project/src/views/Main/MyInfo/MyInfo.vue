@@ -42,6 +42,11 @@
                     </div>
                 </div>
             </div>
+            <div class="logout-btn">
+                <md-elevated-button @click="LogOut">
+                    로그아웃
+                </md-elevated-button>
+            </div>
         </div>
         <div class="practice-online">
             <div class="practice-box">
@@ -57,11 +62,13 @@
                             <template v-slot:activator="{ props: activatorProps }">
                                 <button class="honey-button" v-bind="activatorProps">
                                     <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
-                                    <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
+                                    <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일
+                                        연습기록</v-tooltip>
                                 </button>
                             </template>
                             <template v-slot:default="{ isActive }">
-                                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" @close="closeDialog(index)" />
+                                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1"
+                                    @close="closeDialog(index)" />
                             </template>
                         </v-dialog>
                     </template>
@@ -83,7 +90,6 @@
                                 mdi-chat
                             </v-icon>
                             <v-tooltip activator="parent" location="bottom">채팅하기</v-tooltip>
-
                         </div>
                     </div>
                     <v-divider></v-divider>
@@ -92,12 +98,11 @@
                         <div class="friend-name">친구 이름</div>
                         <div class="friend-chat">
                             <v-icon aria-hidden="false">
-                                mdi-chat 
+                                mdi-chat
                             </v-icon>
                         </div>
                     </div>
                     <v-divider></v-divider>
-
                     <div class="friend-box">
                         <div class="friend-image"></div>
                         <div class="friend-name">친구 이름</div>
@@ -116,12 +121,16 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import { useTokenStore } from '@/stores/token';
 import honeyFilledImg from '@/assets/images/채워진 벌꿀.png';
 import honeyEmptyImg from '@/assets/images/빈 벌꿀.png';
 import ProfileEdit from '@/components/MyInfo/ProfileEdit.vue';
 import DayPracticeDetail from '@/components/MyInfo/DayPracticeDetail.vue';
 
 const router = useRouter();
+const userStore = useUserStore();
+const tokenStore = useTokenStore();
 
 const profileDialogOpen = ref(false);
 const currentMonth = ref(7);
@@ -146,6 +155,18 @@ const closeProfileDialog = () => {
 const closeDialog = (index) => {
     dialogState.value[index] = false;
 };
+
+async function LogOut() {
+    try {
+        const accessToken = tokenStore.GetAccessToken();
+        const refreshToken = tokenStore.GetRefreshToken();
+        await userStore.LogoutUser(accessToken, refreshToken);
+        tokenStore.RemoveToken();
+        router.push("/login");
+    } catch (error) {
+        console.error(error);
+    }
+}
 </script>
 
 <style scoped>
@@ -168,7 +189,7 @@ const closeDialog = (index) => {
     max-width: 2000px;
     width: 100%;
     margin-bottom: 20px;
-    animation: fadeIn 2s ease-in-out;
+    animation: fadeIn 1s ease-in-out;
 }
 
 .profile-content {
@@ -201,11 +222,17 @@ const closeDialog = (index) => {
     margin: 10px;
 }
 
+.logout-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
 .practice-online {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    animation: fadeIn 2s ease-in-out;
+    animation: fadeIn 1s ease-in-out;
 }
 
 .practice-box,
@@ -322,5 +349,4 @@ const closeDialog = (index) => {
     font-weight: 500;
     color: #947650;
 }
-
 </style>

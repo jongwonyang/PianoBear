@@ -3,7 +3,7 @@ import { useTokenStore } from "@/stores/token";
 import { useRouter } from "vue-router";
 
 const apiClient = axios.create({
-  baseURL: "http://192.168.31.37:7000/api/v1/",
+  baseURL: "https://apitest.pianobear.kr/api/v1/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -37,7 +37,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res = await axios.post(
-          "http://192.168.31.37:7000/api/v1/auth/refresh",
+          "https://apitest.pianobear.kr/api/v1/auth/refresh",
           {
             refreshToken: tokenStore.GetRefreshToken(),
           }
