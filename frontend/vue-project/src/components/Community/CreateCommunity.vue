@@ -12,7 +12,7 @@
                 <div class="create-input">
                     <md-outlined-text-field label="방 제목" v-model="roomSetting.title">
                     </md-outlined-text-field>
-                    <md-outlined-text-field label="인원" value="6" disabled v-model="roomSetting.num">
+                    <md-outlined-text-field label="인원" value="6" readonly="true" v-model="roomSetting.num">
                     </md-outlined-text-field>
                     <md-outlined-text-field label="초대 메시지" v-model="roomSetting.message">
                     </md-outlined-text-field>
@@ -23,7 +23,7 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
 
-                    <v-btn text="생성하기" @click="router.push({name:'communiting', params:{id: join}})"></v-btn>
+                    <v-btn text="생성하기" @click="join"></v-btn>
                     <v-btn
                     text="나가기"
                     @click="isActive.value = false"
@@ -35,10 +35,14 @@
 </template>
 <script lang="ts" setup>
 import {useRouter} from 'vue-router';
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 
-const join = ref(1);
+const id = ref(1);
 const router = useRouter();
+const roomtitle = ref<HTMLInputElement>();
+onMounted(() => {
+    roomtitle.value?.setAttribute('v-model', 'roomSetting.title');
+})
 
 interface RoomSetting {
     title: string;
@@ -53,6 +57,11 @@ const roomSetting = ref<RoomSetting>({
     message: '',
     text: ''
 });
+
+const join = function() : void {
+    console.log(roomSetting.value);
+    router.push({name:'communiting', params:{id: id.value}});
+}
 
 </script>
 

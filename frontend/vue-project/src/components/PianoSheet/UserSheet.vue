@@ -4,14 +4,18 @@
             <div>
                 <div class="bookshelf1">
                     <div class="shelf">
-                        <router-link v-for="(book, index) in books.filter((book, index) => bookCount <= index/5 && index/5 < (bookCount+1))" :key="index" :to="`/main/piano-sheet/${index}`" class="router">
+                        <router-link v-for="(book, index) in books.filter((book, index) =>
+                            bookCount <= index/5 && index/5 < (bookCount+1))"
+                            :key="index" :to="`/main/piano-sheet/${index}`" class="router">
                             <div class="book">사용자악보표지{{ book }}</div>
                         </router-link>
                     </div>
                 </div>
                 <div class="support1">
                     <div class="support">
-                        <div v-for="(book, index) in books.filter((book, index) => bookCount <= index/5 && index/5 < (bookCount+1))" :key="index" class="title">악보제목</div>
+                        <div v-for="(book, index) in books.filter((book, index) =>
+                            bookCount <= index/5 && index/5 < (bookCount+1))"
+                            :key="index" class="title">악보제목</div>
                     </div>
                 </div>
             </div>
@@ -21,14 +25,18 @@
             <div>
                 <div class="bookshelf2">
                     <div class="shelf">
-                        <router-link v-for="(book, index) in books.filter((book, index) => (bookCount+1) <= index/5 && index/5 < (bookCount+2))" :key="index" :to="`/main/piano-sheet/${index}`" class="router">
+                        <router-link v-for="(book, index) in books.filter((book, index) =>
+                            (bookCount+1) <= index/5 && index/5 < (bookCount+2))"
+                            :key="index" :to="`/main/piano-sheet/${index}`" class="router">
                             <div class="book">사용자악보표지{{ book }}</div>
                         </router-link>
                     </div>
                 </div>
                 <div class="support2">
                     <div class="support">
-                        <div v-for="(book, index) in books.filter((book, index) => (bookCount+1) <= index/5 && index/5 < (bookCount+2))" :key="index" class="title">악보제목</div>
+                        <div v-for="(book, index) in books.filter((book, index) =>
+                            (bookCount+1) <= index/5 && index/5 < (bookCount+2))"
+                            :key="index" class="title">악보제목</div>
                     </div>
                 </div>
             </div>
