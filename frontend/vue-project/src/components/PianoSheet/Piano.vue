@@ -2,7 +2,7 @@
     <div class="piano">
         <div class="octave" v-for="oct in octaves" :key="oct">
             <div class="blacks">
-                <div class="black"
+                <div class="black-note"
                     v-for="(key, index) in blakcs.filter((key, index) =>
                     ((oct !== 0 && oct !== 8) || (oct === 0 && index > 4)))"
                     @mousedown="keyPush(oct, key)"
@@ -11,7 +11,7 @@
                 </div>
             </div>
             <div class="whites">
-                <div class="white"
+                <div class="white-note"
                     v-for="(key, index) in whites.filter((key, index) =>
                     ((oct !== 0 && oct !== 8) || (oct === 0 && index > 4) || (oct === 8 && key === 'C')))"
                     @mousedown="keyPush(oct, key)"
@@ -60,7 +60,7 @@
     left: 8.5px;
     z-index: 1;
 }
-.black {
+.black-note {
     background-color: black;
     width: 12px;
     height: 100%;
@@ -75,7 +75,7 @@
     height: 80px;
     margin: auto;
 }
-.white {
+.white-note {
     background: white;
     width: 17px;
     height: 100%;
@@ -88,10 +88,10 @@
 .hide {
     visibility: hidden;
 }
-.white:hover, .black:hover {
+.white-note:hover, .black-note:hover {
     background-color: rgb(176, 176, 176);
 }
-.white:active, .black:active {
+.white-note:active, .black-note:active {
     background-color: rgb(112, 112, 112);
 }
 </style>

@@ -24,7 +24,7 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <md-elevated-button class="close-button" @click="closeDialog">닫기</md-elevated-button>
+            <md-elevated-button class="close-button" @click="props.closeDialog">닫기</md-elevated-button>
         </v-card-actions>
     </v-card>
 </template>
