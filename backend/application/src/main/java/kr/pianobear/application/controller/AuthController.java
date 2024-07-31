@@ -72,12 +72,15 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "로그인 (구현 완료)")
     public ResponseEntity<TokenPairDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
-        Optional<TokenPairDTO> result = authService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
+        LoginResultDTO result = authService.login(loginRequestDTO.getId(), loginRequestDTO.getPassword());
 
-        if (result.isEmpty())
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (!result.isSuccess())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        return ResponseEntity.ok(result.get());
+        if (!result.isEmailVerified())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        return ResponseEntity.ok(result.getTokenPair());
     }
 
     @PostMapping("/refresh")
