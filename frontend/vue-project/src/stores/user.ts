@@ -27,7 +27,11 @@ export const useUserStore = defineStore("user", () => {
       const formData = new FormData();
       formData.append("registerRequestDTO", JSON.stringify(user.value));
       console.log(formData);
-      await apiClient.post(REST_AUTH_API + "register", formData);
+      await apiClient.post(REST_AUTH_API + "register", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       alert("이메일 인증을 완료해야 로그인이 가능합니다.");
       router.push("/login");
     } catch (e) {
