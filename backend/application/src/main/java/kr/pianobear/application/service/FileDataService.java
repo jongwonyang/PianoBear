@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.parseMediaType;
@@ -99,7 +100,10 @@ public class FileDataService {
                 .body(resource);
     }
 
-    public static String getDownloadPath(Long fileId) {
-        return "/api/v1/files/" + fileId;
+    public static Optional<String> getDownloadPath(FileData fileData) {
+        if (fileData == null)
+            return Optional.empty();
+
+        return Optional.of("/api/v1/files/" + fileData.getId());
     }
 }
