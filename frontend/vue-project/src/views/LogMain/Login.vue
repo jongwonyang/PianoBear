@@ -31,7 +31,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore} from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
 
@@ -57,11 +57,15 @@ const setUserPassword = (e) => {
 };
 
 async function Login() {
+    userStore.LoginUser(userId.value, userPassword.value)
+        .then(res => {
+            console.log(res);
+        });
     try {
         const res = await userStore.LoginUser(userId.value, userPassword.value);
         if (res.status === 200) {
             console.log("로그인에 성공했습니다.");
-            
+
             userStore.isLoggedIn = true;
             localStorage.setItem("accessToken", res.data.accessToken);
             sessionStorage.setItem("refreshToken", res.data.refreshToken);

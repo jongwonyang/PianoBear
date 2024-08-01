@@ -32,8 +32,8 @@ import { useRouter } from 'vue-router';
 // import SockJS from 'sockjs-client';
 // import Stomp from 'stompjs';
 
-// const socket = new SockJS('https://apitest.pianobear.kr/ws');
-// const stompClient = Stomp.over(socket);
+const socket = new SockJS('https://apitest.pianobear.kr/ws');
+const stompClient = Stomp.over(socket);
 
 // stompClient.connect(
 //   { Authorization: 'Bearer ' + localStorage.getItem('accessToken') },
