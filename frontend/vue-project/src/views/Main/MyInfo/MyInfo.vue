@@ -67,12 +67,8 @@
                                 </button>
                             </template>
                             <template v-slot:default="{ isActive }">
-<<<<<<< HEAD
                                 <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1"
-                                    @close="closeDialog(index)" />
-=======
-                                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :closeDialog="closeDialog" :index="index" />
->>>>>>> master
+                                    :closeDialog="closeDialog" :index="index" />
                             </template>
                         </v-dialog>
                     </template>
@@ -126,7 +122,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import { useTokenStore } from '@/stores/token';
 import honeyFilledImg from '@/assets/images/채워진 벌꿀.png';
 import honeyEmptyImg from '@/assets/images/빈 벌꿀.png';
 import ProfileEdit from '@/components/MyInfo/ProfileEdit.vue';
@@ -134,7 +129,6 @@ import DayPracticeDetail from '@/components/MyInfo/DayPracticeDetail.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
-const tokenStore = useTokenStore();
 
 const profileDialogOpen = ref(false);
 const currentMonth = ref(7);
@@ -159,25 +153,23 @@ const closeDialog = (index) => {
     dialogState.value[index] = false;
 };
 
-<<<<<<< HEAD
 async function LogOut() {
     try {
-        const accessToken = tokenStore.GetAccessToken();
-        const refreshToken = tokenStore.GetRefreshToken();
+        const accessToken = userStore.GetAccessToken();
+        const refreshToken = userStore.GetRefreshToken();
         await userStore.LogoutUser(accessToken, refreshToken);
-        tokenStore.RemoveToken();
+        userStore.RemoveToken();
         router.push("/login");
     } catch (error) {
+        console.log("로그아웃에 실패했습니다.");
         console.error(error);
     }
 }
-=======
 /////////////// 웹소켓 테스트 ////////////////////
 import { useWebSocketStore } from "@/stores/useWebSocketStore";
 const webSocketStore = useWebSocketStore();
 webSocketStore.connectWebSocket();
 /////////////////////////////////////////////////
->>>>>>> master
 </script>
 
 <style scoped>

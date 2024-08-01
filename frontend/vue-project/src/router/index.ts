@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useTokenStore } from "@/stores/token"; // token store import
+import { useUserStore } from "@/stores/user"; // token store import
 
 import Main from "@/views/Main.vue";
 import LogMain from "@/views/LogMain.vue";
@@ -120,8 +120,8 @@ const routes = [
   {
     path: "/",
     redirect: (to: any) => {
-      const tokenStore = useTokenStore();
-      const isAuthenticated = !!tokenStore.GetAccessToken();
+      const userStore = useUserStore();
+      const isAuthenticated = !!userStore.GetAccessToken();
 
       if (isAuthenticated) {
         return "/main";
@@ -138,8 +138,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const tokenStore = useTokenStore();
-  const isAuthenticated = !!tokenStore.GetAccessToken();
+  const userStore = useUserStore();
+  const isAuthenticated = !!userStore.GetAccessToken();
 
   if (to.name === "login" && isAuthenticated) {
     next("/main");

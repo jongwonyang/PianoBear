@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { useUserStore, CheckUserId, CheckUserEmail } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -64,7 +64,8 @@ const PasswordCheck = ref('');
 
 const checkDuplicateId = (e) => {
     userId.value = e.target.value;
-    CheckUserId(userId.value).then((res) => {
+    userStore.CheckUserId(userId.value).then((res) => {
+        console.log(res);
         if (res.data.exists === true) {
             console.log('중복된 아이디');
             idError.value = true;
@@ -79,7 +80,7 @@ const checkDuplicateId = (e) => {
 
 const checkDuplicateEmail = (e) => {
     userEmail.value = e.target.value;
-    CheckUserEmail(userEmail.value).then((res) => {
+    userStore.CheckUserEmail(userEmail.value).then((res) => {
         if (res.data.exists === true) {
             console.log('중복된 이메일');
             emailError.value = true;

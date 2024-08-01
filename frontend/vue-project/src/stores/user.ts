@@ -3,10 +3,10 @@ import { defineStore } from "pinia";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import { useRouter } from "vue-router";
 
-// const REST_USER_API = "https://apitest.pianobear.kr/api/v1/users/";
-// const REST_AUTH_API = "https://apitest.pianobear.kr/api/v1/auth/";
-const REST_USER_API = "http://localhost:7000/api/v1/users/";
-const REST_AUTH_API = "http://localhost:7000/api/v1/auth/";
+const REST_USER_API = "https://apitest.pianobear.kr/api/v1/users/";
+const REST_AUTH_API = "https://apitest.pianobear.kr/api/v1/auth/";
+// const REST_USER_API = "http://localhost:7000/api/v1/users/";
+// const REST_AUTH_API = "http://localhost:7000/api/v1/auth/";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref({
@@ -15,10 +15,13 @@ export const useUserStore = defineStore("user", () => {
     name: "",
     gender: "",
     birthday: "",
-    password: "",
+    profilePic: "",
     statusMessage: "",
+    authEmail: "",
+    role: "",
   });
 
+  const isLoggedIn = ref(false);
   const accessToken = ref(localStorage.getItem("accessToken") || "");
   const refreshToken = ref(sessionStorage.getItem("refreshToken") || "");
 
@@ -32,8 +35,8 @@ export const useUserStore = defineStore("user", () => {
       console.log(formData);
       await apiClient.post(REST_AUTH_API + "register", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       alert("이메일 인증을 완료해야 로그인이 가능합니다.");
       router.push("/login");
@@ -43,35 +46,27 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const CheckUserId = async (userId: string) => {
-    try {
-      await apiClient.get(REST_USER_API + "check-user-id?userId=" + userId);
-    } catch (e) {
-      console.error(e);
-      throw new Error("Failed to check user id");
-    }
+    return apiClient.get(REST_USER_API + "check-user-id?userId=" + userId);
   };
 
   const CheckUserEmail = async (email: string) => {
-    try {
-      await apiClient.get(REST_USER_API + "check-email?email=" + email);
-    } catch (e) {
-      console.error(e);
-      throw new Error("Failed to check email");
-    }
+    return apiClient.get(REST_USER_API + "check-email?email=" + email);
   };
 
   const LoginUser = async (id: string, password: string) => {
+    return apiClient.post(REST_AUTH_API + "login", {
+      id: id,
+      password: password,
+    });
+  };
+
+  const GetUserInfo = async () => {
     try {
-      const res = await apiClient.post(REST_AUTH_API + "login", {
-        id: id,
-        password: password,
-      });
-      SetAccessToken(res.data.accessToken);
-      SetRefreshToken(res.data.refreshToken);
-      router.push("/");
+      const res = await apiClient.get(REST_USER_API + "my-info");
+      user.value = res.data;
+      console.log(user.value);
     } catch (e) {
       console.error(e);
-      throw new Error("Failed to login");
     }
   };
 
@@ -87,9 +82,12 @@ export const useUserStore = defineStore("user", () => {
         name: "",
         gender: "",
         birthday: "",
-        password: "",
+        profilePic: "",
         statusMessage: "",
+        authEmail: "",
+        role: "",
       };
+      isLoggedIn.value = false;
     } catch (e) {
       console.error(e);
       throw new Error("Failed to logout");
@@ -133,5 +131,6 @@ export const useUserStore = defineStore("user", () => {
     GetAccessToken,
     GetRefreshToken,
     RemoveToken,
+    GetUserInfo,
   };
 });
