@@ -165,11 +165,6 @@ async function LogOut() {
         console.error(error);
     }
 }
-/////////////// 웹소켓 테스트 ////////////////////
-import { useWebSocketStore } from "@/stores/useWebSocketStore";
-const webSocketStore = useWebSocketStore();
-webSocketStore.connectWebSocket();
-/////////////////////////////////////////////////
 </script>
 
 <style scoped>
