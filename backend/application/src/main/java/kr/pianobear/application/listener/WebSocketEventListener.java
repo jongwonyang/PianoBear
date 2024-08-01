@@ -7,7 +7,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
 
@@ -22,24 +21,26 @@ public class WebSocketEventListener {
     }
 
     @EventListener
-    public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
+    public void handleWebSocketConnectListener(SessionConnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
-        String destination = headerAccessor.getDestination();
-
-        if (user != null && "/topic/online-status-tracker".equals(destination)) {
-            String username = user.getName();
-            redisTemplate.opsForValue().set("user:online:" + username, true);
+        if (user != null) {
+            String userId = user.getName();
+            System.out.println("CONNECT: " + userId);
+            System.out.println(event);
+            redisTemplate.opsForValue().set("user:online:" + userId, true);
         }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        System.out.println(event);
+        System.out.println("LETS DISCONNECT!!!!!!!!!!!!!!!!!!!!!!");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
         if (user != null) {
             String userId = user.getName();
+            System.out.println("DISCONNECT: " + userId);
+            System.out.println(event);
             redisTemplate.delete("user:online:" + userId);
         }
     }
