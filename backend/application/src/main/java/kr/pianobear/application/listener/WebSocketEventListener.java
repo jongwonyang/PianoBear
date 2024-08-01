@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
 
@@ -21,17 +22,20 @@ public class WebSocketEventListener {
     }
 
     @EventListener
-    public void handleWebSocketConnectListener(SessionConnectEvent event) {
+    public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
-        if (user != null) {
-            String userId = user.getName();
-            redisTemplate.opsForValue().set("user:online:" + userId, true);
+        String destination = headerAccessor.getDestination();
+
+        if (user != null && "/topic/online-status-tracker".equals(destination)) {
+            String username = user.getName();
+            redisTemplate.opsForValue().set("user:online:" + username, true);
         }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+        System.out.println(event);
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
         if (user != null) {
