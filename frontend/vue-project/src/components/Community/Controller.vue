@@ -1,19 +1,19 @@
 <template>
     <div>
-            <v-sheet class="surface" :elevation="10" :height="64" :width="600" rounded="lg">
-                <div class="controller">
-                    <v-btn icon="mdi-video-off" v-if="!videoCheck" @click="turnOnVideo" />
-                    <v-btn icon="mdi-video"  v-else @click="turnOnVideo" variant="tonal" />
-                    <v-btn icon="mdi-microphone-off" v-if="!audioCheck" @click="turnOnAudio" />
-                    <v-btn icon="mdi-microphone" v-else  @click="turnOnAudio" variant="tonal" />
-                    <v-btn icon="mdi-emoticon" v-if="!emoteCheck" @click="switchEmote" />
-                    <v-btn icon="mdi-emoticon" v-else @click="switchEmote" variant="tonal" />
-                    <v-btn icon="mdi-music-note" v-if="!playCheck" @click="switchPlay" />
-                    <v-btn icon="mdi-music-note" v-else @click="switchPlay" variant="tonal" />
-                    <FriendList variant="tonal"/>
-                    <DialogsModal text="나가기" content="나가시겠습니까?" @join="exit" />
-                </div>
-            </v-sheet>
+        <v-sheet class="surface" :elevation="10" :height="64" :width="600" rounded="lg">
+            <div class="controller">
+                <v-btn icon="mdi-video-off" v-if="!videoCheck" @click="turnOnVideo" />
+                <v-btn icon="mdi-video"  v-else @click="turnOnVideo" variant="tonal" />
+                <v-btn icon="mdi-microphone-off" v-if="!audioCheck" @click="turnOnAudio" />
+                <v-btn icon="mdi-microphone" v-else  @click="turnOnAudio" variant="tonal" />
+                <v-btn icon="mdi-emoticon" v-if="!emoteCheck" @click="switchEmote" />
+                <v-btn icon="mdi-emoticon" v-else @click="switchEmote" variant="tonal" />
+                <v-btn icon="mdi-music-note" v-if="!playCheck" @click="switchPlay" />
+                <v-btn icon="mdi-music-note" v-else @click="switchPlay" variant="tonal" />
+                <FriendList variant="tonal"/>
+                <DialogsModal text="나가기" content="나가시겠습니까?" @join="exit" />
+            </div>
+        </v-sheet>
         <div class="emote">
 
         </div>

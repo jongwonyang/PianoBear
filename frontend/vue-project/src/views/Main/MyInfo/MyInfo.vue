@@ -58,7 +58,7 @@
                 </div>
                 <div class="practice-calendar">
                     <template v-for="(day, index) in practiceDays" :key="index">
-                        <v-dialog v-model="dialogState[index]" width="70%">
+                        <v-dialog v-model="dialogState[index]" max-width="500">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <button class="honey-button" v-bind="activatorProps">
                                     <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀">
@@ -67,8 +67,12 @@
                                 </button>
                             </template>
                             <template v-slot:default="{ isActive }">
+<<<<<<< HEAD
                                 <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1"
                                     @close="closeDialog(index)" />
+=======
+                                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :closeDialog="closeDialog" :index="index" />
+>>>>>>> master
                             </template>
                         </v-dialog>
                     </template>
@@ -134,7 +138,6 @@ const tokenStore = useTokenStore();
 
 const profileDialogOpen = ref(false);
 const currentMonth = ref(7);
-
 const practiceDays = ref([
     false, true, false, true, true, false, false,
     true, true, false, true, false, true, true,
@@ -156,6 +159,7 @@ const closeDialog = (index) => {
     dialogState.value[index] = false;
 };
 
+<<<<<<< HEAD
 async function LogOut() {
     try {
         const accessToken = tokenStore.GetAccessToken();
@@ -167,6 +171,13 @@ async function LogOut() {
         console.error(error);
     }
 }
+=======
+/////////////// 웹소켓 테스트 ////////////////////
+import { useWebSocketStore } from "@/stores/useWebSocketStore";
+const webSocketStore = useWebSocketStore();
+webSocketStore.connectWebSocket();
+/////////////////////////////////////////////////
+>>>>>>> master
 </script>
 
 <style scoped>

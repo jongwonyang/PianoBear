@@ -4,7 +4,7 @@
             <div>
                 <div class="bookshelf1">
                     <div class="shelf">
-                        <router-link v-for="(book) in pianoSheetList.slice(0,5)" :key="book.id" :to="`/main/piano-sheet/${book.id + 1}`" class="router">
+                        <router-link v-for="(book) in pianoSheetList.slice(0,5)" :key="book.id" :to="`/main/piano-sheet/${book.id}`" class="router">
                             <div class="book">{{ book.title }}</div>
                         </router-link>
                     </div>
@@ -21,7 +21,7 @@
             <div>
                 <div class="bookshelf2">
                     <div class="shelf">
-                        <router-link v-for="(book) in pianoSheetList.slice(5,10)" :key="book.id" :to="`/main/piano-sheet/${book.id + 6}`" class="router">
+                        <router-link v-for="(book) in pianoSheetList.slice(5,10)" :key="book.id" :to="`/main/piano-sheet/${book.id + 5}`" class="router">
                             <div class="book">{{ book.title }}</div>
                         </router-link>
                     </div>

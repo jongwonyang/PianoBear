@@ -3,8 +3,10 @@ import { defineStore } from "pinia";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import { useRouter } from "vue-router";
 
-const REST_USER_API = "https://apitest.pianobear.kr/api/v1/users/";
-const REST_AUTH_API = "https://apitest.pianobear.kr/api/v1/auth/";
+// const REST_USER_API = "https://apitest.pianobear.kr/api/v1/users/";
+// const REST_AUTH_API = "https://apitest.pianobear.kr/api/v1/auth/";
+const REST_USER_API = "http://localhost:7000/api/v1/users/";
+const REST_AUTH_API = "http://localhost:7000/api/v1/auth/";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref({
@@ -28,7 +30,11 @@ export const useUserStore = defineStore("user", () => {
       const formData = new FormData();
       formData.append("registerRequestDTO", JSON.stringify(user.value));
       console.log(formData);
-      await apiClient.post(REST_AUTH_API + "register", formData);
+      await apiClient.post(REST_AUTH_API + "register", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       alert("이메일 인증을 완료해야 로그인이 가능합니다.");
       router.push("/login");
     } catch (e) {

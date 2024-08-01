@@ -13,7 +13,7 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <md-elevated-button class="close-button" @click="closeDialog">닫기</md-elevated-button>
+            <md-elevated-button class="close-button" @click="props.closeDialog(props.index)">닫기</md-elevated-button>
         </v-card-actions>
     </v-card>
 </template>
@@ -27,7 +27,8 @@ const props = defineProps({
     closeDialog: Function,
     month: Number,
     day: Number,
-    practiceCount: Number
+    practiceCount: Number,
+    index: Number
 });
 
 const filledHoney = honeyFilledImg;
@@ -36,12 +37,10 @@ const emptyHoney = honeyEmptyImg;
 
 <style scoped>
 .practice-box {
-    width: 70vw;
-    height: 70vh;
+    width: 500px;
+    height: 500px;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    margin: auto;
 }
 
 .practice-title {

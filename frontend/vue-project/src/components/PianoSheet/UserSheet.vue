@@ -4,14 +4,18 @@
             <div>
                 <div class="bookshelf1">
                     <div class="shelf">
-                        <router-link v-for="(book, index) in books1" :key="index" :to="`/main/piano-sheet/${index + 1}`" class="router">
-                            <div class="book">사용자악보표지{{ index + 1 }}</div>
+                        <router-link v-for="(book, index) in books.filter((book, index) =>
+                            bookCount <= index/5 && index/5 < (bookCount+1))"
+                            :key="index" :to="`/main/piano-sheet/${index}`" class="router">
+                            <div class="book">사용자악보표지{{ book }}</div>
                         </router-link>
                     </div>
                 </div>
                 <div class="support1">
                     <div class="support">
-                        <div v-for="(book, index) in books1" :key="index" class="title">악보제목</div>
+                        <div v-for="(book, index) in books.filter((book, index) =>
+                            bookCount <= index/5 && index/5 < (bookCount+1))"
+                            :key="index" class="title">악보제목</div>
                     </div>
                 </div>
             </div>
@@ -21,26 +25,51 @@
             <div>
                 <div class="bookshelf2">
                     <div class="shelf">
-                        <router-link v-for="(book, index) in books2" :key="index" :to="`/main/piano-sheet/${index + 6}`" class="router">
-                            <div class="book">사용자악보표지{{ index + 6 }}</div>
+                        <router-link v-for="(book, index) in books.filter((book, index) =>
+                            (bookCount+1) <= index/5 && index/5 < (bookCount+2))"
+                            :key="index" :to="`/main/piano-sheet/${index}`" class="router">
+                            <div class="book">사용자악보표지{{ book }}</div>
                         </router-link>
                     </div>
                 </div>
                 <div class="support2">
                     <div class="support">
-                        <div v-for="(book, index) in books2" :key="index" class="title">악보제목</div>
+                        <div v-for="(book, index) in books.filter((book, index) =>
+                            (bookCount+1) <= index/5 && index/5 < (bookCount+2))"
+                            :key="index" class="title">악보제목</div>
                     </div>
                 </div>
             </div>
         </v-card>
+        <div>
+            <v-btn @click="downCount"> prev</v-btn>
+            <v-btn @click="upCount"> next</v-btn>
+        </div>
     </div>   
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 
-const books1 = ref([1, 2, 3, 4]);
-// const books2 = ref([6, 7, 8, 9, 10]);
+const books = ref<Array<number>>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+const bookCount = ref<number>(0);
+const pageCount = ref<number>(0);
+const maxCount = computed<number>(() => {
+    return Math.floor((books.value.length-1)/10)
+})
+
+const downCount = function () : void {
+    if (bookCount.value > 0)  {
+        bookCount.value -= 2;
+        pageCount.value -= 1;
+    }
+}
+const upCount = function () : void {
+    if (maxCount.value > pageCount.value) {
+        bookCount.value += 2;
+        pageCount.value += 1;
+    }
+}
 </script>
 
 <style scoped>
