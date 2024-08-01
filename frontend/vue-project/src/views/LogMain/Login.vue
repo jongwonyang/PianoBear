@@ -69,6 +69,7 @@ async function Login() {
             sessionStorage.setItem("refreshToken", res.data.refreshToken);
             tokenStore.SetAccessToken(res.data.accessToken);
             tokenStore.SetRefreshToken(res.data.refreshToken);
+            
             router.push("/main");
         } else if (res.status === 403) {
             console.log("이메일인증이 되지 않은 사용자입니다.");
