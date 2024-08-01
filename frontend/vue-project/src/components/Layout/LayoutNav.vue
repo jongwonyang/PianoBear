@@ -32,7 +32,7 @@ import { useRouter } from 'vue-router';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
-const socket = new SockJS('https://apitest.pianobear.kr/ws');
+const socket = new SockJS('http://localhost:7000/ws');
 const stompClient = Stomp.over(socket);
 
 stompClient.connect(
