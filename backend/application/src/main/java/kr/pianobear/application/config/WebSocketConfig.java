@@ -31,8 +31,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub");
-        registry.setApplicationDestinationPrefixes("/pub");
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
@@ -46,6 +46,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
                 if (accessor != null && accessor.getCommand() == StompCommand.CONNECT) {
                     String token = accessor.getFirstNativeHeader("Authorization");
                     if (token != null && token.startsWith("Bearer ")) {
@@ -53,10 +54,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         if (jwtUtil.validateToken(token)) {
                             Authentication auth = jwtUtil.getAuthentication(token);
                             accessor.setUser(auth);
-                            SecurityContextHolder.getContext().setAuthentication(auth);
                         }
                     }
                 }
+
                 return message;
             }
         });
