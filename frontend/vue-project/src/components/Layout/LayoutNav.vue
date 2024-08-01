@@ -29,29 +29,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-// import SockJS from 'sockjs-client';
-// import Stomp from 'stompjs';
-
-const socket = new SockJS('https://apitest.pianobear.kr/ws');
-const stompClient = Stomp.over(socket);
-
-// stompClient.connect(
-//   { Authorization: 'Bearer ' + localStorage.getItem('accessToken') },
-//   (frame) => {
-//     console.log('Connected: ' + frame);
-
-//     // Subscribe to a topic if needed
-//   }
-// );
-
-// // Handle window close event to properly disconnect
-// window.addEventListener('beforeunload', () => {
-//   stompClient.disconnect(() => {
-//     console.log('Disconnected');
-//   });
-// });
-
-
 const router = useRouter();
 
 
