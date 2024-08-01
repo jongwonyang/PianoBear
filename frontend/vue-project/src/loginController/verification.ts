@@ -1,9 +1,9 @@
 import axios from "axios";
-import { useTokenStore } from "@/stores/token";
 import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 
 const apiClient = axios.create({
-  baseURL: "https://apitest.pianobear.kr/api/v1/",
+  baseURL: "http://localhost:7000/api/v1/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,8 +11,8 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   async (config) => {
-    const tokenStore = useTokenStore();
-    const token = tokenStore.GetAccessToken();
+    const userStore = useUserStore();
+    const token = userStore.GetAccessToken();
 
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
@@ -30,21 +30,21 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const tokenStore = useTokenStore();
+    const userStore = useUserStore();
     const originalRequest = error.config;
 
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const res = await axios.post(
-          "https://apitest.pianobear.kr/api/v1/auth/refresh",
+          "http://localhost:7000/api/v1/auth/refresh",
           {
-            refreshToken: tokenStore.GetRefreshToken(),
+            refreshToken: userStore.GetRefreshToken(),
           }
         );
 
-        tokenStore.SetAccessToken(res.data.accessToken);
-        tokenStore.SetRefreshToken(res.data.refreshToken);
+        userStore.SetAccessToken(res.data.accessToken);
+        userStore.SetRefreshToken(res.data.refreshToken);
         axios.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${res.data.accessToken}`;
@@ -53,7 +53,7 @@ apiClient.interceptors.response.use(
         ] = `Bearer ${res.data.accessToken}`;
         return apiClient(originalRequest);
       } catch (err) {
-        tokenStore.RemoveToken();
+        userStore.RemoveToken();
         const router = useRouter();
         router.push("/login");
         return Promise.reject(err);

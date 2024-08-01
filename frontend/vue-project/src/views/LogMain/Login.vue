@@ -7,7 +7,7 @@
                 @input="setUserId"></md-outlined-text-field>
             <md-outlined-text-field label="비밀번호" type="password" class="login-input" :value="userPassword"
                 @input="setUserPassword"></md-outlined-text-field>
-            <md-elevated-button class="login-button" @click="Login">로그인</md-elevated-button>
+            <md-elevated-button class="login-button" @click="Login()">로그인</md-elevated-button>
             <div class="regist-pwReset-box">
                 <md-elevated-button class="secondary-button" @click="router.push({ name: 'regist' })">
                     회원가입
@@ -31,9 +31,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore, LoginUser } from '@/stores/user';
-import { useTokenStore } from '@/stores/token';
-import apiClient from '@/loginController/verification'; // Import the apiClient
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
 
@@ -46,7 +44,6 @@ function googleLogin() {
 }
 
 const userStore = useUserStore();
-const tokenStore = useTokenStore();
 
 const userId = ref('');
 const userPassword = ref('');
@@ -60,16 +57,23 @@ const setUserPassword = (e) => {
 };
 
 async function Login() {
+    userStore.LoginUser(userId.value, userPassword.value)
+        .then(res => {
+            console.log(res);
+        });
     try {
-        const res = await LoginUser(userId.value, userPassword.value);
-
+        const res = await userStore.LoginUser(userId.value, userPassword.value);
         if (res.status === 200) {
             console.log("로그인에 성공했습니다.");
+
+            userStore.isLoggedIn = true;
             localStorage.setItem("accessToken", res.data.accessToken);
             sessionStorage.setItem("refreshToken", res.data.refreshToken);
-            tokenStore.SetAccessToken(res.data.accessToken);
-            tokenStore.SetRefreshToken(res.data.refreshToken);
+            userStore.SetAccessToken(res.data.accessToken);
+            userStore.SetRefreshToken(res.data.refreshToken);
+            userStore.GetUserInfo();
             router.push("/main");
+            console.log(userStore.isLoggedIn);
         } else if (res.status === 403) {
             console.log("이메일인증이 되지 않은 사용자입니다.");
             alert("메일인증이 되지 않은 사용자입니다.");

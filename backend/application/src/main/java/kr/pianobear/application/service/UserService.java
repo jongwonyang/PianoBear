@@ -37,7 +37,9 @@ public class UserService {
                 member.get().getName(),
                 member.get().getGender(),
                 member.get().getBirthday(),
-                "/api/v1/files/" + member.get().getProfilePic().getId(),
+                member.get().getProfilePic() != null ?
+                        "/api/v1/files/" + member.get().getProfilePic().getId() :
+                        null,
                 member.get().getStatusMessage(),
                 member.get().isAuthEmail(),
                 member.get().getRole()

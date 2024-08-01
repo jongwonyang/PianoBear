@@ -36,11 +36,13 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import UserSheet from '@/components/PianoSheet/UserSheet.vue';
   import BasicSheet from '@/components/PianoSheet/BasicSheet.vue';
   import SearchBar from '@/components/PianoSheet/SearchBar.vue';
-  
+  import { usePianoSheetStore } from "@/stores/pianosheet";
+
+  const store = usePianoSheetStore();
   const tab = ref(1); 
   const currentTab = ref('UserSheet'); 
   
@@ -50,6 +52,10 @@
   
   const currentTabComponent = computed(() => {
     return currentTab.value === 'UserSheet' ? UserSheet : BasicSheet;
+  });
+
+  onMounted(async () => {
+    await store.fetchPianoSheets();
   });
   </script>
   

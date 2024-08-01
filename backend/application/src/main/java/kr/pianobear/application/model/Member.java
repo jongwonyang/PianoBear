@@ -1,5 +1,6 @@
 package kr.pianobear.application.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
@@ -21,6 +22,7 @@ public class Member {
     private String password;
 
     @OneToOne(targetEntity = FileData.class)
+    @Nullable
     private FileData profilePic;
 
     private String statusMessage;
