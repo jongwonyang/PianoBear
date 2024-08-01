@@ -21,6 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/v1/music")
 @Tag(name = "Music API", description = "Music management API")
@@ -29,6 +32,7 @@ public class MusicController {
     private final MusicService musicService;
     private final MusicPracticeService musicPracticeService;
     private final MusicTestService musicTestService;
+    private static final Logger logger = LoggerFactory.getLogger(MusicController.class);
 
     @Autowired
     public MusicController(MusicService musicService, MusicPracticeService musicPracticeService, MusicTestService musicTestService) {
@@ -38,7 +42,7 @@ public class MusicController {
     }
 
     @Operation(summary = "악보 추가", description = "새로운 악보를 추가함")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping
     public ResponseEntity<MusicDTO> addMusic(@RequestParam("file") MultipartFile file,
                                              @RequestParam("title") String title,
@@ -50,7 +54,9 @@ public class MusicController {
         musicDTO.setArtist(artist);
         musicDTO.setUserId(userId);
 
-        MusicDTO createdMusic = musicService.addMusic(musicDTO, pdfFile);
+        logger.info("Uploading music with title: {}, artist: {}, userId: {}", title, artist, userId);
+
+        MusicDTO createdMusic = musicService.addMusic(musicDTO, file);
         return ResponseEntity.ok(createdMusic);
     }
 

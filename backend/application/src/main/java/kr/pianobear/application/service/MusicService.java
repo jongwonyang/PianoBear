@@ -1,6 +1,7 @@
 package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.MusicDTO;
+import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.dto.MusicSummaryDTO;
 import kr.pianobear.application.dto.MusicPracticeDTO;
 import kr.pianobear.application.model.Music;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,12 +39,17 @@ import java.util.zip.ZipOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class MusicService {
 
     private final MusicRepository musicRepository;
     private final MusicPracticeService musicPracticeService;
     private final UnzipService unzipService;
+    private final FileDataService fileDataService;
+    private static final Logger logger = LoggerFactory.getLogger(MusicService.class);
 
     private static final Map<String, String> noteToSyllable = new HashMap<>();
 
@@ -57,15 +64,20 @@ public class MusicService {
     }
 
     @Autowired
-    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, UnzipService unzipService) {
+    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, UnzipService unzipService, FileDataService fileDataService) {
         this.musicRepository = musicRepository;
         this.musicPracticeService = musicPracticeService;
         this.unzipService = unzipService;
+        this.fileDataService = fileDataService;
     }
 
     @Transactional
-    public MusicDTO addMusic(MusicDTO musicDTO, File pdfFile) throws IOException, InterruptedException {
-        String musicXmlPath = convertPdfToMusicXml(pdfFile);
+    public MusicDTO addMusic(MusicDTO musicDTO, MultipartFile pdfFile) throws IOException, InterruptedException {
+
+        FileData uploadedFileData = fileDataService.uploadFile(pdfFile);
+        File pdfFileOnDisk = new File(uploadedFileData.getPath());
+
+        String musicXmlPath = convertPdfToMusicXml(pdfFileOnDisk);
 
         String modifiedMusicXmlPath = modifyMusicXml(musicXmlPath);
 
@@ -83,10 +95,12 @@ public class MusicService {
         music.setHighestScore(0);
 
         Music savedMusic = musicRepository.save(music);
+        logger.info("Successfully saved music with title: {}", music.getTitle());
         return mapToDTO(savedMusic);
     }
 
     private String convertPdfToMusicXml(File pdfFile) throws IOException, InterruptedException {
+        logger.info("Converting PDF to MusicXML for file: {}", pdfFile.getPath());
         String musicXmlPath = pdfFile.getPath().replace(".pdf", ".mxl");
 
         ProcessBuilder processBuilder = new ProcessBuilder(
@@ -100,18 +114,22 @@ public class MusicService {
         process.waitFor();
 
         if (!new File(musicXmlPath).exists()) {
+            logger.error("Failed to create MusicXML file from PDF: {}", pdfFile.getPath());
             throw new IOException("Failed to create MusicXML file from PDF");
         }
 
+        logger.info("Successfully converted PDF to MusicXML: {}", musicXmlPath);
         return musicXmlPath;
     }
 
     private String modifyMusicXml(String musicXmlPath) throws IOException {
+        logger.info("Modifying MusicXML file: {}", musicXmlPath);
         File tempDir = Files.createTempDirectory("unzippedMusicXml").toFile();
         unzipService.unzipMxlFile(musicXmlPath, tempDir.getAbsolutePath());
 
         File xmlFile = findMainXmlFile(tempDir);
         if (xmlFile == null) {
+            logger.error("No XML file found in the unzipped MusicXML archive: {}", musicXmlPath);
             throw new IOException("No XML file found in the unzipped MusicXML archive");
         }
 
@@ -166,6 +184,7 @@ public class MusicService {
             StreamResult result = new StreamResult(xmlFile);
             transformer.transform(source, result);
         } catch (Exception e) {
+            logger.error("Failed to modify MusicXML file: {}", musicXmlPath, e);
             throw new IOException("Failed to modify MusicXML file", e);
         }
 
@@ -174,6 +193,7 @@ public class MusicService {
 
         deleteDirectory(tempDir);
 
+        logger.info("Successfully modified MusicXML file: {}", modifiedMusicXmlPath);
         return modifiedMusicXmlPath;
     }
 
