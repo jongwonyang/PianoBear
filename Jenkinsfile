@@ -15,16 +15,16 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    dir('backend/application') {
-                        sh './gradlew sonar'
-                    }
-                    
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             dir('backend/application') {
+        //                 sh './gradlew sonar'
+        //             }
+        //             
+        //         }
+        //     }
+        // }
 
         // stage('Build Docker Image') {
         //     steps {
