@@ -57,30 +57,34 @@ const setUserPassword = (e) => {
 };
 
 async function Login() {
-    try {
-        const res = await userStore.LoginUser(userId.value, userPassword.value);
-        if (res.status === 200) {
-            console.log("로그인에 성공했습니다.");
+    userStore.LoginUser(userId.value, userPassword.value)
+        .then(res => {
+            console.log(res);
+        });
+    // try {
+    //     const res = await userStore.LoginUser(userId.value, userPassword.value);
+    //     if (res.status === 200) {
+    //         console.log("로그인에 성공했습니다.");
             
-            userStore.isLoggedIn = true;
-            localStorage.setItem("accessToken", res.data.accessToken);
-            sessionStorage.setItem("refreshToken", res.data.refreshToken);
-            userStore.SetAccessToken(res.data.accessToken);
-            userStore.SetRefreshToken(res.data.refreshToken);
-            userStore.GetUserInfo();
-            router.push("/main");
-            console.log(userStore.isLoggedIn);
-        } else if (res.status === 403) {
-            console.log("이메일인증이 되지 않은 사용자입니다.");
-            alert("메일인증이 되지 않은 사용자입니다.");
-        } else {
-            console.log("로그인에 실패했습니다.");
-            alert("로그인에 실패했습니다.");
-        }
-    } catch (error) {
-        console.log("아이디 또는 비밀번호가 일치하지 않습니다.");
-        alert("아이디 또는 비밀번호가 일치하지 않습니다.");
-    }
+    //         userStore.isLoggedIn = true;
+    //         localStorage.setItem("accessToken", res.data.accessToken);
+    //         sessionStorage.setItem("refreshToken", res.data.refreshToken);
+    //         userStore.SetAccessToken(res.data.accessToken);
+    //         userStore.SetRefreshToken(res.data.refreshToken);
+    //         userStore.GetUserInfo();
+    //         router.push("/main");
+    //         console.log(userStore.isLoggedIn);
+    //     } else if (res.status === 403) {
+    //         console.log("이메일인증이 되지 않은 사용자입니다.");
+    //         alert("메일인증이 되지 않은 사용자입니다.");
+    //     } else {
+    //         console.log("로그인에 실패했습니다.");
+    //         alert("로그인에 실패했습니다.");
+    //     }
+    // } catch (error) {
+    //     console.log("아이디 또는 비밀번호가 일치하지 않습니다.");
+    //     alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+    // }
 }
 </script>
 
