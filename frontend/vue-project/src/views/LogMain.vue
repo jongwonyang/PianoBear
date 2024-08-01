@@ -1,5 +1,4 @@
 <template>
-    <LayoutNav/>
     <RouterView/>
 </template>
 <script setup>
