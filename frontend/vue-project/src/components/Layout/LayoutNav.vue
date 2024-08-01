@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-layout>
-      <v-navigation-drawer expand-on-hover rail>
+      <v-navigation-drawer expand-on-hover rail color="#D9F6D9">
         <v-list>
           <!-- 여기는 이미지 넣을 건데 이미지는 유저의 프로필 사진을 가져올거임 -->
           <v-list-item prepend-avatar="@/assets/images/정수_어렸을적.png" subtitle="kmk2528@naver.com"
