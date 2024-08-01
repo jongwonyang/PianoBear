@@ -14,8 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 @RestController
@@ -35,11 +38,26 @@ public class MusicController {
     }
 
     @Operation(summary = "악보 추가", description = "새로운 악보를 추가함")
-    @PreAuthorize("hasRole('ROLE_MEMBER')") //로그인 없이 이용할 수 없다는 뜻의 annotation
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping
-    public ResponseEntity<MusicDTO> addMusic(@RequestBody MusicDTO musicDTO) {
-        MusicDTO createdMusic = musicService.addMusic(musicDTO);
+    public ResponseEntity<MusicDTO> addMusic(@RequestParam("file") MultipartFile file,
+                                             @RequestParam("title") String title,
+                                             @RequestParam("artist") String artist,
+                                             @RequestParam("userId") String userId) throws IOException, InterruptedException {
+        File pdfFile = convertMultipartFileToFile(file);
+        MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setTitle(title);
+        musicDTO.setArtist(artist);
+        musicDTO.setUserId(userId);
+
+        MusicDTO createdMusic = musicService.addMusic(musicDTO, pdfFile);
         return ResponseEntity.ok(createdMusic);
+    }
+
+    private File convertMultipartFileToFile(MultipartFile file) throws IOException {
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
+        file.transferTo(convFile);
+        return convFile;
     }
 
     @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보 불러온다")

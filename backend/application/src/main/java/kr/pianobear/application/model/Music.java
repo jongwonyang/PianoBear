@@ -19,7 +19,7 @@ public class Music {
     private String originalFileRoute;
     private String changedFileRoute;
     private int practiceCount;
-    private String recentPractice; // Change to String
+    private String recentPractice;
     private String userId;
     private String musicImg;
     private Boolean favorite;
