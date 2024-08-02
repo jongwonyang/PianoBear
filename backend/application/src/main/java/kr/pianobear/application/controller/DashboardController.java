@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.DashboardSummaryDTO;
 import kr.pianobear.application.dto.FriendDTO;
+import kr.pianobear.application.dto.MusicPracticeDTO;
 import kr.pianobear.application.model.MusicPractice;
 import kr.pianobear.application.service.DashboardService;
 import kr.pianobear.application.service.MusicPracticeService;
@@ -54,10 +55,16 @@ public class DashboardController {
     @GetMapping("/practice-records")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @Operation(summary = "2번 섹션 (좌측) - 월별 연습 기록")
-    public ResponseEntity<List<MusicPractice>> practiceRecords(@RequestParam int year, @RequestParam int month) {
+    public ResponseEntity<List<MusicPracticeDTO>> practiceRecords(@RequestParam int year, @RequestParam int month, @RequestParam(required = false) Integer day) {
         String userId = SecurityUtil.getCurrentUserId();
 
-        List<MusicPractice> records = musicPracticeService.getMonthlyPracticeRecords(userId, year, month);
+        List<MusicPracticeDTO> records;
+
+        if (day != null) {
+            records = musicPracticeService.getDailyPracticeRecords(userId, year, month, day);
+        } else {
+            records = musicPracticeService.getMonthlyPracticeRecords(userId, year, month);
+        }
 
         return ResponseEntity.ok(records);
     }
