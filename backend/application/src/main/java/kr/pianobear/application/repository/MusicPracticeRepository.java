@@ -14,8 +14,13 @@ public interface MusicPracticeRepository extends JpaRepository<MusicPractice, In
     List<MusicPractice> findByUserIdAndMusicId(String userId, int musicId);
     List<MusicPractice> findByMusicIdOrderByPracticeDateAsc(int musicId);
 
+    // TODO: findAllByUserIdAndPracticeDateBetween 로 교체하기 (좀 더 범용적)
     @Query("SELECT mp FROM MusicPractice mp WHERE mp.userId = :userId AND mp.practiceDate >= :startDate AND mp.practiceDate < :endDate")
     List<MusicPractice> findAllByUserIdAndMonth(@Param("userId") String userId,
                                                 @Param("startDate") LocalDateTime startDate,
                                                 @Param("endDate") LocalDateTime endDate);
+
+    List<MusicPractice> findAllByUserIdAndPracticeDateBetween(String userId,
+                                                              LocalDateTime startDate,
+                                                              LocalDateTime endDate);
 }
