@@ -54,7 +54,7 @@ public class DashboardController {
 
     @GetMapping("/practice-records")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @Operation(summary = "2번 섹션 (좌측) - 월별 연습 기록")
+    @Operation(summary = "2번 섹션 (좌측) - 월별/일별 연습 기록")
     public ResponseEntity<List<MusicPracticeDTO>> practiceRecords(@RequestParam int year, @RequestParam int month, @RequestParam(required = false) Integer day) {
         String userId = SecurityUtil.getCurrentUserId();
 
