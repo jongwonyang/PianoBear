@@ -1,12 +1,11 @@
 package kr.pianobear.application.model;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Entity
@@ -28,4 +27,8 @@ public class Member {
     private String statusMessage;
     private boolean authEmail;
     private String role;
+
+    @ManyToMany
+    @JoinTable
+    private Set<Member> friends;
 }
