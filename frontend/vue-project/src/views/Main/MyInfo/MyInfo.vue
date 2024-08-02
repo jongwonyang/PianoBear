@@ -1,9 +1,12 @@
 <template>
-    <div>
+    <div class="loading-bar" v-if="isLoading.friends || isLoading.practice || isLoading.profile">
+        <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+    </div>
+    <div v-else>
         <div class="my-profile-box">
             <md-elevation></md-elevation>
             <div class="profile-content">
-                <div class="profile-image"></div>
+                <img class="profile-image" :src="userInfo.profileImage">
                 <div class="profile-info">
                     <!-- 편집 버튼 -->
                     <v-dialog v-model="profileDialogOpen" max-width="500">
@@ -16,28 +19,34 @@
                         </template>
                     </v-dialog>
                     <!-- user name 가져오게 -->
-                    <div class="profile-name">하정수 님 반갑습니다!</div>
+                    <div class="profile-name">{{ userInfo.userName }} 님 반갑습니다!</div>
                     <!-- user가 전날까지 연속 연습 날짜를 가져오기 -->
-                    <div class="profile-day">OO일 째 꾸준히 연습하고 있어요!</div>
+                    <div class="profile-day"> {{ userInfo.streak }} 일 째 꾸준히 연습하고 있어요!</div>
                     <div class="favorite-music">
                         <md-elevation></md-elevation>
-                        <v-icon aria-hidden="false">
-                            mdi-numeric-1-circle-outline
-                        </v-icon>
-                        <div class="music-name">
-                            악보이름
+                        <div class="music-item">
+                            <v-icon aria-hidden="false">
+                                mdi-numeric-1-circle-outline
+                            </v-icon>
+                            <div class="music-name">
+                                {{ favoriteMusic[0] }}
+                            </div>
                         </div>
-                        <v-icon aria-hidden="false">
-                            mdi-numeric-2-circle-outline
-                        </v-icon>
-                        <div class="music-name">
-                            악보이름
+                        <div class="music-item">
+                            <v-icon aria-hidden="false">
+                                mdi-numeric-2-circle-outline
+                            </v-icon>
+                            <div class="music-name">
+                                {{ favoriteMusic[1] }}
+                            </div>
                         </div>
-                        <v-icon aria-hidden="false">
-                            mdi-numeric-3-circle-outline
-                        </v-icon>
-                        <div class="music-name">
-                            악보이름
+                        <div class="music-item">
+                            <v-icon aria-hidden="false">
+                                mdi-numeric-3-circle-outline
+                            </v-icon>
+                            <div class="music-name">
+                                {{ favoriteMusic[2] }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -119,9 +128,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useDashboardStore } from '@/stores/dashboard';
 import honeyFilledImg from '@/assets/images/채워진 벌꿀.png';
 import honeyEmptyImg from '@/assets/images/빈 벌꿀.png';
 import ProfileEdit from '@/components/MyInfo/ProfileEdit.vue';
@@ -129,8 +139,87 @@ import DayPracticeDetail from '@/components/MyInfo/DayPracticeDetail.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
+const dashboardStore = useDashboardStore();
+
+const isLoading = ref(
+    {
+        profile: true,
+        practice: true,
+        friends: true
+
+    }
+);
+
+const userInfo = ref({
+    userId: "string",
+    userName: "string",
+    profileImage: "string",
+    streak: 0,
+    most: [
+        "string"
+    ]
+});
+
+const favoriteMusic = ref(["-", "-", "-"]);
+const practiceRecord = ref([
+    {
+        id: 0,
+        practiceDate: "2024-08-02T04:03:18.286Z",
+        practiceCount: 0,
+        musicId: 0,
+        userId: "string"
+    }
+]);
+
+onMounted(() => {
+    // 유저 정보 가져오기
+    dashboardStore.GetSummary()
+        .then((res) => {
+            console.log(res);
+            isLoading.value.profile = false;
+            userInfo.value.userId = res.data.userId;
+            userInfo.value.userName = res.data.userName;
+            userInfo.value.profileImage = res.data.profileImage;
+            userInfo.value.streak = res.data.streak;
+            userInfo.value.most = res.data.most;
+
+            // favoriteMusic 배열 업데이트
+            for (let i = 0; i < favoriteMusic.value.length; i++) {
+                favoriteMusic.value[i] = userInfo.value.most[i] || "-";
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+
+    // 연습 기록 가져오기
+    dashboardStore.GetMonthlyPracticeRecord(currentYear.value, currentMonth.value)
+        .then((res) => {
+            console.log(res);
+            isLoading.value.practice = false;
+            if (res.data.length === 0) {
+                return;
+            }
+
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+
+    // 친구 목록 가져오기
+    dashboardStore.GetOnlineFriends()
+        .then((res) => {
+            console.log(res);
+            isLoading.value.friends = false;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+});
+
 
 const profileDialogOpen = ref(false);
+const currentYear = ref(2023);
 const currentMonth = ref(7);
 const practiceDays = ref([
     false, true, false, true, true, false, false,
@@ -178,6 +267,14 @@ async function LogOut() {
     }
 }
 
+.loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
+
 .my-profile-box {
     background: #FFF9E0;
     position: relative;
@@ -199,7 +296,6 @@ async function LogOut() {
 .profile-image {
     width: 180px;
     height: 180px;
-    background: url(@/assets/images/정수_어렸을적.png);
     background-size: cover;
     background-position: center;
     border-radius: 50%;
@@ -300,9 +396,20 @@ async function LogOut() {
     --md-sys-color-shadow: #947650;
 }
 
+.music-item {
+    display: flex;
+    align-items: center;
+    width: 100px;
+    /* 너비를 고정합니다 */
+}
+
 .music-name {
     font-size: 16px;
     margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
 }
 
 .pre-month-btn,
