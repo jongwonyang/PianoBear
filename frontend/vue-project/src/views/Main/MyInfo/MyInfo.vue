@@ -220,7 +220,8 @@ onMounted(() => {
             isLoading.value.profile = false;
             userInfo.value.userId = res.data.userId;
             userInfo.value.userName = res.data.userName;
-            userInfo.value.profileImage = res.data.profileImage;
+            // userInfo.value.profileImage = res.data.profileImage;
+            userInfo.value.profileImage = "https://i.namu.wiki/i/SddraDi09VYq0oCCOUERyLBj_WRMc9SXVXYW7ctya2JYNZtI0x1tnfejQtL9SNfhQyr_QqvqWn45PkRIupeTp5RxZ-He16vBNYb7kDwnRXU2Q-71QqDRpWYQrZuvhhe0D2jIonoYtqK4q4pr6wWv2g.webp";
             userInfo.value.streak = res.data.streak;
             userInfo.value.most = res.data.most;
 

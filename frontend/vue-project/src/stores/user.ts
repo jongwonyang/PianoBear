@@ -62,9 +62,7 @@ export const useUserStore = defineStore("user", () => {
 
   const GetUserInfo = async () => {
     try {
-      const res = await apiClient.get(REST_USER_API + "my-info");
-      user.value = res.data;
-      console.log(user.value);
+      return apiClient.get(REST_USER_API + "my-info");
     } catch (e) {
       console.error(e);
     }
