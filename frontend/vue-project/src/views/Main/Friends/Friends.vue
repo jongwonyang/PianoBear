@@ -24,7 +24,8 @@
             <md-elevation></md-elevation>
             <div class="my-friends-header">
                 <div class="my-friends-text">친구들</div>
-                <v-btn append-icon="mdi-plus" size="small" class="add-friend-btn">친구추가</v-btn>
+                <v-btn append-icon="mdi-plus" size="small" class="add-friend-btn"
+                    @click="showDialog = true">친구추가</v-btn>
             </div>
             <div v-if="isLoading.friendList" class="loading-bar">
                 <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
@@ -48,6 +49,20 @@
         <div class="chat-box">
             <md-elevation></md-elevation>
         </div>
+
+        <!-- 다이얼로그 -->
+        <v-dialog v-model="showDialog" max-width="500px">
+            <v-card class="add-friend-form">
+                <v-card-title class="headline">친구 추가</v-card-title>
+                <v-card-text>친구의 아이디를 입력하세요!</v-card-text>
+                <v-text-field label="친구 아이디"></v-text-field>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="showDialog = false">취소</v-btn>
+                    <v-btn text @click="addFriend">추가</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -79,6 +94,7 @@ const friends = ref([
 ]);
 
 const userStore = useUserStore();
+const showDialog = ref(false); // 다이얼로그 상태 추가
 
 onMounted(() => {
     userStore.GetUserInfo()
@@ -94,6 +110,12 @@ onMounted(() => {
             console.log(err);
         });
 });
+
+const addFriend = () => {
+    // 친구 추가 로직을 여기에 구현합니다.
+    console.log("친구가 추가되었습니다.");
+    showDialog.value = false; // 다이얼로그를 닫습니다.
+}
 </script>
 
 <style scoped>
@@ -128,7 +150,7 @@ onMounted(() => {
 
 .my-friends-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     position: sticky;
     top: 0;
@@ -141,10 +163,11 @@ onMounted(() => {
     font-size: 20px;
     font-weight: 700;
     color: #947650;
+    margin-right: auto;
 }
 
 .add-friend-btn {
-    margin-right: 20px;
+    margin-left: auto;
 }
 
 .my-status-text {
@@ -217,6 +240,11 @@ onMounted(() => {
     border-bottom: 0.5px solid #947650;
 }
 
+.add-friend-btn {
+    color: #947650;
+    background-color: #F5E5D1;
+}
+
 .my-friends-ele-left {
     flex: 0 0 auto;
     margin-right: 20px;
@@ -250,6 +278,11 @@ onMounted(() => {
     border-radius: 10px;
     font-size: 15px;
     font-weight: 500;
+    color: #947650;
+}
+
+.add-friend-form {
+    background: #FFF9E0;
     color: #947650;
 }
 </style>
