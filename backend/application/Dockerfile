@@ -8,7 +8,7 @@ COPY entrypoint.sh entrypoint.sh
 
 RUN chmod +x entrypoint.sh
 
-EXPOSE 8080gitgit
+EXPOSE 8080
 
 COPY audiveris audiveris
 
