@@ -1,19 +1,32 @@
 <template>
-    <div>
+    <div class="container">
         <h3>악보 컴포넌트</h3>        
-        <div class="sheet">
-            <img src="@/assets/images/pngegg.png" alt="">
-        </div>
+        <!-- <img v-if="store.detailSheet[0].musicImg" :src="store.detailSheet[0].musicImg" alt="악보 이미지" class="sheet-image" />
+        <p v-else>악보 이미지가 없습니다.</p> -->
+        
     </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { usePianoSheetStore } from "@/stores/pianosheet";
+
+const store = usePianoSheetStore();
+
+const fetchdetailSheet = async (id: number) => {
+    await store.detailSheetfun(id);
+}
+
+onMounted(() => {
+    fetchdetailSheet(1); // 1대신 id 들어가야 함
+})
 </script>
 
 <style scoped>
-.sheet{
-    width: 30px;
-    height: 50px;
+.container{
+    width: 30vw;
+    height: 70wh;
+    border: 1px solid black;
+    
 }
 </style>
