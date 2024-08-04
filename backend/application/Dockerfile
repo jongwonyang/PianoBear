@@ -8,8 +8,6 @@ COPY entrypoint.sh entrypoint.sh
 
 RUN chmod +x entrypoint.sh
 
-EXPOSE 8080
-
 COPY audiveris audiveris
 
 RUN chmod +x /app/audiveris/bin/Audiveris
