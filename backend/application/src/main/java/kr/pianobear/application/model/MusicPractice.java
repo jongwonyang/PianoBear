@@ -25,4 +25,12 @@ public class MusicPractice {
     @ManyToOne
     @JoinColumn(name = "music_id")
     private Music music;
+
+    public int getMusicId() {
+        return music.getId();
+    }
+
+    public String getUserId() {
+        return member.getId();
+    }
 }

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class MusicPracticeService {
 
         LocalDateTime today = LocalDate.now().atStartOfDay();
 
-        Optional<MusicPractice> optionalMusicPractice = musicPracticeRepository.findByMusicIdAndMemberIdAndPracticeDate(musicId, userId, today);
+        Optional<MusicPractice> optionalMusicPractice = musicPracticeRepository.findByMusicAndMemberIdAndPracticeDate(music, userId, today);
         MusicPractice musicPractice;
         if (optionalMusicPractice.isPresent()) {
             musicPractice = optionalMusicPractice.get();
@@ -89,12 +90,12 @@ public class MusicPracticeService {
     }
 
     public List<MusicPracticeDTO> getPracticeDataByUserAndMusic(int musicId, String userId) {
-        List<MusicPractice> practiceData = musicPracticeRepository.findByMemberIdAndMusicId(userId, musicId);
+        List<MusicPractice> practiceData = musicPracticeRepository.findByMemberIdAndMusic(userId, new Music(musicId));
         return practiceData.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public List<MusicPracticeDTO> getAllPracticeDataSortedByDate(int musicId) {
-        List<MusicPractice> practiceData = musicPracticeRepository.findByMusicIdOrderByPracticeDateAsc(musicId);
+        List<MusicPractice> practiceData = musicPracticeRepository.findByMusicOrderByPracticeDateAsc(new Music(musicId));
         return practiceData.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
@@ -108,11 +109,27 @@ public class MusicPracticeService {
         return dto;
     }
 
-    public List<MusicPractice> getMonthlyPracticeRecords(String userId, int year, int month) {
+    public List<MusicPracticeDTO> getMonthlyPracticeRecords(String userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDate = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
 
-        return musicPracticeRepository.findAllByMemberIdAndPracticeDateBetween(userId, startDate, endDate);
+        return musicPracticeRepository
+                .findAllByMemberIdAndPracticeDateBetween(userId, startDate, endDate)
+                .stream()
+                .map(MusicPracticeDTO::fromMusicPractice)
+                .toList();
+    }
+
+    public List<MusicPracticeDTO> getDailyPracticeRecords(String userId, int year, int month, int day) {
+        LocalDate date = LocalDate.of(year, month, day);
+        LocalDateTime startOfDay = LocalDateTime.of(date, LocalTime.MIN);
+        LocalDateTime endOfDay = LocalDateTime.of(date, LocalTime.MAX);
+
+        return musicPracticeRepository
+                .findAllByMemberIdAndPracticeDateBetween(userId, startOfDay, endOfDay)
+                .stream()
+                .map(MusicPracticeDTO::fromMusicPractice)
+                .toList();
     }
 }

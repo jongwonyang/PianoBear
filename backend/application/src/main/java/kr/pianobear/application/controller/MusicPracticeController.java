@@ -3,7 +3,6 @@ package kr.pianobear.application.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.MusicPracticeDTO;
-import kr.pianobear.application.model.MusicPractice;
 import kr.pianobear.application.service.MusicPracticeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +50,8 @@ public class MusicPracticeController {
     @Operation(summary = "월별 연습 기록 불러오기", description = "월별로 사용자의 연습 기록을 불러온다")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping("/{userId}/monthly/{year}/{month}")
-    public ResponseEntity<List<MusicPractice>> getMonthlyPracticeRecords(@PathVariable String userId, @PathVariable int year, @PathVariable int month) {
-        List<MusicPractice> monthlyPracticeRecords = musicPracticeService.getMonthlyPracticeRecords(userId, year, month);
+    public ResponseEntity<List<MusicPracticeDTO>> getMonthlyPracticeRecords(@PathVariable String userId, @PathVariable int year, @PathVariable int month) {
+        List<MusicPracticeDTO> monthlyPracticeRecords = musicPracticeService.getMonthlyPracticeRecords(userId, year, month);
         return ResponseEntity.ok(monthlyPracticeRecords);
     }
 }

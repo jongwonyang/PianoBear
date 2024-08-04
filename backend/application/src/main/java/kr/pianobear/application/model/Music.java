@@ -1,6 +1,7 @@
 package kr.pianobear.application.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "music")
+@Data
 public class Music {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,5 +43,12 @@ public class Music {
 
     public Member getUser() {
         return user;
+    }
+
+    public Music(int id) {
+        this.id = id;
+    }
+
+    public Music() {
     }
 }

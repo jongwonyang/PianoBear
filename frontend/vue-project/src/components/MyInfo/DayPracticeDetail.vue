@@ -1,13 +1,14 @@
 <template>
     <v-card class="practice-box">
         <v-card-title class="practice-title">
-           OO님의 {{month}}월 {{day}}일 연습 기록
+            {{ month }}월 {{ day }}일 연습 기록
         </v-card-title>
         <v-card-text class="practice-element">
             <div class="practice-music">악보 이름</div>
             <div class="praise-sticker">
                 <div class="sticker-box" v-for="index in 5" :key="index">
-                    <img class="sticker-image" :src="index <= practiceCount ? filledHoney : emptyHoney" :alt="index <= practiceCount ? '채워진 벌꿀' : '빈 벌꿀'">
+                    <img class="sticker-image" :src="index <= practiceCount ? filledHoney : emptyHoney"
+                        :alt="index <= practiceCount ? '채워진 벌꿀' : '빈 벌꿀'">
                 </div>
             </div>
         </v-card-text>
@@ -74,4 +75,8 @@ const emptyHoney = honeyEmptyImg;
     height: 100%;
 }
 
+.close-button {
+    padding: 0 15px;
+    /* 좌우에 15px의 여백 추가 */
+}
 </style>

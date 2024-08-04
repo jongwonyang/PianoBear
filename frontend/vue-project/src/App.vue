@@ -1,5 +1,5 @@
 <template>
-    <RouterView />
+  <RouterView />
 </template>
 
 <script setup lang="ts">
@@ -72,10 +72,15 @@ body {
   font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
-  --md-sys-color-outline: #FFFFFF; /* 기본상태 테두리 색상 */
-  --md-sys-color-on-surface: #947650; /* 호버상태 테두리 색상 */
-  --md-sys-color-primary: #947650; /* 포커스상태 테두리 색상 */
-  --md-elevation-level: 5; /* 그림자 레벨 */
-  --md-sys-color-shadow: #d2b659; /* 그림자 색상 */
+  --md-sys-color-outline: #FFFFFF;
+  /* 기본상태 테두리 색상 */
+  --md-sys-color-on-surface: #947650;
+  /* 호버상태 테두리 색상 */
+  --md-sys-color-primary: #947650;
+  /* 포커스상태 테두리 색상 */
+  --md-elevation-level: 5;
+  /* 그림자 레벨 */
+  --md-sys-color-shadow: #d2b659;
+  /* 그림자 색상 */
 }
 </style>

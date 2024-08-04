@@ -420,22 +420,34 @@ public class MusicService {
                 musicList = musicRepository.findByUserIdOrderByFavoriteDesc(userId);
                 break;
             case "practicecount":
-                List<MusicPractice> practiceList = musicPracticeRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId);
-                musicList = practiceList.stream().map(MusicPractice::getMusic).collect(Collectors.toList());
+                musicList = musicPracticeRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid sort parameter");
         }
 
-        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
+        return musicList.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public List<MusicDTO> getTop3Practiced(String userId) {
-        List<Music> top3PracticedMusic = musicPracticeRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId)
-                .stream()
-                .map(MusicPractice::getMusic)
+        List<Music> top3PracticedMusic = musicPracticeRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId);
+        return top3PracticedMusic.stream()
+                .map(music -> mapToDTO(music))
                 .collect(Collectors.toList());
+    }
 
-        return top3PracticedMusic.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
+    private MusicDTO mapToDTO(Music music) {
+        MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setId(music.getId());
+        musicDTO.setTitle(music.getTitle());
+        musicDTO.setOriginalFileRoute(music.getOriginalFileRoute());
+        musicDTO.setMusicXmlRoute(music.getMusicXmlRoute());
+        musicDTO.setModifiedMusicXmlRoute(music.getModifiedMusicXmlRoute());
+        musicDTO.setUserId(music.getUser() != null ? music.getUser().getId() : null);
+        musicDTO.setMusicImg(music.getMusicImg());
+        musicDTO.setFavorite(music.getFavorite());
+        musicDTO.setUploadDate(music.getUploadDate());
+        musicDTO.setArtist(music.getArtist());
+        return musicDTO;
     }
 }

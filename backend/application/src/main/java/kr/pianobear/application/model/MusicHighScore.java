@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "music_high_score")
 public class MusicHighScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

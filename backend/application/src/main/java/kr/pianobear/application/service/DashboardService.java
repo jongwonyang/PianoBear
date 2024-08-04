@@ -38,10 +38,12 @@ public class DashboardService {
         DashboardSummaryDTO summary = new DashboardSummaryDTO();
         summary.setUserId(member.get().getId());
         summary.setUserName(member.get().getName());
-        summary.setProfileImage(FileDataService.getDownloadPath(member.get().getProfilePic().getId()));
+        summary.setProfileImage(FileDataService.getDownloadPath(member.get().getProfilePic()).orElse(null));
         summary.setStreak(userStreak.getCurrentStreak());
         summary.setMost(top3.stream().map(MusicDTO::getTitle).toList());
 
         return Optional.of(summary);
     }
+
+
 }
