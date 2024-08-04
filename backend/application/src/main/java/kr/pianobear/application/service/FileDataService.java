@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -101,5 +102,54 @@ public class FileDataService {
 
     public static String getDownloadPath(Long fileId) {
         return "/api/v1/files/" + fileId;
+    }
+
+    public FileData savePdfFile(MultipartFile file) throws IOException {
+        Path directory = Paths.get(SAVE_PATH);
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String savedName = UUID.randomUUID().toString() + fileExtension;
+        String path = Paths.get(SAVE_PATH, savedName).toString();
+
+        FileData fileData = new FileData();
+        fileData.setOriginalName(originalFilename);
+        fileData.setSavedName(savedName);
+        fileData.setPath(path);
+        fileData.setType(file.getContentType());
+
+        fileData = fileDataRepository.save(fileData);
+
+        file.transferTo(new File(path));
+
+        return fileData;
+    }
+
+    public FileData saveFileToDirectory(MultipartFile file, String directoryPath) throws IOException {
+
+        Path directory = Paths.get(directoryPath);
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String savedName = UUID.randomUUID().toString() + fileExtension;
+        String path = Paths.get(directoryPath, savedName).toString();
+
+        FileData fileData = new FileData();
+        fileData.setOriginalName(originalFilename);
+        fileData.setSavedName(savedName);
+        fileData.setPath(path);
+        fileData.setType(file.getContentType());
+
+        fileData = fileDataRepository.save(fileData);
+
+        file.transferTo(new File(path));
+
+        return fileData;
     }
 }

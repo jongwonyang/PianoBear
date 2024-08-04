@@ -1,6 +1,7 @@
 package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.DashboardSummaryDTO;
+import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.model.Music;
 import kr.pianobear.application.model.UserStreak;
@@ -32,14 +33,14 @@ public class DashboardService {
         if (member.isEmpty()) return Optional.empty();
 
         UserStreak userStreak = musicPracticeService.getUserStreak(member.get().getId()).orElse(new UserStreak());
-        List<Music> top3 = musicService.getTop3Practiced(member.get().getId());
+        List<MusicDTO> top3 = musicService.getTop3Practiced(member.get().getId());
 
         DashboardSummaryDTO summary = new DashboardSummaryDTO();
         summary.setUserId(member.get().getId());
         summary.setUserName(member.get().getName());
         summary.setProfileImage(FileDataService.getDownloadPath(member.get().getProfilePic().getId()));
         summary.setStreak(userStreak.getCurrentStreak());
-        summary.setMost(top3.stream().map(Music::getTitle).toList());
+        summary.setMost(top3.stream().map(MusicDTO::getTitle).toList());
 
         return Optional.of(summary);
     }

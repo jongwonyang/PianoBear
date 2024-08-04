@@ -7,19 +7,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "music_test")
-public class MusicTest {
+@Table(name = "music_high_score")
+public class MusicHighScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int grade;
+    @ManyToOne
+    @JoinColumn(name = "music_id", nullable = false)
+    private Music music;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "music_id")
-    private Music music;
+    private int score;
 }

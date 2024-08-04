@@ -16,4 +16,11 @@ public class UserStreak {
     private int currentStreak;
     private int maxStreak;
     private LocalDate lastPracticedDate;
+
+    public UserStreak() {
+    }
+
+    public UserStreak(String userId) {
+        this.userId = userId;
+    }
 }

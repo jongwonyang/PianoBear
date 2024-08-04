@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,7 +21,7 @@ public class MusicPracticeDTO {
 
     @NotBlank
     @Schema(description = "연습 날짜")
-    private String practiceDate;
+    private LocalDateTime practiceDate;
 
     @NotBlank
     @Schema(description = "날짜별 연습량")

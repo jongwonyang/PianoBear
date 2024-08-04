@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,13 +18,29 @@ public class Music {
 
     private String title;
     private String originalFileRoute;
-    private String changedFileRoute;
-    private int practiceCount;
-    private String recentPractice;
-    private String userId;
+    private String musicXmlRoute;
+    private String modifiedMusicXmlRoute;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true)
+    private Member user; // 외래 키로 설정하여 기본 제공 악보의 경우 null 가능
+
     private String musicImg;
     private Boolean favorite;
     private LocalDateTime uploadDate;
     private String artist;
-    private int highestScore;
+
+    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
+    private List<MusicPractice> practices;
+
+    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
+    private List<MusicTest> tests;
+
+    public void setUser(Member user) {
+        this.user = user;
+    }
+
+    public Member getUser() {
+        return user;
+    }
 }

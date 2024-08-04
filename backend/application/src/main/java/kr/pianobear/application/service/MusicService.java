@@ -1,55 +1,52 @@
 package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.MusicDTO;
-import kr.pianobear.application.model.FileData;
-import kr.pianobear.application.dto.MusicSummaryDTO;
 import kr.pianobear.application.dto.MusicPracticeDTO;
+import kr.pianobear.application.model.FileData;
+import kr.pianobear.application.model.Member;
 import kr.pianobear.application.model.Music;
+import kr.pianobear.application.model.MusicPractice;
+import kr.pianobear.application.repository.MemberRepository;
+import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class MusicService {
 
     private final MusicRepository musicRepository;
     private final MusicPracticeService musicPracticeService;
-    private final UnzipService unzipService;
     private final FileDataService fileDataService;
-    private static final Logger logger = LoggerFactory.getLogger(MusicService.class);
+    private final MemberRepository memberRepository;
+    private final MusicPracticeRepository musicPracticeRepository;
 
     private static final Map<String, String> noteToSyllable = new HashMap<>();
 
@@ -64,80 +61,122 @@ public class MusicService {
     }
 
     @Autowired
-    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, UnzipService unzipService, FileDataService fileDataService) {
+    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository) {
         this.musicRepository = musicRepository;
         this.musicPracticeService = musicPracticeService;
-        this.unzipService = unzipService;
         this.fileDataService = fileDataService;
+        this.memberRepository = memberRepository;
+        this.musicPracticeRepository = musicPracticeRepository;
     }
 
     @Transactional
-    public MusicDTO addMusic(MusicDTO musicDTO, MultipartFile pdfFile) throws IOException, InterruptedException {
-
-        FileData uploadedFileData = fileDataService.uploadFile(pdfFile);
-        File pdfFileOnDisk = new File(uploadedFileData.getPath());
-
-        String musicXmlPath = convertPdfToMusicXml(pdfFileOnDisk);
-
-        String modifiedMusicXmlPath = modifyMusicXml(musicXmlPath);
+    public MusicDTO uploadPdf(MultipartFile pdfFile) throws IOException {
+        System.out.println("Saving PDF file: " + pdfFile.getOriginalFilename());
+        FileData fileData = fileDataService.savePdfFile(pdfFile);
 
         Music music = new Music();
+        music.setTitle(pdfFile.getOriginalFilename().replace(".pdf", ""));
+        music.setOriginalFileRoute(fileData.getPath());
+        Music savedMusic = musicRepository.save(music);
+
+        return mapMusicToDTO(savedMusic);
+    }
+
+    @Transactional
+    public MusicDTO convertPdfToMusicXml(int id, boolean useSax) throws IOException, InterruptedException {
+        Optional<Music> optionalMusic = musicRepository.findById(id);
+        if (!optionalMusic.isPresent()) {
+            throw new RuntimeException("Music not found with id " + id);
+        }
+
+        Music music = optionalMusic.get();
+        File pdfFile = new File(music.getOriginalFileRoute());
+        String mxlFilePath = convertPdfToMusicXml(pdfFile);
+
+        String xmlFilePath = extractMusicXml(mxlFilePath);
+        if (useSax) {
+            modifyMusicXmlSax(xmlFilePath);
+        } else {
+            modifyMusicXmlDom(xmlFilePath);
+        }
+        String modifiedMxlFilePath = compressMusicXml(xmlFilePath);
+
+        music.setMusicXmlRoute(mxlFilePath);
+        music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
+        Music savedMusic = musicRepository.save(music);
+
+        return mapMusicToDTO(savedMusic);
+    }
+
+    @Transactional
+    public MusicDTO saveMusic(MusicDTO musicDTO, MultipartFile file) throws IOException {
+        Optional<Music> optionalMusic = musicRepository.findById(musicDTO.getId());
+        if (!optionalMusic.isPresent()) {
+            throw new RuntimeException("Music not found with id " + musicDTO.getId());
+        }
+
+        Music music = optionalMusic.get();
         music.setTitle(musicDTO.getTitle());
-        music.setOriginalFileRoute(musicXmlPath);
-        music.setChangedFileRoute(modifiedMusicXmlPath);
-        music.setPracticeCount(0);
-        music.setRecentPractice(null);
-        music.setUserId(musicDTO.getUserId());
-        music.setMusicImg(musicDTO.getMusicImg());
-        music.setFavorite(null);
-        music.setUploadDate(LocalDateTime.now());
         music.setArtist(musicDTO.getArtist());
-        music.setHighestScore(0);
+
+        Member user = memberRepository.findById(musicDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id " + musicDTO.getUserId()));
+        music.setUser(user);
+
+        music.setUploadDate(LocalDateTime.now());
+        music.setMusicImg(createMusicImg(music.getTitle()));
 
         Music savedMusic = musicRepository.save(music);
-        logger.info("Successfully saved music with title: {}", music.getTitle());
-        return mapToDTO(savedMusic);
+
+        return mapMusicToDTO(savedMusic);
     }
 
     private String convertPdfToMusicXml(File pdfFile) throws IOException, InterruptedException {
-        logger.info("Converting PDF to MusicXML for file: {}", pdfFile.getPath());
-        String musicXmlPath = pdfFile.getPath().replace(".pdf", ".mxl");
+        String mxlFilePath = pdfFile.getPath().replace(".pdf", ".mxl");
 
         ProcessBuilder processBuilder = new ProcessBuilder(
-                "/app/audiveris/bin/Audiveris",
+                "/path/to/audiveris",
                 "-batch",
                 pdfFile.getPath(),
                 "-export",
-                musicXmlPath);
+                mxlFilePath
+        );
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         process.waitFor();
 
-        if (!new File(musicXmlPath).exists()) {
-            logger.error("Failed to create MusicXML file from PDF: {}", pdfFile.getPath());
+        if (!new File(mxlFilePath).exists()) {
             throw new IOException("Failed to create MusicXML file from PDF");
         }
 
-        logger.info("Successfully converted PDF to MusicXML: {}", musicXmlPath);
-        return musicXmlPath;
+        return mxlFilePath;
     }
 
-    private String modifyMusicXml(String musicXmlPath) throws IOException {
-        logger.info("Modifying MusicXML file: {}", musicXmlPath);
-        File tempDir = Files.createTempDirectory("unzippedMusicXml").toFile();
-        unzipService.unzipMxlFile(musicXmlPath, tempDir.getAbsolutePath());
-
-        File xmlFile = findMainXmlFile(tempDir);
-        if (xmlFile == null) {
-            logger.error("No XML file found in the unzipped MusicXML archive: {}", musicXmlPath);
-            throw new IOException("No XML file found in the unzipped MusicXML archive");
+    private String extractMusicXml(String mxlFilePath) throws IOException {
+        File mxlFile = new File(mxlFilePath);
+        File outputDir = new File(mxlFile.getParentFile(), "extracted");
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
         }
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder;
+        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(mxlFile))) {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                File outputFile = new File(outputDir, entry.getName());
+                try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                    IOUtils.copy(zipInputStream, outputStream);
+                }
+            }
+        }
+
+        return new File(outputDir, "main.xml").getPath();
+    }
+
+    private void modifyMusicXmlDom(String xmlFilePath) throws IOException {
         try {
-            dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            org.w3c.dom.Document doc = dBuilder.parse(new File(xmlFilePath));
             doc.getDocumentElement().normalize();
 
             NodeList noteList = doc.getElementsByTagName("note");
@@ -181,98 +220,131 @@ public class MusicService {
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(xmlFile);
+            StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(source, result);
         } catch (Exception e) {
-            logger.error("Failed to modify MusicXML file: {}", musicXmlPath, e);
             throw new IOException("Failed to modify MusicXML file", e);
         }
-
-        String modifiedMusicXmlPath = musicXmlPath.replace(".mxl", "_modified.mxl");
-        zipMusicXml(tempDir, modifiedMusicXmlPath);
-
-        deleteDirectory(tempDir);
-
-        logger.info("Successfully modified MusicXML file: {}", modifiedMusicXmlPath);
-        return modifiedMusicXmlPath;
     }
 
-    private File findMainXmlFile(File directory) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".xml")) {
-                    return file;
+    private void modifyMusicXmlSax(String xmlFilePath) throws IOException {
+        File modifiedXmlFile = new File(xmlFilePath.replace(".xml", "_modified.xml"));
+        try (FileOutputStream fos = new FileOutputStream(modifiedXmlFile);
+             OutputStreamWriter writer = new OutputStreamWriter(fos, "UTF-8");
+             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            saxParser.parse(new File(xmlFilePath), new DefaultHandler() {
+                private boolean inPitch = false;
+                private boolean inStep = false;
+                private String currentStep = null;
+
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    try {
+                        bufferedWriter.write("<" + qName);
+                        for (int i = 0; i < attributes.getLength(); i++) {
+                            bufferedWriter.write(" " + attributes.getQName(i) + "=\"" + attributes.getValue(i) + "\"");
+                        }
+                        bufferedWriter.write(">");
+                    } catch (IOException e) {
+                        throw new SAXException(e);
+                    }
+
+                    if (qName.equalsIgnoreCase("pitch")) {
+                        inPitch = true;
+                    } else if (qName.equalsIgnoreCase("step")) {
+                        inStep = true;
+                    }
                 }
-                if (file.isDirectory()) {
-                    File found = findMainXmlFile(file);
-                    if (found != null) {
-                        return found;
+
+                @Override
+                public void endElement(String uri, String localName, String qName) throws SAXException {
+                    try {
+                        if (qName.equalsIgnoreCase("step")) {
+                            inStep = false;
+                        } else if (qName.equalsIgnoreCase("pitch")) {
+                            inPitch = false;
+                        }
+
+                        if (qName.equalsIgnoreCase("note") && currentStep != null) {
+                            bufferedWriter.write("<lyric><text>" + noteToSyllable.get(currentStep) + "</text></lyric>");
+                            currentStep = null;
+                        }
+                        bufferedWriter.write("</" + qName + ">");
+                    } catch (IOException e) {
+                        throw new SAXException(e);
+                    }
+                }
+
+                @Override
+                public void characters(char[] ch, int start, int length) throws SAXException {
+                    try {
+                        if (inStep && inPitch) {
+                            currentStep = new String(ch, start, length);
+                        }
+                        bufferedWriter.write(new String(ch, start, length));
+                    } catch (IOException e) {
+                        throw new SAXException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            throw new IOException("Failed to modify MusicXML file", e);
+        }
+    }
+
+    private String compressMusicXml(String xmlFilePath) throws IOException {
+        File xmlFile = new File(xmlFilePath);
+        File outputDir = xmlFile.getParentFile();
+        String mxlFilePath = xmlFilePath.replace(".xml", "_modified.mxl");
+
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(mxlFilePath))) {
+            File[] files = outputDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    try (FileInputStream inputStream = new FileInputStream(file)) {
+                        zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
+                        IOUtils.copy(inputStream, zipOutputStream);
+                        zipOutputStream.closeEntry();
                     }
                 }
             }
         }
-        return null;
+
+        return mxlFilePath;
     }
 
-    private void zipMusicXml(File directory, String zipFilePath) throws IOException {
-        try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(zipFilePath))) {
-            File[] files = directory.listFiles();
-            assert files != null;
-            for (File file : files) {
-                zipFile(file, file.getName(), zipOut);
-            }
-        }
+    private String createMusicImg(String title) {
+        // OpenAI API를 사용하여 이미지를 생성하는 로직을 여기에 추가합니다.
+        // 생성된 이미지 경로를 반환합니다.
+        return "/path/to/generated/image.png";
     }
 
-    private void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
-        if (fileToZip.isHidden()) {
-            return;
-        }
-        if (fileToZip.isDirectory()) {
-            if (fileName.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(fileName));
-                zipOut.closeEntry();
-            } else {
-                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
-                zipOut.closeEntry();
-            }
-            File[] children = fileToZip.listFiles();
-            assert children != null;
-            for (File childFile : children) {
-                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
-            }
-            return;
-        }
-        try (FileInputStream fis = new FileInputStream(fileToZip)) {
-            ZipEntry zipEntry = new ZipEntry(fileName);
-            zipOut.putNextEntry(zipEntry);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = fis.read(bytes)) >= 0) {
-                zipOut.write(bytes, 0, length);
-            }
-        }
-    }
-
-    private void deleteDirectory(File directory) {
-        File[] allContents = directory.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                deleteDirectory(file);
-            }
-        }
-        directory.delete();
+    private MusicDTO mapMusicToDTO(Music music) {
+        MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setId(music.getId());
+        musicDTO.setTitle(music.getTitle());
+        musicDTO.setOriginalFileRoute(music.getOriginalFileRoute());
+        musicDTO.setMusicXmlRoute(music.getMusicXmlRoute());
+        musicDTO.setModifiedMusicXmlRoute(music.getModifiedMusicXmlRoute());
+        musicDTO.setUserId(music.getUser().getId());
+        musicDTO.setMusicImg(music.getMusicImg());
+        musicDTO.setFavorite(music.getFavorite());
+        musicDTO.setUploadDate(music.getUploadDate());
+        musicDTO.setArtist(music.getArtist());
+        return musicDTO;
     }
 
     public List<MusicDTO> getAllMusic() {
         List<Music> musicList = musicRepository.findAll();
-        return musicList.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
     public Optional<MusicDTO> getMusicById(int id) {
         Optional<Music> music = musicRepository.findById(id);
-        return music.map(this::mapToDTO);
+        return music.map(this::mapMusicToDTO);
     }
 
     @Transactional
@@ -292,53 +364,78 @@ public class MusicService {
 
     public List<MusicDTO> searchMusicByTitle(String title) {
         List<Music> musicList = musicRepository.findByTitleContainingIgnoreCase(title);
-        return musicList.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
     public List<MusicDTO> searchMusicByArtist(String artist) {
         List<Music> musicList = musicRepository.findByArtistContainingIgnoreCase(artist);
-        return musicList.stream().map(this::mapToDTO).collect(Collectors.toList());
-    }
-
-    public Page<MusicSummaryDTO> getPaginatedMusic(int page, int size, String sortBy, String direction) {
-        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Music> musicPage = musicRepository.findAll(pageable);
-        return musicPage.map(this::mapToSummaryDTO);
+        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
     public MusicPracticeDTO practiceMusic(int musicId, String userId) {
         return musicPracticeService.practiceMusic(musicId, userId);
     }
 
-    private MusicDTO mapToDTO(Music music) {
-        MusicDTO musicDTO = new MusicDTO();
-        musicDTO.setId(music.getId());
-        musicDTO.setTitle(music.getTitle());
-        musicDTO.setOriginalFileRoute(music.getOriginalFileRoute());
-        musicDTO.setChangedFileRoute(music.getChangedFileRoute());
-        musicDTO.setPracticeCount(music.getPracticeCount());
-        musicDTO.setRecentPractice(music.getRecentPractice() != null ? music.getRecentPractice() : null);
-        musicDTO.setUserId(music.getUserId());
-        musicDTO.setMusicImg(music.getMusicImg());
-        musicDTO.setFavorite(music.getFavorite());
-        musicDTO.setUploadDate(music.getUploadDate().toString());
-        musicDTO.setArtist(music.getArtist());
-        musicDTO.setHighestScore(music.getHighestScore());
-        return musicDTO;
+    public List<LocalDateTime> getUploadDates(String userId) {
+        List<Music> musicList = musicRepository.findByUserId(userId);
+        return musicList.stream().map(Music::getUploadDate).collect(Collectors.toList());
     }
 
-
-    private MusicSummaryDTO mapToSummaryDTO(Music music) {
-        MusicSummaryDTO summaryDTO = new MusicSummaryDTO();
-        summaryDTO.setMusicImg(music.getMusicImg());
-        summaryDTO.setTitle(music.getTitle());
-        summaryDTO.setArtist(music.getArtist());
-        summaryDTO.setFavorite(music.getFavorite());
-        return summaryDTO;
+    public boolean getFavoriteStatus(int id) {
+        Optional<Music> music = musicRepository.findById(id);
+        return music.map(Music::getFavorite).orElse(false);
     }
 
-    public List<Music> getTop3Practiced(String userId) {
-        return musicRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId);
+    public MusicDTO updateMusic(int id, MusicDTO musicDTO) {
+        Optional<Music> optionalMusic = musicRepository.findById(id);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+            music.setTitle(musicDTO.getTitle());
+            music.setArtist(musicDTO.getArtist());
+            Music updatedMusic = musicRepository.save(music);
+            return mapMusicToDTO(updatedMusic);
+        }
+        return null;
+    }
+
+    public List<MusicDTO> getMusicByUserAndSort(String userId, String sortBy, String direction) {
+        List<Music> musicList;
+
+        switch (sortBy.toLowerCase()) {
+            case "uploaddate":
+                if ("asc".equalsIgnoreCase(direction)) {
+                    musicList = musicRepository.findByUserIdOrderByUploadDateAsc(userId);
+                } else {
+                    musicList = musicRepository.findByUserIdOrderByUploadDateDesc(userId);
+                }
+                break;
+            case "title":
+                if ("asc".equalsIgnoreCase(direction)) {
+                    musicList = musicRepository.findByUserIdOrderByTitleAsc(userId);
+                } else {
+                    musicList = musicRepository.findByUserIdOrderByTitleDesc(userId);
+                }
+                break;
+            case "favorite":
+                musicList = musicRepository.findByUserIdOrderByFavoriteDesc(userId);
+                break;
+            case "practicecount":
+                List<MusicPractice> practiceList = musicPracticeRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId);
+                musicList = practiceList.stream().map(MusicPractice::getMusic).collect(Collectors.toList());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort parameter");
+        }
+
+        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
+    }
+
+    public List<MusicDTO> getTop3Practiced(String userId) {
+        List<Music> top3PracticedMusic = musicPracticeRepository.findTop3ByUserIdOrderByPracticeCountDesc(userId)
+                .stream()
+                .map(MusicPractice::getMusic)
+                .collect(Collectors.toList());
+
+        return top3PracticedMusic.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 }

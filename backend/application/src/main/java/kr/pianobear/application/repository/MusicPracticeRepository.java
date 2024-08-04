@@ -10,12 +10,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MusicPracticeRepository extends JpaRepository<MusicPractice, Integer> {
-    Optional<MusicPractice> findByMusicIdAndUserIdAndPracticeDate(int musicId, String userId, LocalDateTime practiceDate);
-    List<MusicPractice> findByUserIdAndMusicId(String userId, int musicId);
+    Optional<MusicPractice> findByMusicIdAndMemberIdAndPracticeDate(int musicId, String memberId, LocalDateTime practiceDate);
+    List<MusicPractice> findByMemberIdAndMusicId(String memberId, int musicId);
     List<MusicPractice> findByMusicIdOrderByPracticeDateAsc(int musicId);
+    List<MusicPractice> findAllByMemberIdAndPracticeDateBetween(String memberId, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query("SELECT mp FROM MusicPractice mp WHERE mp.userId = :userId AND mp.practiceDate >= :startDate AND mp.practiceDate < :endDate")
-    List<MusicPractice> findAllByUserIdAndMonth(@Param("userId") String userId,
+    @Query("SELECT mp.music FROM MusicPractice mp WHERE mp.member.id = :memberId GROUP BY mp.music ORDER BY SUM(mp.practiceCount) DESC")
+    List<MusicPractice> findTop3ByUserIdOrderByPracticeCountDesc(String memberId);
+
+    @Query("SELECT mp FROM MusicPractice mp WHERE mp.member.id = :memberId AND mp.practiceDate >= :startDate AND mp.practiceDate < :endDate")
+    List<MusicPractice> findAllByUserIdAndMonth(@Param("memberId") String memberId,
                                                 @Param("startDate") LocalDateTime startDate,
                                                 @Param("endDate") LocalDateTime endDate);
 }
