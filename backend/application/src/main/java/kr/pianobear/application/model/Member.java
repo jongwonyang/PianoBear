@@ -1,14 +1,19 @@
 package kr.pianobear.application.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
+@EqualsAndHashCode(exclude = "friends")
+@ToString(exclude = "friends")
 public class Member {
 
     @Id
@@ -21,9 +26,31 @@ public class Member {
     private String password;
 
     @OneToOne(targetEntity = FileData.class)
+    @Nullable
     private FileData profilePic;
 
     private String statusMessage;
     private boolean authEmail;
     private String role;
+
+    public Member() {
+    }
+
+    public Member(String id) {
+        this.id = id;
+    }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Music> musicList;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<MusicPractice> practices;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<MusicTest> tests;
+
+    @ManyToMany
+    @JoinTable
+    private Set<Member> friends;
+
 }

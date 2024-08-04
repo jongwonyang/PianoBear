@@ -3,7 +3,10 @@
         <div class="my-profile-box">
             <md-elevation></md-elevation>
             <div class="profile-content">
-                <div class="profile-image"></div>
+                <div v-if="isLoading.profile" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <img v-else class="profile-image" :src="userInfo.profileImage">
                 <div class="profile-info">
                     <!-- 편집 버튼 -->
                     <v-dialog v-model="profileDialogOpen" max-width="500">
@@ -16,28 +19,34 @@
                         </template>
                     </v-dialog>
                     <!-- user name 가져오게 -->
-                    <div class="profile-name">하정수 님 반갑습니다!</div>
+                    <div class="profile-name">{{ userInfo.userName }} 님 반갑습니다!</div>
                     <!-- user가 전날까지 연속 연습 날짜를 가져오기 -->
-                    <div class="profile-day">OO일 째 꾸준히 연습하고 있어요!</div>
+                    <div class="profile-day"> {{ userInfo.streak }} 일 째 꾸준히 연습하고 있어요!</div>
                     <div class="favorite-music">
                         <md-elevation></md-elevation>
-                        <v-icon aria-hidden="false">
-                            mdi-numeric-1-circle-outline
-                        </v-icon>
-                        <div class="music-name">
-                            악보이름
+                        <div class="music-item">
+                            <v-icon aria-hidden="false">
+                                mdi-numeric-1-circle-outline
+                            </v-icon>
+                            <div class="music-name">
+                                {{ favoriteMusic[0] }}
+                            </div>
                         </div>
-                        <v-icon aria-hidden="false">
-                            mdi-numeric-2-circle-outline
-                        </v-icon>
-                        <div class="music-name">
-                            악보이름
+                        <div class="music-item">
+                            <v-icon aria-hidden="false">
+                                mdi-numeric-2-circle-outline
+                            </v-icon>
+                            <div class="music-name">
+                                {{ favoriteMusic[1] }}
+                            </div>
                         </div>
-                        <v-icon aria-hidden="false">
-                            mdi-numeric-3-circle-outline
-                        </v-icon>
-                        <div class="music-name">
-                            악보이름
+                        <div class="music-item">
+                            <v-icon aria-hidden="false">
+                                mdi-numeric-3-circle-outline
+                            </v-icon>
+                            <div class="music-name">
+                                {{ favoriteMusic[2] }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -48,15 +57,21 @@
                 </md-elevated-button>
             </div>
         </div>
+
         <div class="practice-online">
             <div class="practice-box">
                 <md-elevation></md-elevation>
                 <div class="practice-header">
-                    <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact"></v-btn>
+                    <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact"
+                        @click="previousMonth"></v-btn>
                     <div>{{ currentMonth }}월 나의 연습 기록</div>
-                    <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact"></v-btn>
+                    <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact"
+                        @click="nextMonth"></v-btn>
                 </div>
-                <div class="practice-calendar">
+                <div v-if="isLoading.practice" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <div v-else class="practice-calendar">
                     <template v-for="(day, index) in practiceDays" :key="index">
                         <v-dialog v-model="dialogState[index]" max-width="500">
                             <template v-slot:activator="{ props: activatorProps }">
@@ -74,44 +89,29 @@
                     </template>
                 </div>
                 <v-divider style="margin-bottom: 15px;"></v-divider>
-                <div class="practice-day">연습일수 나오게</div>
+                <div class="practice-day">{{ practiceDaysCount }}일 동안 연습했어요!</div>
             </div>
             <div class="online-friends-box">
                 <md-elevation></md-elevation>
-                <!-- 온라인 친구 최대 3명 나타내기
-                 v-for 사용해서 현재 로그인 된 친구 3명 나타내기(가장 최근 대화한 순으로) -->
                 <div class="online-friend-title">현재 온라인 친구들</div>
-                <div class="online-friend">
-                    <div class="friend-box">
-                        <div class="friend-image"></div>
-                        <div class="friend-name">친구 이름</div>
-                        <div class="friend-chat">
-                            <v-icon aria-hidden="false">
-                                mdi-chat
-                            </v-icon>
-                            <v-tooltip activator="parent" location="bottom">채팅하기</v-tooltip>
+                <div v-if="isLoading.friends" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <div v-else class="online-friend">
+                    <template v-for="friend in topOnlineFriends" :key="friend.id">
+                        <div class="friend-box">
+                            <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic.path})` }">
+                            </div>
+                            <div class="friend-name">{{ friend.name }}</div>
+                            <div class="friend-chat">
+                                <v-icon aria-hidden="false">
+                                    mdi-chat
+                                </v-icon>
+                                <v-tooltip activator="parent" location="bottom">채팅하기</v-tooltip>
+                            </div>
                         </div>
-                    </div>
-                    <v-divider></v-divider>
-                    <div class="friend-box">
-                        <div class="friend-image"></div>
-                        <div class="friend-name">친구 이름</div>
-                        <div class="friend-chat">
-                            <v-icon aria-hidden="false">
-                                mdi-chat
-                            </v-icon>
-                        </div>
-                    </div>
-                    <v-divider></v-divider>
-                    <div class="friend-box">
-                        <div class="friend-image"></div>
-                        <div class="friend-name">친구 이름</div>
-                        <div class="friend-chat">
-                            <v-icon aria-hidden="false">
-                                mdi-chat
-                            </v-icon>
-                        </div>
-                    </div>
+                        <v-divider></v-divider>
+                    </template>
                 </div>
             </div>
         </div>
@@ -119,9 +119,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useDashboardStore } from '@/stores/dashboard';
 import honeyFilledImg from '@/assets/images/채워진 벌꿀.png';
 import honeyEmptyImg from '@/assets/images/빈 벌꿀.png';
 import ProfileEdit from '@/components/MyInfo/ProfileEdit.vue';
@@ -129,21 +130,128 @@ import DayPracticeDetail from '@/components/MyInfo/DayPracticeDetail.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
+const dashboardStore = useDashboardStore();
 
-const profileDialogOpen = ref(false);
+const isLoading = ref({
+    profile: true,
+    practice: true,
+    friends: true
+});
+
+const userInfo = ref({
+    userId: "string",
+    userName: "string",
+    profileImage: "string",
+    streak: 0,
+    most: [
+        "string"
+    ]
+});
+
+const favoriteMusic = ref(["-", "-", "-"]);
+const practiceRecord = ref([]);
+const currentYear = ref(2023);
 const currentMonth = ref(7);
-const practiceDays = ref([
-    false, true, false, true, true, false, false,
-    true, true, false, true, false, true, true,
-    false, false, true, true, false, true, false,
-    true, false, true, true, false, true, false,
-    true, true
-]);
+const practiceDays = ref([]);
+const dialogState = ref([]);
+const onlineFriends = ref([]);
 
-const dialogState = ref(practiceDays.value.map(() => false));
+const practiceDaysCount = computed(() => {
+    return practiceDays.value.filter(day => day).length;
+});
 
 const honeyFilled = honeyFilledImg;
 const honeyEmpty = honeyEmptyImg;
+
+const topOnlineFriends = computed(() => {
+    return onlineFriends.value.slice(0, 3);
+});
+
+const updatePracticeDays = (year, month) => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    practiceDays.value = Array.from({ length: daysInMonth }, () => false);
+    dialogState.value = Array.from({ length: daysInMonth }, () => false);
+};
+
+const fetchPracticeRecords = (year, month) => {
+    isLoading.value.practice = true;
+    dashboardStore.GetMonthlyPracticeRecord(year, month)
+        .then((res) => {
+            practiceRecord.value = Array.isArray(res.data) ? res.data : [];
+            practiceRecord.value.forEach(record => {
+                const date = new Date(record.practiceDate);
+                practiceDays.value[date.getDate() - 1] = true;
+            });
+            isLoading.value.practice = false;
+        })
+        .catch((error) => {
+            console.error(error);
+            isLoading.value.practice = false;
+        });
+};
+
+const previousMonth = () => {
+    if (currentMonth.value === 1) {
+        currentYear.value--;
+        currentMonth.value = 12;
+    } else {
+        currentMonth.value--;
+    }
+    updatePracticeDays(currentYear.value, currentMonth.value);
+    fetchPracticeRecords(currentYear.value, currentMonth.value);
+};
+
+const nextMonth = () => {
+    if (currentMonth.value === 12) {
+        currentYear.value++;
+        currentMonth.value = 1;
+    } else {
+        currentMonth.value++;
+    }
+    updatePracticeDays(currentYear.value, currentMonth.value);
+    fetchPracticeRecords(currentYear.value, currentMonth.value);
+};
+
+onMounted(() => {
+    // 유저 정보 가져오기
+    dashboardStore.GetSummary()
+        .then((res) => {
+            console.log(res);
+            isLoading.value.profile = false;
+            userInfo.value.userId = res.data.userId;
+            userInfo.value.userName = res.data.userName;
+            // userInfo.value.profileImage = res.data.profileImage;
+            userInfo.value.profileImage = "https://i.namu.wiki/i/SddraDi09VYq0oCCOUERyLBj_WRMc9SXVXYW7ctya2JYNZtI0x1tnfejQtL9SNfhQyr_QqvqWn45PkRIupeTp5RxZ-He16vBNYb7kDwnRXU2Q-71QqDRpWYQrZuvhhe0D2jIonoYtqK4q4pr6wWv2g.webp";
+            userInfo.value.streak = res.data.streak;
+            userInfo.value.most = res.data.most;
+
+            // favoriteMusic 배열 업데이트
+            for (let i = 0; i < favoriteMusic.value.length; i++) {
+                favoriteMusic.value[i] = userInfo.value.most[i] || "-";
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+
+    // 초기 연습 기록 가져오기
+    updatePracticeDays(currentYear.value, currentMonth.value);
+    fetchPracticeRecords(currentYear.value, currentMonth.value);
+
+    // 친구 목록 가져오기
+    dashboardStore.GetOnlineFriends()
+        .then((res) => {
+            console.log(res);
+            onlineFriends.value = res.data;
+            isLoading.value.friends = false;
+        })
+        .catch((error) => {
+            console.error(error);
+            isLoading.value.friends = false;
+        });
+});
+
+const profileDialogOpen = ref(false);
 
 const closeProfileDialog = () => {
     profileDialogOpen.value = false;
@@ -165,11 +273,6 @@ async function LogOut() {
         console.error(error);
     }
 }
-/////////////// 웹소켓 테스트 ////////////////////
-import { useWebSocketStore } from "@/stores/useWebSocketStore";
-const webSocketStore = useWebSocketStore();
-webSocketStore.connectWebSocket();
-/////////////////////////////////////////////////
 </script>
 
 <style scoped>
@@ -181,6 +284,12 @@ webSocketStore.connectWebSocket();
     to {
         opacity: 1;
     }
+}
+
+.loading-bar {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 .my-profile-box {
@@ -204,7 +313,6 @@ webSocketStore.connectWebSocket();
 .profile-image {
     width: 180px;
     height: 180px;
-    background: url(@/assets/images/정수_어렸을적.png);
     background-size: cover;
     background-position: center;
     border-radius: 50%;
@@ -229,6 +337,10 @@ webSocketStore.connectWebSocket();
     position: absolute;
     bottom: 10px;
     right: 10px;
+}
+
+.logout-btn md-elevated-button {
+    padding: 0 15px;
 }
 
 .practice-online {
@@ -305,9 +417,20 @@ webSocketStore.connectWebSocket();
     --md-sys-color-shadow: #947650;
 }
 
+.music-item {
+    display: flex;
+    align-items: center;
+    width: 100px;
+    /* 너비를 고정합니다 */
+}
+
 .music-name {
     font-size: 16px;
     margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
 }
 
 .pre-month-btn,
@@ -327,7 +450,6 @@ webSocketStore.connectWebSocket();
 .friend-image {
     width: 70px;
     height: 70px;
-    background: url(@/assets/images/정수_어렸을적.png);
     background-size: cover;
     background-position: center;
     border-radius: 50%;

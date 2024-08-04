@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MusicTestRepository extends JpaRepository<MusicTest, Integer> {
-    List<MusicTest> findByUserIdAndMusicId(String userId, int musicId);
+    List<MusicTest> findByMemberIdAndMusicId(String userId, int musicId);
 }

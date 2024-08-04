@@ -4,6 +4,7 @@ import kr.pianobear.application.dto.MusicPracticeDTO;
 import kr.pianobear.application.model.Music;
 import kr.pianobear.application.model.MusicPractice;
 import kr.pianobear.application.model.UserStreak;
+import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
 import kr.pianobear.application.repository.UserStreakRepository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -40,21 +42,19 @@ public class MusicPracticeService {
         }
 
         Music music = optionalMusic.get();
-        music.setPracticeCount(music.getPracticeCount() + 1);
-        music.setRecentPractice(LocalDate.now().toString());
         musicRepository.save(music);
 
         LocalDateTime today = LocalDate.now().atStartOfDay();
 
-        Optional<MusicPractice> optionalMusicPractice = musicPracticeRepository.findByMusicIdAndUserIdAndPracticeDate(musicId, userId, today);
+        Optional<MusicPractice> optionalMusicPractice = musicPracticeRepository.findByMusicAndMemberIdAndPracticeDate(music, userId, today);
         MusicPractice musicPractice;
         if (optionalMusicPractice.isPresent()) {
             musicPractice = optionalMusicPractice.get();
             musicPractice.setPracticeCount(musicPractice.getPracticeCount() + 1);
         } else {
             musicPractice = new MusicPractice();
-            musicPractice.setMusicId(musicId);
-            musicPractice.setUserId(userId);
+            musicPractice.setMusic(music);
+            musicPractice.setMember(new Member(userId));
             musicPractice.setPracticeDate(today);
             musicPractice.setPracticeCount(1);
         }
@@ -67,8 +67,8 @@ public class MusicPracticeService {
     }
 
     private void updateStreak(MusicPractice practice) {
-        UserStreak streak = userStreakRepository.findById(practice.getUserId())
-                .orElse(new UserStreak());
+        UserStreak streak = userStreakRepository.findById(practice.getMember().getId())
+                .orElse(new UserStreak(practice.getMember().getId()));
 
         LocalDate practiceDate = practice.getPracticeDate().toLocalDate();
         if (streak.getLastPracticedDate() != null && practiceDate.minusDays(1).equals(streak.getLastPracticedDate())) {
@@ -90,30 +90,46 @@ public class MusicPracticeService {
     }
 
     public List<MusicPracticeDTO> getPracticeDataByUserAndMusic(int musicId, String userId) {
-        List<MusicPractice> practiceData = musicPracticeRepository.findByUserIdAndMusicId(userId, musicId);
+        List<MusicPractice> practiceData = musicPracticeRepository.findByMemberIdAndMusic(userId, new Music(musicId));
         return practiceData.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public List<MusicPracticeDTO> getAllPracticeDataSortedByDate(int musicId) {
-        List<MusicPractice> practiceData = musicPracticeRepository.findByMusicIdOrderByPracticeDateAsc(musicId);
+        List<MusicPractice> practiceData = musicPracticeRepository.findByMusicOrderByPracticeDateAsc(new Music(musicId));
         return practiceData.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     private MusicPracticeDTO mapToDTO(MusicPractice musicPractice) {
         MusicPracticeDTO dto = new MusicPracticeDTO();
         dto.setId(musicPractice.getId());
-        dto.setPracticeDate(musicPractice.getPracticeDate().toString());
+        dto.setPracticeDate(musicPractice.getPracticeDate());
         dto.setPracticeCount(musicPractice.getPracticeCount());
-        dto.setMusicId(musicPractice.getMusicId());
-        dto.setUserId(musicPractice.getUserId());
+        dto.setMusicId(musicPractice.getMusic().getId());
+        dto.setUserId(musicPractice.getMember().getId());
         return dto;
     }
 
-    public List<MusicPractice> getMonthlyPracticeRecords(String userId, int year, int month) {
+    public List<MusicPracticeDTO> getMonthlyPracticeRecords(String userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDate = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
 
-        return musicPracticeRepository.findAllByUserIdAndMonth(userId, startDate, endDate);
+        return musicPracticeRepository
+                .findAllByMemberIdAndPracticeDateBetween(userId, startDate, endDate)
+                .stream()
+                .map(MusicPracticeDTO::fromMusicPractice)
+                .toList();
+    }
+
+    public List<MusicPracticeDTO> getDailyPracticeRecords(String userId, int year, int month, int day) {
+        LocalDate date = LocalDate.of(year, month, day);
+        LocalDateTime startOfDay = LocalDateTime.of(date, LocalTime.MIN);
+        LocalDateTime endOfDay = LocalDateTime.of(date, LocalTime.MAX);
+
+        return musicPracticeRepository
+                .findAllByMemberIdAndPracticeDateBetween(userId, startOfDay, endOfDay)
+                .stream()
+                .map(MusicPracticeDTO::fromMusicPractice)
+                .toList();
     }
 }

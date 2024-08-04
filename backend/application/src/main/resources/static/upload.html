@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Upload and Convert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="file"] {
+            display: block;
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Upload PDF and Convert</h1>
+<form id="uploadForm" enctype="multipart/form-data">
+    <label for="file">Choose PDF file:</label>
+    <input type="file" id="file" name="file" accept=".pdf" required>
+    <button type="button" onclick="uploadPdf()">Upload and Convert</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+    async function uploadPdf() {
+        const form = document.getElementById('uploadForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/api/v1/music/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('result').innerHTML = `
+                        <p>PDF uploaded successfully!</p>
+                        <p><strong>Music Title:</strong> ${data.title}</p>
+                        <p><strong>Music ID:</strong> ${data.id}</p>
+                    `;
+            } else {
+                const errorText = await response.text();
+                document.getElementById('result').innerHTML = `<p>Error: ${errorText}</p>`;
+            }
+        } catch (error) {
+            document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-layout>
-      <v-navigation-drawer expand-on-hover rail>
+      <v-navigation-drawer expand-on-hover rail color="#D9F6D9">
         <v-list>
           <!-- 여기는 이미지 넣을 건데 이미지는 유저의 프로필 사진을 가져올거임 -->
           <v-list-item prepend-avatar="@/assets/images/정수_어렸을적.png" subtitle="kmk2528@naver.com"
@@ -29,29 +29,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
-
-const socket = new SockJS('https://apitest.pianobear.kr/ws');
-const stompClient = Stomp.over(socket);
-
-stompClient.connect(
-  { Authorization: 'Bearer ' + localStorage.getItem('accessToken') },
-  (frame) => {
-    console.log('Connected: ' + frame);
-
-    // Subscribe to a topic if needed
-  }
-);
-
-// Handle window close event to properly disconnect
-window.addEventListener('beforeunload', () => {
-  stompClient.disconnect(() => {
-    console.log('Disconnected');
-  });
-});
-
-
 const router = useRouter();
 
 

@@ -2,7 +2,10 @@ package kr.pianobear.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import kr.pianobear.application.model.MusicPractice;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,7 +22,7 @@ public class MusicPracticeDTO {
 
     @NotBlank
     @Schema(description = "연습 날짜")
-    private String practiceDate;
+    private LocalDateTime practiceDate;
 
     @NotBlank
     @Schema(description = "날짜별 연습량")
@@ -32,4 +35,14 @@ public class MusicPracticeDTO {
     @NotBlank
     @Schema(description = "사용자 아이디")
     private String userId;
+
+    public static MusicPracticeDTO fromMusicPractice(MusicPractice musicPractice) {
+        MusicPracticeDTO musicPracticeDTO = new MusicPracticeDTO();
+        musicPracticeDTO.setId(musicPractice.getId());
+        musicPracticeDTO.setUserId(musicPractice.getUserId());
+        musicPracticeDTO.setMusicId(musicPractice.getMusic().getId());
+        musicPracticeDTO.setPracticeDate(LocalDateTime.parse(musicPractice.getPracticeDate().toString()));
+        musicPracticeDTO.setPracticeCount(musicPractice.getPracticeCount());
+        return musicPracticeDTO;
+    }
 }

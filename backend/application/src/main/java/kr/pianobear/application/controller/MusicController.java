@@ -3,18 +3,15 @@ package kr.pianobear.application.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.MusicDTO;
-import kr.pianobear.application.dto.MusicPracticeDTO;
-import kr.pianobear.application.dto.MusicSummaryDTO;
-import kr.pianobear.application.dto.MusicTestDTO;
 import kr.pianobear.application.service.MusicService;
-import kr.pianobear.application.service.MusicPracticeService;
-import kr.pianobear.application.service.MusicTestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,25 +21,52 @@ import java.util.Optional;
 public class MusicController {
 
     private final MusicService musicService;
-    private final MusicPracticeService musicPracticeService;
-    private final MusicTestService musicTestService;
 
     @Autowired
-    public MusicController(MusicService musicService, MusicPracticeService musicPracticeService, MusicTestService musicTestService) {
+    public MusicController(MusicService musicService) {
         this.musicService = musicService;
-        this.musicPracticeService = musicPracticeService;
-        this.musicTestService = musicTestService;
     }
 
-    @Operation(summary = "악보 추가", description = "새로운 악보를 추가함")
-    @PreAuthorize("hasRole('ROLE_MEMBER')") //로그인 없이 이용할 수 없다는 뜻의 annotation
-    @PostMapping
-    public ResponseEntity<MusicDTO> addMusic(@RequestBody MusicDTO musicDTO) {
-        MusicDTO createdMusic = musicService.addMusic(musicDTO);
+    @Operation(summary = "PDF 업로드", description = "PDF 파일을 업로드하고 악보를 추가합니다.")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    @PostMapping("/upload")
+    public ResponseEntity<MusicDTO> uploadPdf(@RequestParam("file") MultipartFile file) throws IOException {
+        System.out.println("Received file: " + file.getOriginalFilename());
+
+        MusicDTO createdMusic = musicService.uploadPdf(file);
+
+        System.out.println("Created music: " + createdMusic);
+
         return ResponseEntity.ok(createdMusic);
     }
 
-    @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보 불러온다")
+    @Operation(summary = "PDF를 MusicXML로 변환", description = "PDF 파일을 MusicXML 파일로 변환합니다.")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    @PostMapping("/{id}/convert")
+    public ResponseEntity<MusicDTO> convertPdfToMusicXml(@PathVariable int id,
+                                                         @RequestParam("useSax") boolean useSax) throws IOException, InterruptedException {
+        MusicDTO convertedMusic = musicService.convertPdfToMusicXml(id, useSax);
+        return ResponseEntity.ok(convertedMusic);
+    }
+
+    @Operation(summary = "악보 저장", description = "변환된 악보를 저장합니다.")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    @PostMapping("/save")
+    public ResponseEntity<MusicDTO> saveMusic(@RequestParam("file") MultipartFile file,
+                                              @RequestParam("title") String title,
+                                              @RequestParam("artist") String artist,
+                                              @RequestParam("userId") String userId) throws IOException {
+        MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setTitle(title);
+        musicDTO.setArtist(artist);
+        musicDTO.setUserId(userId);
+        musicDTO.setUploadDate(LocalDateTime.now());
+
+        MusicDTO createdMusic = musicService.saveMusic(musicDTO, file);
+        return ResponseEntity.ok(createdMusic);
+    }
+
+    @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보를 불러옵니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping
     public ResponseEntity<List<MusicDTO>> getAllMusic() {
@@ -50,7 +74,7 @@ public class MusicController {
         return ResponseEntity.ok(musicList);
     }
 
-    @Operation(summary = "특정 악보 불러오기", description = "ID로 악보 불러오기")
+    @Operation(summary = "특정 악보 불러오기", description = "ID로 악보를 불러옵니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping("/{id}")
     public ResponseEntity<MusicDTO> getMusicById(@PathVariable int id) {
@@ -58,7 +82,7 @@ public class MusicController {
         return musicDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "특정 악보 삭제", description = "악보 ID로 삭제")
+    @Operation(summary = "특정 악보 삭제", description = "악보 ID로 삭제합니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMusic(@PathVariable int id) {
@@ -66,7 +90,7 @@ public class MusicController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "찜하기", description = "악보의 찜 여부")
+    @Operation(summary = "찜하기", description = "악보를 찜합니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping("/{id}/favorite")
     public ResponseEntity<Void> favoriteMusic(@PathVariable int id, @RequestParam boolean favorite) {
@@ -74,7 +98,7 @@ public class MusicController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "제목으로 검색", description = "악보를 제목으로 검색한다")
+    @Operation(summary = "제목으로 검색", description = "악보를 제목으로 검색합니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping("/search/title")
     public ResponseEntity<List<MusicDTO>> searchMusicByTitle(@RequestParam String title) {
@@ -82,7 +106,7 @@ public class MusicController {
         return ResponseEntity.ok(musicList);
     }
 
-    @Operation(summary = "작곡가로 검색", description = "악보를 작곡가로 검색한다")
+    @Operation(summary = "작곡가로 검색", description = "악보를 작곡가로 검색합니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping("/search/artist")
     public ResponseEntity<List<MusicDTO>> searchMusicByArtist(@RequestParam String artist) {
@@ -90,56 +114,37 @@ public class MusicController {
         return ResponseEntity.ok(musicList);
     }
 
-    @Operation(summary = "페이징된 악보 목록", description = "페이징된 악보 목록 불러오기")
+    @Operation(summary = "업로드 날짜 불러오기", description = "사용자가 업로드한 악보들의 날짜를 불러옵니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @GetMapping("/page")
-    public ResponseEntity<Page<MusicSummaryDTO>> getPaginatedMusic(
-            @RequestParam int page,
-            @RequestParam int size,
-            @RequestParam String sortBy,
-            @RequestParam String direction) {
-        Page<MusicSummaryDTO> musicPage = musicService.getPaginatedMusic(page, size, sortBy, direction);
-        return ResponseEntity.ok(musicPage);
+    @GetMapping("/upload-dates")
+    public ResponseEntity<List<LocalDateTime>> getUploadDates(@RequestParam String userId) {
+        List<LocalDateTime> uploadDates = musicService.getUploadDates(userId);
+        return ResponseEntity.ok(uploadDates);
     }
 
-    @Operation(summary = "악보 연습", description = "악보 연습함으로서 추가한다")
+    @Operation(summary = "찜 여부 불러오기", description = "악보의 찜 여부를 불러옵니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @PostMapping("/{id}/practice")
-    public ResponseEntity<MusicPracticeDTO> practiceMusic(@PathVariable int id, @RequestParam String userId) {
-        MusicPracticeDTO practiceDTO = musicService.practiceMusic(id, userId);
-        return ResponseEntity.ok(practiceDTO);
+    @GetMapping("/{id}/favorite")
+    public ResponseEntity<Boolean> getFavoriteStatus(@PathVariable int id) {
+        boolean isFavorite = musicService.getFavoriteStatus(id);
+        return ResponseEntity.ok(isFavorite);
     }
 
-    @Operation(summary = "사용자와 악보에 따라 연습 기록 불러오기", description = "사용자가 어떤 곡을 몇 번 연습했는지 불러온다")
-    @GetMapping("/{id}/practice/user/{userId}")
+    @Operation(summary = "사용자 악보 정렬", description = "사용자가 가지고 있는 악보를 정렬합니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
-    public ResponseEntity<List<MusicPracticeDTO>> getPracticeDataByUserAndMusic(@PathVariable int id, @PathVariable String userId) {
-        List<MusicPracticeDTO> practiceData = musicPracticeService.getPracticeDataByUserAndMusic(id, userId);
-        return ResponseEntity.ok(practiceData);
+    @GetMapping("/user/{userId}/sort")
+    public ResponseEntity<List<MusicDTO>> getMusicByUserAndSort(@PathVariable String userId,
+                                                                @RequestParam String sortBy,
+                                                                @RequestParam String direction) {
+        List<MusicDTO> sortedMusicList = musicService.getMusicByUserAndSort(userId, sortBy, direction);
+        return ResponseEntity.ok(sortedMusicList);
     }
 
-    @Operation(summary = "날짜로 분류된 연습 데이터 가져오기", description = "날짜별 연습 데이터")
+    @Operation(summary = "최다 연습 곡 3개", description = "사용자가 가장 많이 연습한 곡 3개를 반환합니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @GetMapping("/{id}/practice/sorted")
-    public ResponseEntity<List<MusicPracticeDTO>> getAllPracticeDataSortedByDate(@PathVariable int id) {
-        List<MusicPracticeDTO> practiceData = musicPracticeService.getAllPracticeDataSortedByDate(id);
-        return ResponseEntity.ok(practiceData);
-    }
-
-    @Operation(summary = "악보 도전", description = "도전 데이터 추가하기")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @PostMapping("/{id}/test")
-    public ResponseEntity<MusicTestDTO> testMusic(@PathVariable int id, @RequestBody MusicTestDTO musicTestDTO) {
-        musicTestDTO.setMusicId(id);
-        MusicTestDTO testDTO = musicTestService.testMusic(musicTestDTO);
-        return ResponseEntity.ok(testDTO);
-    }
-
-    @Operation(summary = "악보와 사용자별 도전 결과", description = "도전 데이터 생성")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @GetMapping("/{id}/test/user/{userId}")
-    public ResponseEntity<List<MusicTestDTO>> getTestsByUserAndMusic(@PathVariable int id, @PathVariable String userId) {
-        List<MusicTestDTO> tests = musicTestService.getTestsByUserAndMusic(id, userId);
-        return ResponseEntity.ok(tests);
+    @GetMapping("/top3-practiced")
+    public ResponseEntity<List<MusicDTO>> getTop3Practiced(@RequestParam String userId) {
+        List<MusicDTO> top3PracticedMusic = musicService.getTop3Practiced(userId);
+        return ResponseEntity.ok(top3PracticedMusic);
     }
 }

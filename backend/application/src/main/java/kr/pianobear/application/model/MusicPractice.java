@@ -17,6 +17,20 @@ public class MusicPractice {
 
     private LocalDateTime practiceDate;
     private int practiceCount;
-    private int musicId;
-    private String userId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Member member;
+
+    @ManyToOne
+    @JoinColumn(name = "music_id")
+    private Music music;
+
+    public int getMusicId() {
+        return music.getId();
+    }
+
+    public String getUserId() {
+        return member.getId();
+    }
 }
