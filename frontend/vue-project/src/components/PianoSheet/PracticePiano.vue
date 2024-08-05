@@ -31,7 +31,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { pageLoad, sheetSelect, createPlayer, num } from '@/mxlplayer/demo.mjs';
+// import { pageLoad, sheetSelect, createPlayer, num } from '@/mxlplayer/demo.mjs';
 import Piano from './Piano.vue';
 // const musicXml = "https://public.sgr.cspark.kr/SSAFY/let-it-go.musicxml"
 const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/SchbAvMaSample.musicxml"
