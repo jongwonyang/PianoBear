@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,20 @@ public class MusicController {
     @Autowired
     public MusicController(MusicService musicService) {
         this.musicService = musicService;
+    }
+
+    @Operation(summary = "더미 악보 데이터 추가", description = "더미 악보 데이터를 추가합니다.")
+    @PostMapping("/add-dummy")
+    public ResponseEntity<MusicDTO> addDummyMusic(@RequestParam String title,
+                                                  @RequestParam String artist,
+                                                  @RequestParam String userId,
+                                                  @RequestParam String fileRoute,
+                                                  @RequestParam String musicImg,
+                                                  @RequestParam boolean favorite,
+                                                  @RequestParam String uploadDate) {
+        LocalDate parsedUploadDate = LocalDate.parse(uploadDate);
+        MusicDTO createdMusic = musicService.addDummyMusic(title, artist, userId, fileRoute, musicImg, favorite, parsedUploadDate);
+        return ResponseEntity.ok(createdMusic);
     }
 
     @Operation(summary = "PDF 업로드", description = "PDF 파일을 업로드하고 악보를 추가합니다.")
@@ -60,7 +75,7 @@ public class MusicController {
         musicDTO.setTitle(title);
         musicDTO.setArtist(artist);
         musicDTO.setUserId(userId);
-        musicDTO.setUploadDate(LocalDateTime.now());
+        musicDTO.setUploadDate(LocalDate.now());
 
         MusicDTO createdMusic = musicService.saveMusic(musicDTO, file);
         return ResponseEntity.ok(createdMusic);
@@ -117,8 +132,8 @@ public class MusicController {
     @Operation(summary = "업로드 날짜 불러오기", description = "사용자가 업로드한 악보들의 날짜를 불러옵니다.")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping("/upload-dates")
-    public ResponseEntity<List<LocalDateTime>> getUploadDates(@RequestParam String userId) {
-        List<LocalDateTime> uploadDates = musicService.getUploadDates(userId);
+    public ResponseEntity<List<LocalDate>> getUploadDates(@RequestParam String userId) {
+        List<LocalDate> uploadDates = musicService.getUploadDates(userId);
         return ResponseEntity.ok(uploadDates);
     }
 

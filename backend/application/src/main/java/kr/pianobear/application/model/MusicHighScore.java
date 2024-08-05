@@ -1,5 +1,6 @@
 package kr.pianobear.application.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Nullable
 public class MusicHighScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
