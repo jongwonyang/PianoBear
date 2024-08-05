@@ -2,6 +2,7 @@ package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.MusicTestDTO;
 import kr.pianobear.application.model.Member;
+import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.model.Music;
 import kr.pianobear.application.model.MusicHighScore;
 import kr.pianobear.application.model.MusicTest;
@@ -22,12 +23,30 @@ public class MusicTestService {
     private final MusicTestRepository musicTestRepository;
     private final MusicRepository musicRepository;
     private final MusicHighScoreRepository musicHighScoreRepository;
+    private final MemberRepository memberRepository;
 
     @Autowired
-    public MusicTestService(MusicTestRepository musicTestRepository, MusicRepository musicRepository, MusicHighScoreRepository musicHighScoreRepository) {
+    public MusicTestService(MusicTestRepository musicTestRepository, MusicRepository musicRepository, MusicHighScoreRepository musicHighScoreRepository, MemberRepository memberRepository) {
         this.musicTestRepository = musicTestRepository;
         this.musicRepository = musicRepository;
         this.musicHighScoreRepository = musicHighScoreRepository;
+        this.memberRepository = memberRepository;
+    }
+
+    @Transactional
+    public MusicTestDTO addDummyMusicTest(int musicId, String userId, int grade) {
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicId));
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+
+        MusicTest musicTest = new MusicTest();
+        musicTest.setMusic(music);
+        musicTest.setMember(member);
+        musicTest.setGrade(grade);
+
+        MusicTest savedTest = musicTestRepository.save(musicTest);
+        return mapToDTO(savedTest);
     }
 
     @Transactional

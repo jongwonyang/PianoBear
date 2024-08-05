@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class Music {
 
     private String musicImg;
     private Boolean favorite;
-    private LocalDateTime uploadDate;
+    private LocalDate uploadDate;
     private String artist;
 
     @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
