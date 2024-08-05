@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div style="width: 200vh; height: 92vh;">
         <div class="practice-options">
             <div>
@@ -78,4 +78,4 @@ onMounted(async () => {
     top: 14vh;
     z-index: 0;
 }
-</style>
+</style> -->
