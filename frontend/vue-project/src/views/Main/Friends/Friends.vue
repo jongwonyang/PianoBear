@@ -1,94 +1,97 @@
-<template>
-    <div class="friend-container">
-        <div class="my-status">
-            <md-elevation></md-elevation>
-            <div v-if="isLoading.userInfo" class="loading-bar">
-                <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
-            </div>
-            <div v-else>
-                <div class="my-status-box">
-                    <img class="my-status-image" :src="userInfo.profileImage">
-                    <div class="my-status-ele">
-                        <div class="my-name">{{ userInfo.userName }}</div>
-                        <div class="my-status-message-box">
-                            <md-elevation></md-elevation>
-                            <div class="my-status-message">
-                                {{ userInfo.statusMessage }}
+    <template>
+        <div class="friend-container">
+            <div class="my-status">
+                <md-elevation></md-elevation>
+                <div v-if="isLoading.userInfo" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <div v-else>
+                    <div class="my-status-box">
+                        <img class="my-status-image" :src="userInfo.profileImage">
+                        <div class="my-status-ele">
+                            <div class="my-name">{{ userInfo.userName }}</div>
+                            <div class="my-status-message-box">
+                                <md-elevation></md-elevation>
+                                <div class="my-status-message">
+                                    {{ userInfo.statusMessage }}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="friend-box">
-            <md-elevation></md-elevation>
-            <div class="my-friends-header">
-                <div class="my-friends-text">친구들</div>
-                <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn"
-                    @click="showDialog = true">친구 검색</v-btn>
-            </div>
-            <div v-if="isLoading.friendList" class="loading-bar">
-                <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
-            </div>
-            <div v-else class="my-friends-ele">
-                <div class="friend-item" v-for="friend in friends" :key="friend.id">
-                    <div class="my-friends-ele-left">
-                        <img :src="friend.profileImage" alt="친구 img">
-                    </div>
-                    <div class="my-friends-ele-right">
-                        <div class="friend-name">{{ friend.name }}</div>
-                        <div class="friend-status-message">
-                            <md-elevation></md-elevation>
-                            {{ friend.statusMessage }}
-                        </div>
-                    </div>
+            <div class="friend-box">
+                <md-elevation></md-elevation>
+                <div class="my-friends-header">
+                    <div class="my-friends-text">친구들</div>
+                    <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn"
+                        @click="showDialog = true">친구 검색</v-btn>
                 </div>
-                <v-divider></v-divider>
-            </div>
-        </div>
-        <div class="chat-box">
-            <md-elevation></md-elevation>
-        </div>
-
-        <!-- 다이얼로그 -->
-        <v-dialog v-model="showDialog" max-width="500px">
-            <v-card class="add-friend-form">
-                <v-card-title class="headline">친구 검색</v-card-title>
-                <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-                <v-text-field label="친구 아이디" v-model="searchQuery"></v-text-field>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn text @click="showDialog = false">취소</v-btn>
-                    <v-btn text @click="searchFriend">검색</v-btn>
-                </v-card-actions>
-                <v-card-text v-if="searchResult">
-                    <div class="friend-item">
+                <div v-if="isLoading.friendList" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <div v-else class="my-friends-ele">
+                    <div class="friend-item" v-for="friend in friends" :key="friend.id">
                         <div class="my-friends-ele-left">
-                            <img :src="searchResult.profileImage" alt="친구 img">
+                            <img :src="friend.profilePic" alt="친구 img">
                         </div>
                         <div class="my-friends-ele-right">
-                            <div class="friend-name">{{ searchResult.name }}</div>
+                            <div class="friend-name">{{ friend.name }}</div>
                             <div class="friend-status-message">
                                 <md-elevation></md-elevation>
-                                {{ searchResult.statusMessage }}
+                                {{ friend.statusMessage }}
                             </div>
-                            <v-btn v-if="!isFriend(searchResult.id)" class="add-friend-btn"
-                                @click="addFriend(searchResult.id)">추가</v-btn>
-                            <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
                         </div>
                     </div>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
-    </div>
-</template>
+                    <v-divider></v-divider>
+                </div>
+            </div>
+            <div class="chat-box">
+                <md-elevation></md-elevation>
+            </div>
+
+            <!-- 다이얼로그 -->
+            <v-dialog v-model="showDialog" max-width="500px">
+                <v-card class="add-friend-form">
+                    <v-card-title class="headline">친구 검색</v-card-title>
+                    <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
+                    <v-text-field label="친구 아이디" v-model="searchQuery"></v-text-field>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="showDialog = false">취소</v-btn>
+                        <v-btn text @click="searchFriend">검색</v-btn>
+                    </v-card-actions>
+                    <v-card-text v-if="searchResult">
+                        <div class="friend-item">
+                            <div class="my-friends-ele-left">
+                                <img :src="searchResult.profilePic" alt="친구 img">
+                            </div>
+                            <div class="my-friends-ele-right">
+                                <div class="friend-name">{{ searchResult.name }}</div>
+                                <div class="friend-status-message">
+                                    <md-elevation></md-elevation>
+                                    {{ searchResult.statusMessage }}
+                                </div>
+                                <v-btn v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.userId"
+                                    class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
+                                <v-btn v-else-if="searchResult.id == userInfo.userId" disabled>자신은 추가할 수 없습니다</v-btn>
+                                <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
+                            </div>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+        </div>
+    </template>
 
 
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useFriendStore } from '@/stores/friend';
 
 const userInfo = ref({
+    userId: "string",
     userName: "string",
     profileImage: "string",
     statusMessage: "string",
@@ -101,17 +104,11 @@ const isLoading = ref({
 });
 
 const friends = ref([
-    { id: 1, name: '친구 1', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 1' },
-    { id: 2, name: '친구 2', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 2' },
-    { id: 3, name: '친구 3', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 3' },
-    { id: 4, name: '친구 4', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 4' },
-    { id: 5, name: '친구 5', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 5' },
-    { id: 6, name: '친구 6', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 6' },
-    { id: 7, name: '친구 7', profileImage: 'https://via.placeholder.com/100', statusMessage: '상태메시지 7' },
-    // 더 많은 친구들...
+
 ]);
 
 const userStore = useUserStore();
+const friendStore = useFriendStore();
 const showDialog = ref(false); // 다이얼로그 상태 추가
 const searchQuery = ref(''); // 검색어를 저장할 상태
 const searchResult = ref(null); // 검색 결과를 저장할 상태
@@ -119,12 +116,24 @@ const searchResult = ref(null); // 검색 결과를 저장할 상태
 onMounted(() => {
     userStore.GetUserInfo()
         .then((res) => {
+            userInfo.value.userId = res.data.id;
             userInfo.value.userName = res.data.name;
             userInfo.value.profileImage = "https://i.namu.wiki/i/SddraDi09VYq0oCCOUERyLBj_WRMc9SXVXYW7ctya2JYNZtI0x1tnfejQtL9SNfhQyr_QqvqWn45PkRIupeTp5RxZ-He16vBNYb7kDwnRXU2Q-71QqDRpWYQrZuvhhe0D2jIonoYtqK4q4pr6wWv2g.webp";
             userInfo.value.statusMessage = res.data.statusMessage;
             isLoading.value.userInfo = false;
-            isLoading.value.friendList = false; // 친구 목록 로딩 상태 초기화
             console.log(res);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    // 친구 목록을 불러오는 로직을 여기에 구현합니다.
+    friendStore.GetFriendList()
+        .then((res) => {
+            friends.value = res.data;
+            isLoading.value.friendList = false;
+            console.log(res);
+            console.log(res.data.length);
         })
         .catch((err) => {
             console.log(err);
@@ -132,21 +141,27 @@ onMounted(() => {
 });
 
 const searchFriend = () => {
-    // 친구 검색 로직을 여기에 구현합니다. 예를 들어, 서버로 검색 요청을 보내고 결과를 받아옵니다.
-    // 여기서는 예시로 친구 검색 결과를 임의로 설정합니다.
-    searchResult.value = {
-        id: 8,
-        name: '친구 8',
-        profileImage: 'https://via.placeholder.com/100',
-        statusMessage: '검색된 상태메시지',
-    };
+    friendStore.GetFriendInfo(searchQuery.value)
+        .then((res) => {
+            searchResult.value = res.data;
+            console.log(res);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 
 const addFriend = (id) => {
     // 친구 추가 로직을 여기에 구현합니다.
-    console.log(`친구 ID: ${id}가 추가되었습니다.`);
-    friends.value.push(searchResult.value); // 친구 목록에 추가
-    showDialog.value = false; // 다이얼로그를 닫습니다.
+    friendStore.SendFriendRequest(id)
+        .then((res) => {
+            console.log(res);
+            console.log(`친구 ID: ${id}를 친구요청하였습니다.`);
+            showDialog.value = false; // 다이얼로그를 닫습니다.
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 
 const isFriend = (id) => {
@@ -325,6 +340,14 @@ const isFriend = (id) => {
     font-size: 15px;
     font-weight: 500;
     color: #947650;
+    width: 330px;
+    height: 60px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* 원하는 줄 수 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .add-friend-form {

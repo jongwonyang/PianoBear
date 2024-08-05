@@ -84,6 +84,8 @@ const notifications = ref([
   { type: "friendRequest", title: "친구 추가 요청", message: "홍길동님이 친구 추가를 요청했습니다." },
   { type: "meetingInvite", title: "회의실 초대", message: "회의실에 초대되었습니다." },
   { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
+  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
+  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
 ]);
 
 onMounted(() => {

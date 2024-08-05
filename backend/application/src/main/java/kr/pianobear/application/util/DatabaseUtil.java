@@ -261,15 +261,15 @@ public class DatabaseUtil {
     }
 
     protected void createFriendRelationships() {
-//        List<Member> members = new ArrayList<>();
-//        memberRepository.findAll().forEach(members::add);
-//        for (Member member : members) {
-//            Set<Member> friends = new HashSet<>(members);
-//            friends.remove(member);  // 자신을 친구 목록에서 제거
-//            member.setFriends(friends);
-//            memberRepository.save(member);
-//        }
-//
-//        System.out.println("sample friend relationship inserted");
+        List<Member> members = new ArrayList<>();
+        memberRepository.findAll().forEach(members::add);
+        for (Member member : members) {
+            Set<Member> friends = new HashSet<>(members);
+            friends.remove(member);  // 자신을 친구 목록에서 제거
+            member.setFriends(friends);
+            memberRepository.save(member);
+        }
+
+        System.out.println("sample friend relationship inserted");
     }
 }

@@ -3,10 +3,10 @@
         <div class="login-box">
             <md-elevation></md-elevation>
             <div class="login-text">로그인</div>
-            <md-outlined-text-field label="아이디" type="text" class="login-input id" :value="userId"
-                @input="setUserId"></md-outlined-text-field>
+            <md-outlined-text-field label="아이디" type="text" class="login-input id" :value="userId" @input="setUserId"
+                @keyup.enter="Login"></md-outlined-text-field>
             <md-outlined-text-field label="비밀번호" type="password" class="login-input" :value="userPassword"
-                @input="setUserPassword"></md-outlined-text-field>
+                @input="setUserPassword" @keyup.enter="Login"></md-outlined-text-field>
             <md-elevated-button class="login-button" @click="Login()">로그인</md-elevated-button>
             <div class="regist-pwReset-box">
                 <md-elevated-button class="secondary-button" @click="router.push({ name: 'regist' })">
@@ -16,14 +16,14 @@
                     비밀번호 재설정
                 </md-elevated-button>
             </div>
-            <div class="social-login-buttons">
+            <!-- <div class="social-login-buttons">
                 <a class="social-button" @click="kakaoLogin()">
                     <img src="@/assets/images/카카오로그인 이미지.png" alt="카카오로그인 버튼">
                 </a>
                 <a class="social-button" @click="googleLogin()">
                     <img src="@/assets/images/구글로그인 이미지.png" alt="구글로그인 버튼">
                 </a>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
