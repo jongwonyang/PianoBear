@@ -24,8 +24,8 @@
             <md-elevation></md-elevation>
             <div class="my-friends-header">
                 <div class="my-friends-text">친구들</div>
-                <v-btn append-icon="mdi-plus" size="small" class="add-friend-btn"
-                    @click="showDialog = true">친구추가</v-btn>
+                <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn"
+                    @click="showDialog = true">친구 검색</v-btn>
             </div>
             <div v-if="isLoading.friendList" class="loading-bar">
                 <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
@@ -53,18 +53,36 @@
         <!-- 다이얼로그 -->
         <v-dialog v-model="showDialog" max-width="500px">
             <v-card class="add-friend-form">
-                <v-card-title class="headline">친구 추가</v-card-title>
-                <v-card-text>친구의 아이디를 입력하세요!</v-card-text>
-                <v-text-field label="친구 아이디"></v-text-field>
+                <v-card-title class="headline">친구 검색</v-card-title>
+                <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
+                <v-text-field label="친구 아이디" v-model="searchQuery"></v-text-field>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn text @click="showDialog = false">취소</v-btn>
-                    <v-btn text @click="addFriend">추가</v-btn>
+                    <v-btn text @click="searchFriend">검색</v-btn>
                 </v-card-actions>
+                <v-card-text v-if="searchResult">
+                    <div class="friend-item">
+                        <div class="my-friends-ele-left">
+                            <img :src="searchResult.profileImage" alt="친구 img">
+                        </div>
+                        <div class="my-friends-ele-right">
+                            <div class="friend-name">{{ searchResult.name }}</div>
+                            <div class="friend-status-message">
+                                <md-elevation></md-elevation>
+                                {{ searchResult.statusMessage }}
+                            </div>
+                            <v-btn v-if="!isFriend(searchResult.id)" class="add-friend-btn"
+                                @click="addFriend(searchResult.id)">추가</v-btn>
+                            <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
+                        </div>
+                    </div>
+                </v-card-text>
             </v-card>
         </v-dialog>
     </div>
 </template>
+
 
 <script setup>
 import { onMounted, ref } from 'vue';
@@ -95,6 +113,8 @@ const friends = ref([
 
 const userStore = useUserStore();
 const showDialog = ref(false); // 다이얼로그 상태 추가
+const searchQuery = ref(''); // 검색어를 저장할 상태
+const searchResult = ref(null); // 검색 결과를 저장할 상태
 
 onMounted(() => {
     userStore.GetUserInfo()
@@ -111,12 +131,29 @@ onMounted(() => {
         });
 });
 
-const addFriend = () => {
+const searchFriend = () => {
+    // 친구 검색 로직을 여기에 구현합니다. 예를 들어, 서버로 검색 요청을 보내고 결과를 받아옵니다.
+    // 여기서는 예시로 친구 검색 결과를 임의로 설정합니다.
+    searchResult.value = {
+        id: 8,
+        name: '친구 8',
+        profileImage: 'https://via.placeholder.com/100',
+        statusMessage: '검색된 상태메시지',
+    };
+};
+
+const addFriend = (id) => {
     // 친구 추가 로직을 여기에 구현합니다.
-    console.log("친구가 추가되었습니다.");
+    console.log(`친구 ID: ${id}가 추가되었습니다.`);
+    friends.value.push(searchResult.value); // 친구 목록에 추가
     showDialog.value = false; // 다이얼로그를 닫습니다.
-}
+};
+
+const isFriend = (id) => {
+    return friends.value.some(friend => friend.id === id);
+};
 </script>
+
 
 <style scoped>
 .friend-container {
@@ -194,6 +231,12 @@ const addFriend = () => {
     font-size: 15px;
     font-weight: 500;
     color: #947650;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* 원하는 줄 수 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .my-status-ele {
@@ -211,9 +254,12 @@ const addFriend = () => {
     border-radius: 10px;
     text-align: center;
     max-width: 2000px;
-    width: 100%;
+    width: 200px;
+    /* 원하는 너비로 설정 */
     margin: 10px;
     --md-sys-color-shadow: #947650;
+    height: 80px;
+    /* 원하는 높이로 설정 */
 }
 
 .my-status-image {
@@ -284,5 +330,9 @@ const addFriend = () => {
 .add-friend-form {
     background: #FFF9E0;
     color: #947650;
+}
+
+.friend-status-message {
+    margin-bottom: 5px;
 }
 </style>
