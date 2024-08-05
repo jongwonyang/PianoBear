@@ -2,7 +2,12 @@
   <div>
     <v-menu location="end">
       <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" icon="mdi-dots-horizontal" :width="25" :height="25">
+        <v-btn
+          v-bind="props"
+          icon="mdi-dots-horizontal"
+          :width="25"
+          :height="25"
+        >
         </v-btn>
       </template>
       <v-list lines="one">
@@ -14,15 +19,13 @@
   </div>
 </template>
 <script lang="ts" setup>
-    import {ref, defineProps} from 'vue';
+import { ref, defineProps } from "vue";
 
-    const props = defineProps({
-      next: String
-    });
-    
-    const items = ref(['음량조절', '음소거', '친구추가'])
+const props = defineProps({
+  next: String,
+});
 
+const items = ref(["음량조절", "음소거", "친구추가"]);
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
