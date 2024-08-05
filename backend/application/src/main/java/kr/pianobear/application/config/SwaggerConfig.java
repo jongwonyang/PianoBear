@@ -93,4 +93,12 @@ public class SwaggerConfig {
                 .pathsToMatch("/api/v1/dashboard/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi friendGroup() {
+        return GroupedOpenApi.builder()
+                .group("Friend")
+                .pathsToMatch("/api/v1/friends/**")
+                .build();
+    }
 }

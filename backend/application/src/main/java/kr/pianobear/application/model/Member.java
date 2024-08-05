@@ -53,4 +53,14 @@ public class Member {
     @JoinTable
     private Set<Member> friends;
 
+    public void addFriend(Member friend) {
+        this.friends.add(friend);
+        friend.getFriends().add(this);
+    }
+
+    public void removeFriend(Member friend) {
+        this.friends.remove(friend);
+        friend.getFriends().remove(this);
+    }
+
 }
