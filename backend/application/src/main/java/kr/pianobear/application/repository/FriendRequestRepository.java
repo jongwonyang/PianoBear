@@ -8,5 +8,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface FriendRequestRepository extends CrudRepository<FriendRequest, Long> {
     List<FriendRequest> findByReceiver(Member receiver);
-    boolean exexistsBySenderAndReceiver();
+    // boolean existsBySenderAndReceiver();
 }
