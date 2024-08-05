@@ -3,7 +3,10 @@
     <v-btn variant="outlined" @click="navigateTo('practice')">연습하기</v-btn>
     <v-btn variant="outlined" @click="navigateTo('challenge')">도전하기</v-btn>
     <div class="third-row">
-      <v-btn variant="outlined" @click="handleFavorite(Number(route.params.id))">즐겨찾기</v-btn>
+      <v-btn variant="outlined" @click="toggleFavorite">
+        <v-icon>{{ isFavorite ? "mdi-heart" : "mdi-heart-outline" }}</v-icon>
+        즐겨찾기
+      </v-btn>
       <v-btn variant="outlined" @click="openModal">삭제</v-btn>
     </div>
   </div>
@@ -23,7 +26,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const route = useRoute();
@@ -31,8 +34,16 @@ const router = useRouter();
 const store = usePianoSheetStore();
 const isModalOpen = ref(false);
 
-const handleFavorite = async (id: number) => {
-  await store.handleFavorite(id);
+const isFavorite = ref(false);
+
+const checkFavorite = async (id: number) => {
+  await store.checkFavorite(id);
+  isFavorite.value = store.isFavorite;
+};
+
+const handleFavorite = async (id: number, favorite: boolean) => {
+  await store.handleFavorite(id, favorite);
+  isFavorite.value = favorite;
 };
 
 const openModal = () => {
@@ -46,11 +57,24 @@ const closeModal = () => {
 const handleDelete = async (id: number) => {
   await store.handleDelete(id);
   closeModal();
+  router.back();
 };
 
 const navigateTo = (path: string) => {
   router.push(`/main/piano-sheet/${route.params.id}/${path}`);
 };
+
+const toggleFavorite = async () => {
+  const id = Number(route.params.id);
+  const newFavoriteStatus = !isFavorite.value;
+  console.log(newFavoriteStatus);
+  console.log(id);
+  await handleFavorite(id, newFavoriteStatus);
+};
+
+onMounted(() => {
+  checkFavorite(Number(route.params.id));
+});
 </script>
 
 <style scoped>
