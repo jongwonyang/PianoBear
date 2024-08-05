@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const REST_PIANOSHEET_API = `https://apitest.pianobear.kr/api/v1/music`;
+const REST_PIANOSHEET_API = `http://localhost:7000/api/v1/music`;
 
 // 기본제공 악보
 interface BasicSheet {
@@ -17,19 +17,19 @@ interface BasicSheet {
 }
 
 // 사용자 악보
-interface UserSheet {
+export interface UserSheet {
   id: number;
   title: string;
-  originalFileRoute: string;
-  changedFileRoute: string;
+  // originalFileRoute: string;
+  // changedFileRoute: string;
   practiceCount: number;
-  recentPractice: string;
+  // recentPractice: string;
   userId: string;
   musicImg: string;
   favorite: boolean;
   uploadDate: string;
-  artist: string;
-  highestScore: number;
+  // artist: string;
+  // highestScore: number;
 }
 
 // 연습 기록의 형태를 나타내는 인터페이스 정의
@@ -67,40 +67,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
-  // 사용자 악보 리스트
-  const userSheetList = ref<UserSheet[]>([]);
-  const userPracticeList = ref<UserSheet[]>([]);
-  const userUploadList = ref<UserSheet[]>([]);
-  const userFavoriteList = ref<UserSheet[]>([]);
-
-  // 백엔드에서 사용자 악보 목록을 가져오는 함수
-  const userSheetListfun = async (): Promise<void> => {
-    try {
-      const response = await axios.get<UserSheet[]>(REST_PIANOSHEET_API);
-      const data = response.data;
-
-      // 연습량 기준으로 정렬
-      userPracticeList.value = [...data].sort((a, b) => b.practiceCount - a.practiceCount);
-
-      // 악보등록 기준으로 정렬
-      userUploadList.value = [...data].sort(
-        (a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
-      );
-
-      // 즐겨찾기 기준으로 정렬
-      const favorites = data.filter((sheet) => sheet.favorite);
-      const nonFavorites = data.filter((sheet) => !sheet.favorite);
-      userFavoriteList.value = [...favorites, ...nonFavorites];
-
-      // 전체 목록 저장
-      userSheetList.value = data;
-
-      console.log("응답 데이터:", data); // 응답 데이터 확인
-    } catch (error) {
-      console.error("악보 목록 가져오기 실패!", error);
-    }
-  };
-
   // 사용자가 업로드 한 악보
   const selectedFile = ref<File | null>(null);
 
@@ -114,7 +80,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   };
 
   // pdf 파일 변환 시작 요청
-  const convertFilefun = async (file: File): Promise<void> => {
+  const convertFilefun = async (file: File, id: number): Promise<void> => {
     if (!file) {
       alert("먼저 악보를 선택해주세요!");
       return;
@@ -124,7 +90,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     formData.append("file", file); // key, value 형태고 key의 변수명을 백엔드랑 맞춰야 함
 
     try {
-      const response = await axios.post(REST_PIANOSHEET_API, formData, {
+      const response = await axios.post(`${REST_PIANOSHEET_API}/${id}/convert`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -167,19 +133,34 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
-  // 상세 - 즐겨찾기
-  const handleFavorite = async (id: number) => {
-    console.log("즐겨찾기 요청 보냄~~");
+  // 즐겨찾기 여부 확인
+  const isFavorite = ref(false);
+
+  const checkFavorite = async (id: number): Promise<void> => {
     try {
-      const response = await axios.post(`${REST_PIANOSHEET_API}/${id}/favorite`);
+      const response = await axios.get(`${REST_PIANOSHEET_API}/${id}/favorite`);
+      isFavorite.value = response.data;
+      // console.log("즐겨찾기 여부 " + response.data);
+    } catch (error) {
+      console.error("즐겨찾기 상태 확인 실패", error);
+    }
+  };
+
+  const handleFavorite = async (id: number, favorite: boolean): Promise<void> => {
+    try {
+      const response = await axios.post(`${REST_PIANOSHEET_API}/${id}/favorite`, null, {
+        params: {
+          favorite: favorite,
+        },
+      });
+
       if (response.status >= 200 && response.status < 300) {
-        console.log("즐겨찾기 성공!");
+        isFavorite.value = favorite;
+        console.log("즐겨찾기 상태 변경 성공!");
       }
     } catch (error) {
       console.error("즐겨찾기 실패 ㅠㅠ", error);
-      // db에 악보가 없어서 현재는 실패가 맞는 듯
     }
-    // 매개변수 필요할듯?
   };
 
   // 상세 - 삭제
@@ -199,19 +180,73 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   };
 
   // 연습 기록 데이터
-  let practiceData: PracticeRecord[] = [];
+  const practiceData = ref<PracticeRecord[]>([]);
+  const practiceCountSum = ref(0);
 
   // 상세 - 산딸기(연습기록 불러오기)
   const practiceDatafun = async (id: number): Promise<void> => {
+    console.log("연습기록!!");
     try {
       const response = await axios.get<PracticeRecord[]>(
-        `${REST_PIANOSHEET_API}/${id}/practice/sorted`
+        `${REST_PIANOSHEET_API}/practice/${id}/sorted`
       );
-      practiceData = response.data;
-      console.log("연습기록");
-      console.log(practiceData); // 불러온 데이터 출력
+      practiceData.value = response.data;
+      practiceCountSum.value = 0; // 초기화
+
+      for (var i = 0; i < practiceData.value.length; i++) {
+        practiceCountSum.value += practiceData.value[i].practiceCount;
+      }
+
+      // console.log(practiceData.value);
+      console.log(practiceCountSum.value);
     } catch (error) {
       console.error("기록 불러오기 실패", error);
+    }
+  };
+
+  // 사용자 악보 리스트
+  const userSheetList = ref<UserSheet[]>([]);
+  const userPracticeList = ref<UserSheet[]>([]);
+  const userUploadList = ref<UserSheet[]>([]);
+  const userFavoriteList = ref<UserSheet[]>([]);
+
+  const userSheetListfun = async (): Promise<void> => {
+    try {
+      const response = await axios.get<UserSheet[]>(REST_PIANOSHEET_API);
+      const data = response.data;
+
+      // 각 악보의 총 연습량 계산
+      const practiceCounts = await Promise.all(
+        data.map(async (sheet) => {
+          await practiceDatafun(sheet.id);
+          return {
+            ...sheet,
+            totalPracticeCount: practiceCountSum.value,
+          };
+        })
+      );
+
+      // 연습량 기준으로 정렬
+      userPracticeList.value = practiceCounts.sort(
+        (a, b) => b.totalPracticeCount - a.totalPracticeCount
+      );
+
+      // 악보등록 기준으로 정렬
+      userUploadList.value = [...data].sort(
+        (a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+      );
+
+      // 즐겨찾기 기준으로 정렬
+      const favorites = data.filter((sheet) => sheet.favorite);
+      const nonFavorites = data.filter((sheet) => !sheet.favorite);
+      userFavoriteList.value = [...favorites, ...nonFavorites];
+
+      // 전체 목록 저장
+      userSheetList.value = data;
+
+      console.log("응답 데이터:", data); // 응답 데이터 확인
+    } catch (error) {
+      console.error("악보 목록 가져오기 실패!", error);
     }
   };
 
@@ -243,6 +278,8 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     selectedFile,
     convertedFile,
     setSelectedFile,
+    isFavorite,
+    checkFavorite,
     handleFavorite,
     handleDelete,
     convertFilefun,

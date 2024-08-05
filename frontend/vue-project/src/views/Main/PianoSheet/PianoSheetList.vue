@@ -1,11 +1,11 @@
 <template>
   <div class="container">
     <div>
-      <button class="prev"></button>
+      <button class="prev" @click="downCount"></button>
     </div>
     <div>
       <div class="searchbar">
-        <SearchBar :currentTab="currentTab" @update-sort="updateSort" />
+        <SearchBar :currentTab="currentTab" @update:sortOption="updateSort" />
       </div>
       <div>
         <div class="card">
@@ -47,22 +47,55 @@
       </div>
     </div>
     <div>
-      <button class="next"></button>
+      <button class="next" @click="upCount"></button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
+import { usePianoSheetStore } from "@/stores/pianosheet";
 import UserSheet from "@/components/PianoSheet/UserSheet.vue";
 import BasicSheet from "@/components/PianoSheet/BasicSheet.vue";
 import SearchBar from "@/components/PianoSheet/SearchBar.vue";
-import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
 const tab = ref<number>(1);
 const currentTab = ref<string>("UserSheet");
 const currentSortOption = ref<number>(0);
+
+const bookCount = ref<number>(0);
+const pageCount = ref<number>(0);
+
+const maxCount = computed<number>(() => Math.floor((store.userSheetList.length - 1) / 10));
+
+const downCount = function (): void {
+  if (bookCount.value > 0) {
+    bookCount.value -= 2;
+    pageCount.value -= 1;
+  }
+};
+const upCount = function (): void {
+  if (maxCount.value > pageCount.value) {
+    bookCount.value += 2;
+    pageCount.value += 1;
+  }
+};
+
+// 페이지 로드 시 localStorage에서 정렬 기준을 불러옵니다.
+onMounted(() => {
+  const savedSortOption = localStorage.getItem("sortOption");
+  if (savedSortOption) {
+    currentSortOption.value = parseInt(savedSortOption, 10);
+  }
+});
+
+// 사용자가 정렬 기준을 변경하면 localStorage에 저장합니다.
+const updateSort = (index: number) => {
+  console.log("Parent Component: updateSort index:", index);
+  currentSortOption.value = index;
+  localStorage.setItem("sortOption", index.toString());
+};
 
 const setCurrentTab = (tabName: string) => {
   currentTab.value = tabName;
@@ -72,20 +105,10 @@ const currentTabComponent = computed(() => {
   return currentTab.value === "UserSheet" ? UserSheet : BasicSheet;
 });
 
-const updateSort = (index: number) => {
-  currentSortOption.value = index;
-};
-
-// onMounted(async () => {
-//   await store.userSheetListfun();
-//   await store.basicSheetListfun();
-// });
-
-// // Watch for sort option changes and update component data accordingly
-// watch(currentSortOption, async (newOption) => {
-//   // Depending on the newOption, you can fetch and filter data accordingly
-//   // This is just an example, you may need to implement sorting logic in your components
-// });
+onMounted(async () => {
+  await store.userSheetListfun();
+  // await store.basicSheetListfun();
+});
 </script>
 
 <style scoped>
