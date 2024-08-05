@@ -43,7 +43,7 @@ public class MusicController {
     }
 
     @Operation(summary = "PDF 업로드", description = "PDF 파일을 업로드하고 악보를 추가합니다.")
-//    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping("/upload")
     public ResponseEntity<MusicDTO> uploadPdf(@RequestParam("file") MultipartFile file) throws IOException {
         System.out.println("Received file: " + file.getOriginalFilename());
@@ -82,7 +82,7 @@ public class MusicController {
     }
 
     @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보를 불러옵니다.")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping
     public ResponseEntity<List<MusicDTO>> getAllMusic() {
         List<MusicDTO> musicList = musicService.getAllMusic();
