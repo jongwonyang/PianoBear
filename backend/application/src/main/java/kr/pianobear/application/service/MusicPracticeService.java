@@ -5,6 +5,7 @@ import kr.pianobear.application.model.Music;
 import kr.pianobear.application.model.MusicPractice;
 import kr.pianobear.application.model.UserStreak;
 import kr.pianobear.application.model.Member;
+import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
 import kr.pianobear.application.repository.UserStreakRepository;
@@ -26,12 +27,31 @@ public class MusicPracticeService {
     private final MusicPracticeRepository musicPracticeRepository;
     private final MusicRepository musicRepository;
     private final UserStreakRepository userStreakRepository;
+    private final MemberRepository memberRepository;
 
     @Autowired
-    public MusicPracticeService(MusicPracticeRepository musicPracticeRepository, MusicRepository musicRepository, UserStreakRepository userStreakRepository) {
+    public MusicPracticeService(MusicPracticeRepository musicPracticeRepository, MusicRepository musicRepository, UserStreakRepository userStreakRepository, MemberRepository memberRepository) {
         this.musicPracticeRepository = musicPracticeRepository;
         this.musicRepository = musicRepository;
         this.userStreakRepository = userStreakRepository;
+        this.memberRepository = memberRepository;
+    }
+
+    @Transactional
+    public MusicPracticeDTO addDummyMusicPractice(int musicId, String userId, LocalDateTime practiceDate, int practiceCount) {
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicId));
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+
+        MusicPractice musicPractice = new MusicPractice();
+        musicPractice.setMusic(music);
+        musicPractice.setMember(member);
+        musicPractice.setPracticeDate(practiceDate);
+        musicPractice.setPracticeCount(practiceCount);
+
+        MusicPractice savedPractice = musicPracticeRepository.save(musicPractice);
+        return mapToDTO(savedPractice);
     }
 
     @Transactional

@@ -2,10 +2,7 @@ package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.dto.MusicPracticeDTO;
-import kr.pianobear.application.model.FileData;
-import kr.pianobear.application.model.Member;
-import kr.pianobear.application.model.Music;
-import kr.pianobear.application.model.MusicPractice;
+import kr.pianobear.application.model.*;
 import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
@@ -29,6 +26,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -77,7 +75,11 @@ public class MusicService {
         Music music = new Music();
         music.setTitle(pdfFile.getOriginalFilename().replace(".pdf", ""));
         music.setOriginalFileRoute(fileData.getPath());
-        Music savedMusic = musicRepository.save(music);
+        MusicHighScore highScore = new MusicHighScore();
+        Music savedMusic = null;
+        highScore.setMusic(savedMusic);
+        highScore.setScore(0);
+        savedMusic = musicRepository.save(music);
 
         return mapMusicToDTO(savedMusic);
     }
@@ -123,7 +125,7 @@ public class MusicService {
                 .orElseThrow(() -> new RuntimeException("User not found with id " + musicDTO.getUserId()));
         music.setUser(user);
 
-        music.setUploadDate(LocalDateTime.now());
+        music.setUploadDate(LocalDate.now());
         music.setMusicImg(createMusicImg(music.getTitle()));
 
         Music savedMusic = musicRepository.save(music);
@@ -135,7 +137,7 @@ public class MusicService {
         String mxlFilePath = pdfFile.getPath().replace(".pdf", ".mxl");
 
         ProcessBuilder processBuilder = new ProcessBuilder(
-                "/path/to/audiveris",
+                "/app/audiveris",
                 "-batch",
                 pdfFile.getPath(),
                 "-export",
@@ -317,8 +319,8 @@ public class MusicService {
     }
 
     private String createMusicImg(String title) {
-        // OpenAI API를 사용하여 이미지를 생성하는 로직을 여기에 추가합니다.
-        // 생성된 이미지 경로를 반환합니다.
+        // OpenAI API를 사용하여 이미지를 생성하는 로직
+        // 생성된 이미지 경로를 반환
         return "/path/to/generated/image.png";
     }
 
@@ -376,7 +378,7 @@ public class MusicService {
         return musicPracticeService.practiceMusic(musicId, userId);
     }
 
-    public List<LocalDateTime> getUploadDates(String userId) {
+    public List<LocalDate> getUploadDates(String userId) {
         List<Music> musicList = musicRepository.findByUserId(userId);
         return musicList.stream().map(Music::getUploadDate).collect(Collectors.toList());
     }
@@ -450,4 +452,23 @@ public class MusicService {
         musicDTO.setArtist(music.getArtist());
         return musicDTO;
     }
+
+    @Transactional
+    public MusicDTO addDummyMusic(String title, String artist, String userId, String fileRoute, String musicImg, boolean favorite, LocalDate uploadDate) {
+        Music music = new Music();
+        music.setTitle(title);
+        music.setArtist(artist);
+        music.setOriginalFileRoute(fileRoute);
+        music.setMusicImg(musicImg);
+        music.setFavorite(favorite);
+        music.setUploadDate(uploadDate);
+
+        Member user = memberRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+        music.setUser(user);
+
+        Music savedMusic = musicRepository.save(music);
+        return mapMusicToDTO(savedMusic);
+    }
+
 }

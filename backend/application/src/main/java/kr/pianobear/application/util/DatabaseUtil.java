@@ -1,9 +1,7 @@
 package kr.pianobear.application.util;
 
-import kr.pianobear.application.model.FileData;
-import kr.pianobear.application.model.Member;
-import kr.pianobear.application.repository.FileDataRepository;
-import kr.pianobear.application.repository.MemberRepository;
+import kr.pianobear.application.model.*;
+import kr.pianobear.application.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -20,10 +18,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Component
 public class DatabaseUtil {
@@ -31,6 +27,9 @@ public class DatabaseUtil {
     private final FileDataRepository fileDataRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MusicRepository musicRepository;
+    private final MusicPracticeRepository musicPracticeRepository;
+    private final MusicTestRepository musicTestRepository;
 
     private final String SAMPLE_PATH = "sample-uploads/";
     private final List<String> resourceNames = List.of(
@@ -39,14 +38,21 @@ public class DatabaseUtil {
             "566-1920x1080.jpg",
             "685-300x200.jpg",
             "740-200x200.jpg",
-            "1063-200x200.jpg"
+            "1063-200x200.jpg",
+            "music.jpg",
+            "let-it-go.mxl",
+            "let-it-go.omr",
+            "let-it-go.pdf"
     );
 
     @Autowired
-    public DatabaseUtil(FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public DatabaseUtil(FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder, MusicRepository musicRepository, MusicPracticeRepository musicPracticeRepository, MusicTestRepository musicTestRepository) {
         this.fileDataRepository = fileDataRepository;
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.musicRepository = musicRepository;
+        this.musicPracticeRepository = musicPracticeRepository;
+        this.musicTestRepository = musicTestRepository;
     }
 
     @Bean
@@ -60,12 +66,78 @@ public class DatabaseUtil {
                     saveFileData();
                     createMembers();
                     createFriendRelationships();
+                    createMusic();
                     System.out.println("sample data inserted");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
+    }
+
+    private void createMusic() {
+        Random random = new Random();
+        List<Member> members = new ArrayList<>();
+        memberRepository.findAll().forEach(members::add);
+        Member user1 = members.stream().filter(m -> m.getId().equals("user1")).findFirst().orElseThrow();
+
+        List<FileData> fileDataList = new ArrayList<>();
+        fileDataRepository.findAll().forEach(fileDataList::add);
+
+        // 파일 경로를 설정
+        String originalFileRoute = fileDataList.stream()
+                .filter(file -> file.getOriginalName().equals("let-it-go.pdf"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("let-it-go.pdf file not found"))
+                .getPath();
+        String modifiedMusicXmlRoute = fileDataList.stream()
+                .filter(file -> file.getOriginalName().equals("let-it-go.mxl"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("let-it-go.mxl file not found"))
+                .getPath();
+        String musicImg = fileDataList.stream()
+                .filter(file -> file.getOriginalName().equals("music.jpg"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("music.jpg file not found"))
+                .getPath();
+
+        for (int i = 0; i < 10; i++) {
+            Music music = new Music();
+            music.setTitle("Music Title " + (i + 1));
+            music.setOriginalFileRoute(originalFileRoute);
+            music.setMusicXmlRoute("musicXmlRoute" + random.nextInt(1000));
+            music.setModifiedMusicXmlRoute(modifiedMusicXmlRoute);
+            music.setUser(user1);
+            music.setMusicImg(musicImg);
+            music.setFavorite(random.nextBoolean());
+            music.setUploadDate(LocalDate.now().minusDays(random.nextInt(1000)));
+            music.setArtist("Artist " + (i + 1));
+
+            musicRepository.save(music);
+
+            // 연습하기
+            for (int j = 0; j < random.nextInt(5); j++) {
+                MusicPractice practice = new MusicPractice();
+                practice.setMusic(music);
+                practice.setMember(user1);
+                practice.setPracticeDate(LocalDateTime.now().minusDays(random.nextInt(1000)));
+                practice.setPracticeCount(random.nextInt(100));
+
+                musicPracticeRepository.save(practice);
+            }
+
+            // 도전하기
+            for (int j = 0; j < random.nextInt(5); j++) {
+                MusicTest test = new MusicTest();
+                test.setMusic(music);
+                test.setMember(user1);
+                test.setGrade(random.nextInt(100));
+
+                musicTestRepository.save(test);
+            }
+        }
+
+        System.out.println("sample music data inserted");
     }
 
     private void copyFiles() throws IOException {

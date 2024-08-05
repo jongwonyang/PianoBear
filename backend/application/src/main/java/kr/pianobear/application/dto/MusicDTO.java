@@ -6,6 +6,7 @@ import kr.pianobear.application.model.Member;
 import lombok.*;
 import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -50,7 +51,7 @@ public class MusicDTO {
 
     @NotBlank
     @Schema(description = "악보 업로드 날짜")
-    private LocalDateTime uploadDate;
+    private LocalDate uploadDate;
 
     @NotBlank
     @Schema(description = "악보 작곡가")
