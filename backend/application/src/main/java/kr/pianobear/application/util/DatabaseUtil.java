@@ -30,6 +30,7 @@ public class DatabaseUtil {
     private final MusicRepository musicRepository;
     private final MusicPracticeRepository musicPracticeRepository;
     private final MusicTestRepository musicTestRepository;
+    private final MusicHighScoreRepository musicHighScoreRepository;
 
     private final String SAMPLE_PATH = "sample-uploads/";
     private final List<String> resourceNames = List.of(
@@ -46,13 +47,14 @@ public class DatabaseUtil {
     );
 
     @Autowired
-    public DatabaseUtil(FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder, MusicRepository musicRepository, MusicPracticeRepository musicPracticeRepository, MusicTestRepository musicTestRepository) {
+    public DatabaseUtil(FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder, MusicRepository musicRepository, MusicPracticeRepository musicPracticeRepository, MusicTestRepository musicTestRepository, MusicHighScoreRepository musicHighScoreRepository) {
         this.fileDataRepository = fileDataRepository;
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
         this.musicRepository = musicRepository;
         this.musicPracticeRepository = musicPracticeRepository;
         this.musicTestRepository = musicTestRepository;
+        this.musicHighScoreRepository = musicHighScoreRepository;
     }
 
     @Bean
@@ -84,7 +86,6 @@ public class DatabaseUtil {
         List<FileData> fileDataList = new ArrayList<>();
         fileDataRepository.findAll().forEach(fileDataList::add);
 
-        // 파일 경로를 설정
         String originalFileRoute = fileDataList.stream()
                 .filter(file -> file.getOriginalName().equals("let-it-go.pdf"))
                 .findFirst()
@@ -101,50 +102,73 @@ public class DatabaseUtil {
                 .orElseThrow(() -> new RuntimeException("music.jpg file not found"))
                 .getPath();
 
-        for (int i = 0; i < 10; i++) {
-            String title = "Music Title " + (i + 1);
-            // 중복 체크
-            if (musicRepository.findByTitle(title).isEmpty()) {
-                Music music = new Music();
-                music.setTitle(title);
-                music.setOriginalFileRoute(originalFileRoute);
-                music.setMusicXmlRoute("musicXmlRoute" + random.nextInt(1000));
-                music.setModifiedMusicXmlRoute(modifiedMusicXmlRoute);
-                music.setUser(user1);
-                music.setMusicImg(musicImg);
-                music.setFavorite(random.nextBoolean());
-                music.setUploadDate(LocalDate.now().minusDays(random.nextInt(1000)));
-                music.setArtist("Artist " + (i + 1));
+        Set<String> existingTitles = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            String title;
+            int attempt = 0;
+            do {
+                title = "Music Title " + (random.nextInt(1000) + 1);
+                attempt++;
+            } while (existingTitles.contains(title) && attempt < 100);  // 최대 100번 시도
 
-                musicRepository.save(music);
-
-                // 연습하기
-                for (int j = 0; j < random.nextInt(10); j++) {
-                    MusicPractice practice = new MusicPractice();
-                    practice.setMusic(music);
-                    practice.setMember(user1);
-                    practice.setPracticeDate(LocalDateTime.now().minusDays(random.nextInt(1000)));
-                    practice.setPracticeCount(random.nextInt(100));
-
-                    musicPracticeRepository.save(practice);
-                }
-
-                // 도전하기
-                for (int j = 0; j < random.nextInt(10); j++) {
-                    MusicTest test = new MusicTest();
-                    test.setMusic(music);
-                    test.setMember(user1);
-                    test.setGrade(random.nextInt(100));
-
-                    musicTestRepository.save(test);
-                }
-            } else {
-                System.out.println("Music with title \"" + title + "\" already exists. Skipping...");
+            if (attempt == 100) {
+                System.out.println("Failed to generate unique title after 100 attempts, skipping this entry.");
+                continue;
             }
+
+            existingTitles.add(title);
+
+            Music music = new Music();
+            music.setTitle(title);
+            music.setOriginalFileRoute(originalFileRoute);
+            music.setMusicXmlRoute("musicXmlRoute" + random.nextInt(1000));
+            music.setModifiedMusicXmlRoute(modifiedMusicXmlRoute);
+            music.setUser(user1);
+            music.setMusicImg(musicImg);
+            music.setFavorite(random.nextBoolean());
+            music.setUploadDate(LocalDate.now().minusDays(random.nextInt(1000)));
+            music.setArtist("Artist " + (i + 1));
+
+            musicRepository.save(music);
+
+            int highestScore = 0;
+
+            // 연습하기
+            for (int j = 0; j < random.nextInt(10); j++) {
+                MusicPractice practice = new MusicPractice();
+                practice.setMusic(music);
+                practice.setMember(user1);
+                practice.setPracticeDate(LocalDateTime.now().minusDays(random.nextInt(1000)));
+                practice.setPracticeCount(random.nextInt(100));
+
+                musicPracticeRepository.save(practice);
+            }
+
+            // 도전하기
+            for (int j = 0; j < random.nextInt(10); j++) {
+                MusicTest test = new MusicTest();
+                test.setMusic(music);
+                test.setMember(user1);
+                int grade = random.nextInt(100);
+                test.setGrade(grade);
+                musicTestRepository.save(test);
+                if (grade > highestScore) {
+                    highestScore = grade;
+                }
+            }
+
+            // 가장 높은 점수를 MusicHighScore에 저장
+            MusicHighScore musicHighScore = new MusicHighScore();
+            musicHighScore.setMusic(music);
+            musicHighScore.setMember(user1);
+            musicHighScore.setScore(highestScore);
+
+            musicHighScoreRepository.save(musicHighScore);
         }
 
         System.out.println("sample music data inserted");
     }
+
 
 
     private void copyFiles() throws IOException {
