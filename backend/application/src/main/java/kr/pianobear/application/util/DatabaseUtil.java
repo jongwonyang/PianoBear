@@ -102,43 +102,50 @@ public class DatabaseUtil {
                 .getPath();
 
         for (int i = 0; i < 10; i++) {
-            Music music = new Music();
-            music.setTitle("Music Title " + (i + 1));
-            music.setOriginalFileRoute(originalFileRoute);
-            music.setMusicXmlRoute("musicXmlRoute" + random.nextInt(1000));
-            music.setModifiedMusicXmlRoute(modifiedMusicXmlRoute);
-            music.setUser(user1);
-            music.setMusicImg(musicImg);
-            music.setFavorite(random.nextBoolean());
-            music.setUploadDate(LocalDate.now().minusDays(random.nextInt(1000)));
-            music.setArtist("Artist " + (i + 1));
+            String title = "Music Title " + (i + 1);
+            // 중복 체크
+            if (musicRepository.findByTitle(title).isEmpty()) {
+                Music music = new Music();
+                music.setTitle(title);
+                music.setOriginalFileRoute(originalFileRoute);
+                music.setMusicXmlRoute("musicXmlRoute" + random.nextInt(1000));
+                music.setModifiedMusicXmlRoute(modifiedMusicXmlRoute);
+                music.setUser(user1);
+                music.setMusicImg(musicImg);
+                music.setFavorite(random.nextBoolean());
+                music.setUploadDate(LocalDate.now().minusDays(random.nextInt(1000)));
+                music.setArtist("Artist " + (i + 1));
 
-            musicRepository.save(music);
+                musicRepository.save(music);
 
-            // 연습하기
-            for (int j = 0; j < random.nextInt(5); j++) {
-                MusicPractice practice = new MusicPractice();
-                practice.setMusic(music);
-                practice.setMember(user1);
-                practice.setPracticeDate(LocalDateTime.now().minusDays(random.nextInt(1000)));
-                practice.setPracticeCount(random.nextInt(100));
+                // 연습하기
+                for (int j = 0; j < random.nextInt(10); j++) {
+                    MusicPractice practice = new MusicPractice();
+                    practice.setMusic(music);
+                    practice.setMember(user1);
+                    practice.setPracticeDate(LocalDateTime.now().minusDays(random.nextInt(1000)));
+                    practice.setPracticeCount(random.nextInt(100));
 
-                musicPracticeRepository.save(practice);
-            }
+                    musicPracticeRepository.save(practice);
+                }
 
-            // 도전하기
-            for (int j = 0; j < random.nextInt(5); j++) {
-                MusicTest test = new MusicTest();
-                test.setMusic(music);
-                test.setMember(user1);
-                test.setGrade(random.nextInt(100));
+                // 도전하기
+                for (int j = 0; j < random.nextInt(10); j++) {
+                    MusicTest test = new MusicTest();
+                    test.setMusic(music);
+                    test.setMember(user1);
+                    test.setGrade(random.nextInt(100));
 
-                musicTestRepository.save(test);
+                    musicTestRepository.save(test);
+                }
+            } else {
+                System.out.println("Music with title \"" + title + "\" already exists. Skipping...");
             }
         }
 
         System.out.println("sample music data inserted");
     }
+
 
     private void copyFiles() throws IOException {
         Path targetDirectory = Paths.get("/app/data/uploads");
