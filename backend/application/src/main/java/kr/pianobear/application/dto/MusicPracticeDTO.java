@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import kr.pianobear.application.model.MusicPractice;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -22,7 +24,9 @@ public class MusicPracticeDTO {
 
     @NotBlank
     @Schema(description = "연습 날짜")
-    private LocalDateTime practiceDate;
+    private LocalDate practiceDate;
+
+    private String formattedPracticeDate;
 
     @NotBlank
     @Schema(description = "날짜별 연습량")
@@ -41,8 +45,13 @@ public class MusicPracticeDTO {
         musicPracticeDTO.setId(musicPractice.getId());
         musicPracticeDTO.setUserId(musicPractice.getUserId());
         musicPracticeDTO.setMusicId(musicPractice.getMusic().getId());
-        musicPracticeDTO.setPracticeDate(LocalDateTime.parse(musicPractice.getPracticeDate().toString()));
+        musicPracticeDTO.setPracticeDate(LocalDate.parse(musicPractice.getPracticeDate().toString()));
         musicPracticeDTO.setPracticeCount(musicPractice.getPracticeCount());
         return musicPracticeDTO;
+    }
+
+    public String getFormattedPracticeDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return this.practiceDate.format(formatter);
     }
 }

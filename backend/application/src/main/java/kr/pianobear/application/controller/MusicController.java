@@ -43,7 +43,7 @@ public class MusicController {
     }
 
     @Operation(summary = "PDF 업로드", description = "PDF 파일을 업로드하고 악보를 추가합니다.")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping("/upload")
     public ResponseEntity<MusicDTO> uploadPdf(@RequestParam("file") MultipartFile file) throws IOException {
         System.out.println("Received file: " + file.getOriginalFilename());
@@ -98,7 +98,7 @@ public class MusicController {
     }
 
     @Operation(summary = "특정 악보 삭제", description = "악보 ID로 삭제합니다.")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMusic(@PathVariable int id) {
         musicService.deleteMusic(id);
