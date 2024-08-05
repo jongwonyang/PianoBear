@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/music/practice")
@@ -22,17 +23,6 @@ public class MusicPracticeController {
     @Autowired
     public MusicPracticeController(MusicPracticeService musicPracticeService) {
         this.musicPracticeService = musicPracticeService;
-    }
-
-    @Operation(summary = "더미 연습 데이터 추가", description = "더미 연습 데이터를 추가합니다.")
-    @PostMapping("/add-dummy")
-    public ResponseEntity<MusicPracticeDTO> addDummyMusicPractice(@RequestParam int musicId,
-                                                                  @RequestParam String userId,
-                                                                  @RequestParam String practiceDate,
-                                                                  @RequestParam int practiceCount) {
-        LocalDateTime parsedPracticeDate = LocalDateTime.parse(practiceDate);
-        MusicPracticeDTO createdPractice = musicPracticeService.addDummyMusicPractice(musicId, userId, parsedPracticeDate, practiceCount);
-        return ResponseEntity.ok(createdPractice);
     }
 
     @Operation(summary = "악보 연습", description = "악보 연습함으로서 추가한다")
