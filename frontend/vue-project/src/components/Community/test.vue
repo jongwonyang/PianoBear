@@ -1,11 +1,10 @@
 <template>
     <div class="test">
-        <h2>피아노</h2>
         <Piano />
     </div>
 </template>
 <script lang="ts" setup>
-    import Piano from '@/components/PianoSheet/Piano.vue';
+import Piano from '@/components/PianoSheet/Piano.vue';
 
 </script>
 <style scoped>
