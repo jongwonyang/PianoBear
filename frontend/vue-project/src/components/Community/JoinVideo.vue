@@ -1,7 +1,7 @@
 <template>
   <div :class="props.videos">
     <v-sheet :class="surface" :elevation="3" rounded="lg">
-      <UserVideo :stream-manager="publisher"></UserVideo>
+      <UserVideo :stream-manager="publisher" v-if="publisher"></UserVideo>
     </v-sheet>
 
     <v-sheet
@@ -11,7 +11,7 @@
       :elevation="3"
       rounded="lg"
     >
-      <SubVideo :stream-manager="sub" :class="surface"></SubVideo>
+      <SubVideo :stream-manager="sub" :class="surface" v-if="sub"></SubVideo>
     </v-sheet>
   </div>
 </template>
@@ -47,8 +47,9 @@ const props = defineProps({
   flex-wrap: wrap;
   background-color: #fff8d8;
   border-radius: 20px;
-  max-width: 960px;
+  width: 960px;
   margin: 10px 10px 0px 80px;
+  justify-content: center;
 }
 .surface2 {
   position: relative;

@@ -17,10 +17,13 @@ export const useOpenviduStore = defineStore("openvidu", () => {
   let mainStreamManager: StreamManager | null = null;
   let publisher = shallowRef<Publisher | null>(null);
   let subscribers = ref<any>([]);
+  let isInitialized = ref<boolean>(false);
 
-  const chatHistory = ref<Object[]>([]);
+  const chatHistory = ref<{ sender: string; content: string }[]>([]);
 
   const isPlay = ref(true);
+
+  const userStore = useUserStore();
 
   const initOpenvidu = () => {
     OV = new OpenVidu();
@@ -34,6 +37,11 @@ export const useOpenviduStore = defineStore("openvidu", () => {
       insertMode: "APPEND",
       mirror: true,
     });
+    isInitialized.value = true;
+  };
+
+  const deinitOpenvidu = () => {
+    leaveSession();
   };
 
   const joinSession = async (sessionId: string) => {
@@ -51,7 +59,7 @@ export const useOpenviduStore = defineStore("openvidu", () => {
 
     session.on("streamDestroyed", ({ stream }) => {
       const index = subscribers.value.findIndex(
-        (sub) => sub.stream.streamId == stream.streamId
+        (sub: any) => sub.stream.streamId == stream.streamId
       );
       console.log(index);
       if (index >= 0) {
@@ -66,12 +74,12 @@ export const useOpenviduStore = defineStore("openvidu", () => {
     // 메시지 수신
     session.on("signal:chat", (event) => {
       const message = event.data;
-      console.log("Message received: ", message);
+      console.log("Message received: ", JSON.parse(message as string));
+      chatHistory.value.push(JSON.parse(message as string));
       // 메시지를 화면에 표시하는 로직을 추가
     });
 
     try {
-      const userStore = useUserStore();
       const token = await createToken(sessionId);
       await session.connect(token, { name: userStore.user.name });
 
@@ -89,13 +97,27 @@ export const useOpenviduStore = defineStore("openvidu", () => {
   };
 
   const leaveSession = () => {
-    if (session) session.disconnect();
+    if (publisher.value) {
+      publisher.value.stream
+        .getMediaStream()
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      if (session) {
+        session.unpublish(publisher.value);
+      }
+    }
+    if (session) {
+      session.disconnect();
+    }
 
     OV = null;
     session = null;
     mainStreamManager = null;
     publisher.value = null;
     subscribers.value = [];
+    chatHistory.value = [];
+    isInitialized.value = false;
   };
 
   const updateMainVideoStreamManager = (streamManager: StreamManager) => {
@@ -120,14 +142,17 @@ export const useOpenviduStore = defineStore("openvidu", () => {
   };
 
   // 메시지 전송
-  function sendMessage(message: string) {
+  function sendMessage(sender: string, message: string) {
     if (!session) {
       console.log("You are not in session yet.");
     } else {
       session
         .signal({
           type: "chat",
-          data: message,
+          data: JSON.stringify({
+            sender: "sender",
+            content: message,
+          }),
         })
         .then(() => {
           console.log("Message sent successfully");
@@ -142,11 +167,14 @@ export const useOpenviduStore = defineStore("openvidu", () => {
     publisher,
     subscribers,
     isPlay,
+    isInitialized,
+    chatHistory,
     joinSession,
     leaveSession,
     createSession,
     updateMainVideoStreamManager,
     initOpenvidu,
+    deinitOpenvidu,
     sendMessage,
   };
 });

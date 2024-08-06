@@ -3,7 +3,6 @@
     autoplay
     style="width: 100%; height: 100%; object-fit: cover"
     ref="d"
-    rounded="lg"
   ></video>
 </template>
 

@@ -13,12 +13,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import Controller from "@/components/Community/Controller.vue";
 import JoinVideo from "@/components/Community/JoinVideo.vue";
 import Chat from "@/components/Community/JoinChat.vue";
 import Test from "@/components/Community/test.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useOpenviduStore } from "@/stores/community";
 
 const openviduStore = useOpenviduStore();
@@ -26,8 +26,17 @@ const openviduStore = useOpenviduStore();
 const chatOn = ref(true);
 
 const route = useRoute();
-onMounted(() => {
-  openviduStore.joinSession(route.params.id as string);
+const router = useRouter();
+
+onBeforeMount(() => {
+  if (openviduStore.isInitialized) {
+    openviduStore.joinSession(route.params.id as string);
+  } else {
+    router.replace({
+      name: "communityJoin",
+      params: { id: route.params.id as string },
+    });
+  }
 });
 </script>
 

@@ -2,7 +2,7 @@ package kr.pianobear.application.controller;
 
 import java.util.Map;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,45 +23,60 @@ import io.openvidu.java.client.SessionProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
+import kr.pianobear.application.service.OpenViduService;
 
 @RestController
 @RequestMapping("/api/v1/community")
 @Tag(name = "Openvidu", description = "Openvidu 소통방 API")
 public class CommunityController {
     
-	@Value("${application.openvidu-url}")
-	private String OPENVIDU_URL;
-
-	@Value("${application.openvidu-secret}")
-	private String OPENVIDU_SECRET;
-
-	private OpenVidu openvidu;
-
-	@PostConstruct
-	public void init() {
-		this.openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
-	}
+	@Autowired
+	private OpenViduService openViduService;
+	
 	
 	@PostMapping("/sessions")
-    @Operation(summary = "세션 생성 및 세션 ID 반환")
-	public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
-			throws OpenViduJavaClientException, OpenViduHttpException {
-		SessionProperties properties = SessionProperties.fromJson(params).build();
-		Session session = openvidu.createSession(properties);
-		return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
-	}
+    @Operation(summary = "세션 및 세션 ID 반환")
+	public ResponseEntity<String> createSession() {
+        try {
+            String sessionId = openViduService.createSession();
+            return ResponseEntity.ok(sessionId);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
 
 	@PostMapping("/sessions/{sessionId}/connections")
     @Operation(summary = "해당 세션 ID 접속위한 Token 반환")
-	public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
-			@RequestBody(required = false) Map<String, Object> params)
-			throws OpenViduJavaClientException, OpenViduHttpException {
-		Session session = openvidu.getActiveSession(sessionId);
-		if (session == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
-		Connection connection = session.createConnection(properties);
-		return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
-	}
+	public ResponseEntity<String> createToken(@PathVariable String sessionId) {
+        try {
+            String token = openViduService.createToken(sessionId);
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+
+
+	// @PostMapping("/sessions")
+    // @Operation(summary = "세션 생성 및 세션 ID 반환")
+	// public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
+	// 		throws OpenViduJavaClientException, OpenViduHttpException {
+	// 	SessionProperties properties = SessionProperties.fromJson(params).build();
+	// 	Session session = openvidu.createSession(properties);
+	// 	return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
+	// }
+
+	// @PostMapping("/sessions/{sessionId}/connections")
+    // @Operation(summary = "해당 세션 ID 접속위한 Token 반환")
+	// public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
+	// 		@RequestBody(required = false) Map<String, Object> params)
+	// 		throws OpenViduJavaClientException, OpenViduHttpException {
+	// 	Session session = openvidu.getActiveSession(sessionId);
+	// 	if (session == null) {
+	// 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	// 	}
+	// 	ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
+	// 	Connection connection = session.createConnection(properties);
+	// 	return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
+	// }
 }

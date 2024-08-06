@@ -20,12 +20,6 @@
           @click="turnOnAudio"
           variant="tonal"
         />
-        <v-btn prepend-icon="mdi-play" v-if="!play" @click="playing"
-          >테스트</v-btn
-        >
-        <v-btn prepend-icon="mdi-pause" v-else @click="playing" variant="tonal"
-          >테스트</v-btn
-        >
       </div>
     </v-sheet>
   </div>
@@ -37,15 +31,12 @@ import { useOpenviduStore } from "@/stores/community";
 import { storeToRefs } from "pinia";
 import OvVideo from "./OvVideo.vue";
 
-const videoEl = ref<HTMLVideoElement | null>(null);
-const play = ref(false);
-
 const openviduStore = useOpenviduStore();
 
 const { publisher } = storeToRefs(openviduStore);
 
-const videoCheck = ref(false);
-const audioCheck = ref(false);
+const videoCheck = ref(true);
+const audioCheck = ref(true);
 
 const turnOnVideo = function () {
   videoCheck.value = !openviduStore.publisher?.stream.videoActive as boolean;
@@ -55,10 +46,6 @@ const turnOnVideo = function () {
 const turnOnAudio = function () {
   audioCheck.value = !openviduStore.publisher?.stream.audioActive as boolean;
   openviduStore.publisher?.publishAudio(audioCheck.value);
-};
-
-const playing = function () {
-  play.value = !play.value;
 };
 
 onMounted(() => {
