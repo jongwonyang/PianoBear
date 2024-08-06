@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
+import kr.pianobear.application.service.FileDataService;
 import lombok.Data;
 
 @Data
@@ -15,9 +16,7 @@ public class FriendDTO {
 
     private String name;
 
-    @OneToOne(targetEntity = FileData.class)
-    @Nullable
-    private FileData profilePic;
+    private String profilePic;
 
     private String statusMessage;
 
@@ -25,7 +24,9 @@ public class FriendDTO {
         FriendDTO friendDTO = new FriendDTO();
         friendDTO.setId(member.getId());
         friendDTO.setName(member.getName());
-        friendDTO.setProfilePic(member.getProfilePic());
+
+        String downloadPath = FileDataService.getDownloadPath(member.getProfilePic()).orElse(null);
+        friendDTO.setProfilePic(downloadPath);
         friendDTO.setStatusMessage(member.getStatusMessage());
         return friendDTO;
     }
