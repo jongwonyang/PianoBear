@@ -1,4 +1,4 @@
-import * as MusicXMLPlayer from "./dist/musicxml-player.esm.js";
+import * as MusicXMLPlayer from "./distmxl/musicxml-player.esm.js";
 import { TimingObject } from "https://cdn.jsdelivr.net/npm/timing-object@3.1.61/+esm";
 import { ref } from "vue";
 

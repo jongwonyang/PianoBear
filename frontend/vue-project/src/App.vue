@@ -22,7 +22,7 @@ onMounted(() => {
     userStore.isLoggedIn = true;
     userStore.GetUserInfo()
       .then((response) => {
-        userStore.user = response.data;
+        userStore.user = response?.data;
         console.log(userStore.user);
       })
       .catch((error) => {

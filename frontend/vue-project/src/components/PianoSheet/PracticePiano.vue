@@ -112,6 +112,5 @@ onMounted(async () => {
     left: 150vh;
     top: 5vh;
     z-index: 0;
-    color: #6c8056
 }
-</style> -->
+</style>
