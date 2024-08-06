@@ -1,5 +1,5 @@
 <template>
-    <div style="width: 200vh; height: 92vh;">
+    <div style="width: 200vh; height: 100vh;">
         <div class="practice-options">
             <!-- <div>
                 {{ num[0] ? num : "loading.." }}
@@ -46,14 +46,14 @@
                 </h2>
             </div>
         </div>
-        <Piano :curr-pitch="num" style="margin:auto; margin-top: 7vh;" />
+        <Piano :curr-pitch="num" style="margin:auto; margin-top: 2vh;" />
     </div>
 
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { pageLoad, sheetSelect, createPlayer, num } from '@/mxlplayer/demo.mjs';
+import { onMounted, ref, onUnmounted } from 'vue';
+import { pageLoad, sheetSelect, createPlayer, num, reset } from '@/mxlplayer/demo.mjs';
 import Piano from './Piano.vue';
 const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/let-it-go.musicxml"
 // const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/SchbAvMaSample.musicxml"
@@ -78,6 +78,10 @@ onMounted(async () => {
     status.value = true;
     toggle_one.value = playStatus.value;
 });
+
+onUnmounted(() => {
+    reset();
+})
 
 </script>
 
