@@ -1,14 +1,13 @@
 <template>
   <div class="container">
-    <h3>악보 컴포넌트</h3>
-    <img
+    <!-- <img
       v-if="store.detailSheet?.musicImg"
       :src="store.detailSheet?.musicImg"
       alt="악보 이미지"
       class="sheet-image"
     />
-    <p v-else>악보 이미지가 없습니다.</p>
-    <img src="" alt="" />
+    <p v-else>악보 이미지가 없습니다.</p> -->
+    <img src="@/assets/images/pngegg.png" alt="" />
   </div>
 </template>
 
@@ -33,6 +32,6 @@ onMounted(() => {
 .container {
   width: 30vw;
   height: 70wh;
-  border: 2px solid #F5E5D1;
+  border: 2px solid #f5e5d1;
 }
 </style>

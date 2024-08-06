@@ -69,7 +69,7 @@ onMounted(() => {
   gap: 10px; /* 날짜 간격 */
   max-height: 200px; /* 최대 높이 설정 */
   overflow-y: auto;
-  scrollbar-width: none;
+  /* scrollbar-width: none; */
 }
 
 .record-item {
@@ -97,6 +97,6 @@ onMounted(() => {
 
 .practice-image {
   width: 35px;
-  height: 42px;
+  height: 40px;
 }
 </style>
