@@ -1,24 +1,38 @@
 <template>
-  <h2>{{ route.params.id }}번 악보 상세</h2>
-  <div class="container">
-    <div class="left">
-      <PianoSheet />
-    </div>
-    <div class="right">
-      <DetailPractice />
-      <Buttons />
+  <div>
+    <h2>{{ store.detailSheet?.title }}</h2>
+    <!-- 제목을 표시 -->
+    <div class="container">
+      <div class="left">
+        <PianoSheet />
+      </div>
+      <div class="right">
+        <DetailPractice />
+        <Buttons />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import PianoSheet from "@/components/PianoSheet/PianoSheet.vue";
 import DetailPractice from "@/components/PianoSheet/DetailPractice.vue";
 import Buttons from "@/components/PianoSheet/Buttons.vue";
+import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const route = useRoute();
+const store = usePianoSheetStore();
+
+// 악보 데이터를 가져오는 함수
+const fetchDetailData = async (id: number) => {
+  await store.detailSheetfun(id); // 스토어의 practiceDatafun 메서드 호출
+};
+
+onMounted(() => {
+  fetchDetailData(Number(route.params.id)); // 1대신 musicId 들어가야 함
+});
 </script>
 
 <style scoped>
