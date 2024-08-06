@@ -8,26 +8,26 @@ import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.*;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+import java.io.FileInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,6 +45,8 @@ public class MusicService {
     private final FileDataService fileDataService;
     private final MemberRepository memberRepository;
     private final MusicPracticeRepository musicPracticeRepository;
+    private final PdfToMusicXmlService pdfToMusicXmlService;
+    private final MusicXmlModifierService musicXmlModifierService;
 
     private static final Map<String, String> noteToSyllable = new HashMap<>();
 
@@ -59,13 +61,58 @@ public class MusicService {
     }
 
     @Autowired
-    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository) {
+    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService) {
         this.musicRepository = musicRepository;
         this.musicPracticeService = musicPracticeService;
         this.fileDataService = fileDataService;
         this.memberRepository = memberRepository;
         this.musicPracticeRepository = musicPracticeRepository;
+        this.pdfToMusicXmlService = pdfToMusicXmlService;
+        this.musicXmlModifierService = musicXmlModifierService;
     }
+
+//    @Transactional
+//    public MusicDTO uploadPdf(MultipartFile pdfFile) throws IOException {
+//        System.out.println("Saving PDF file: " + pdfFile.getOriginalFilename());
+//        FileData fileData = fileDataService.savePdfFile(pdfFile);
+//
+//        Music music = new Music();
+//        music.setTitle(pdfFile.getOriginalFilename().replace(".pdf", ""));
+//        music.setOriginalFileRoute(fileData.getPath());
+//        MusicHighScore highScore = new MusicHighScore();
+//        Music savedMusic = null;
+//        highScore.setMusic(savedMusic);
+//        highScore.setScore(0);
+//        savedMusic = musicRepository.save(music);
+//
+//        return mapMusicToDTO(savedMusic);
+//    }
+//
+//    @Transactional
+//    public MusicDTO convertPdfToMusicXml(int id, boolean useSax) throws IOException, InterruptedException {
+//        Optional<Music> optionalMusic = musicRepository.findById(id);
+//        if (!optionalMusic.isPresent()) {
+//            throw new RuntimeException("Music not found with id " + id);
+//        }
+//
+//        Music music = optionalMusic.get();
+//        File pdfFile = new File(music.getOriginalFileRoute());
+//        String mxlFilePath = convertPdfToMusicXml(pdfFile);
+//
+//        String xmlFilePath = extractMusicXml(mxlFilePath);
+//        if (useSax) {
+//            modifyMusicXmlSax(xmlFilePath);
+//        } else {
+//            modifyMusicXmlDom(xmlFilePath);
+//        }
+//        String modifiedMxlFilePath = compressMusicXml(xmlFilePath);
+//
+//        music.setMusicXmlRoute(mxlFilePath);
+//        music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
+//        Music savedMusic = musicRepository.save(music);
+//
+//        return mapMusicToDTO(savedMusic);
+//    }
 
     @Transactional
     public MusicDTO uploadPdf(MultipartFile pdfFile) throws IOException {
@@ -75,36 +122,40 @@ public class MusicService {
         Music music = new Music();
         music.setTitle(pdfFile.getOriginalFilename().replace(".pdf", ""));
         music.setOriginalFileRoute(fileData.getPath());
-        MusicHighScore highScore = new MusicHighScore();
-        Music savedMusic = null;
-        highScore.setMusic(savedMusic);
-        highScore.setScore(0);
-        savedMusic = musicRepository.save(music);
+        music.setFavorite(false);
+        music.setUploadDate(LocalDate.now());
+
+        String currentUserId = getCurrentUserId();
+        Member user = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
+        music.setUser(user);
+
+        Music savedMusic = musicRepository.save(music);
 
         return mapMusicToDTO(savedMusic);
     }
 
     @Transactional
-    public MusicDTO convertPdfToMusicXml(int id, boolean useSax) throws IOException, InterruptedException {
+    public MusicDTO convertPdfToMusicXml(int id) throws IOException, InterruptedException {
         Optional<Music> optionalMusic = musicRepository.findById(id);
         if (!optionalMusic.isPresent()) {
             throw new RuntimeException("Music not found with id " + id);
         }
 
         Music music = optionalMusic.get();
-        File pdfFile = new File(music.getOriginalFileRoute());
-        String mxlFilePath = convertPdfToMusicXml(pdfFile);
+        String mxlFilePath = pdfToMusicXmlService.convertPdfToMusicXml(music.getOriginalFileRoute());
+        String modifiedXmlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
 
-        String xmlFilePath = extractMusicXml(mxlFilePath);
-        if (useSax) {
-            modifyMusicXmlSax(xmlFilePath);
-        } else {
-            modifyMusicXmlDom(xmlFilePath);
-        }
-        String modifiedMxlFilePath = compressMusicXml(xmlFilePath);
+        // Save MusicXML file
+        Path mxlFilePathObj = Paths.get(mxlFilePath);
+        Files.copy(mxlFilePathObj, new File(mxlFilePath).toPath());
+
+        // Save modified MusicXML file
+        Path modifiedXmlFilePathObj = Paths.get(modifiedXmlFilePath);
+        Files.copy(modifiedXmlFilePathObj, new File(modifiedXmlFilePath).toPath());
 
         music.setMusicXmlRoute(mxlFilePath);
-        music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
+        music.setModifiedMusicXmlRoute(modifiedXmlFilePath);
         Music savedMusic = musicRepository.save(music);
 
         return mapMusicToDTO(savedMusic);
@@ -121,16 +172,78 @@ public class MusicService {
         music.setTitle(musicDTO.getTitle());
         music.setArtist(musicDTO.getArtist());
 
-        Member user = memberRepository.findById(musicDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id " + musicDTO.getUserId()));
+        String currentUserId = getCurrentUserId();
+        Member user = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
         music.setUser(user);
 
         music.setUploadDate(LocalDate.now());
         music.setMusicImg(createMusicImg(music.getTitle()));
+        music.setFavorite(false);
 
         Music savedMusic = musicRepository.save(music);
 
         return mapMusicToDTO(savedMusic);
+    }
+
+    private String getCurrentUserId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+
+    private String createMusicImg(String title) {
+        // OpenAI API를 사용하여 이미지를 생성하는 로직
+        // 생성된 이미지 경로를 반환
+        return "/path/to/generated/image.png";
+    }
+
+    private MusicDTO mapMusicToDTO(Music music) {
+        MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setId(music.getId());
+        musicDTO.setTitle(music.getTitle());
+        musicDTO.setOriginalFileRoute(music.getOriginalFileRoute());
+        musicDTO.setMusicXmlRoute(music.getMusicXmlRoute());
+        musicDTO.setModifiedMusicXmlRoute(music.getModifiedMusicXmlRoute());
+        musicDTO.setUserId(music.getUser().getId());
+        musicDTO.setMusicImg(music.getMusicImg());
+        musicDTO.setFavorite(music.getFavorite());
+        musicDTO.setUploadDate(music.getUploadDate());
+        musicDTO.setArtist(music.getArtist());
+        return musicDTO;
+    }
+
+    public String getMusicImgPath(int musicId) {
+        Optional<Music> optionalMusic = musicRepository.findById(musicId);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+            return music.getMusicImg();
+        } else {
+            throw new RuntimeException("Music not found with id " + musicId);
+        }
+    }
+
+    public String getMusicXmlRoute(int musicId) {
+        Optional<Music> optionalMusic = musicRepository.findById(musicId);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+            return music.getMusicXmlRoute();
+        } else {
+            throw new RuntimeException("Music not found with id " + musicId);
+        }
+    }
+
+    public String getModifiedMusicXmlRoute(int musicId) {
+        Optional<Music> optionalMusic = musicRepository.findById(musicId);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+            return music.getModifiedMusicXmlRoute();
+        } else {
+            throw new RuntimeException("Music not found with id " + musicId);
+        }
     }
 
     private String convertPdfToMusicXml(File pdfFile) throws IOException, InterruptedException {
@@ -229,74 +342,6 @@ public class MusicService {
         }
     }
 
-    private void modifyMusicXmlSax(String xmlFilePath) throws IOException {
-        File modifiedXmlFile = new File(xmlFilePath.replace(".xml", "_modified.xml"));
-        try (FileOutputStream fos = new FileOutputStream(modifiedXmlFile);
-             OutputStreamWriter writer = new OutputStreamWriter(fos, "UTF-8");
-             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
-
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser = factory.newSAXParser();
-            saxParser.parse(new File(xmlFilePath), new DefaultHandler() {
-                private boolean inPitch = false;
-                private boolean inStep = false;
-                private String currentStep = null;
-
-                @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                    try {
-                        bufferedWriter.write("<" + qName);
-                        for (int i = 0; i < attributes.getLength(); i++) {
-                            bufferedWriter.write(" " + attributes.getQName(i) + "=\"" + attributes.getValue(i) + "\"");
-                        }
-                        bufferedWriter.write(">");
-                    } catch (IOException e) {
-                        throw new SAXException(e);
-                    }
-
-                    if (qName.equalsIgnoreCase("pitch")) {
-                        inPitch = true;
-                    } else if (qName.equalsIgnoreCase("step")) {
-                        inStep = true;
-                    }
-                }
-
-                @Override
-                public void endElement(String uri, String localName, String qName) throws SAXException {
-                    try {
-                        if (qName.equalsIgnoreCase("step")) {
-                            inStep = false;
-                        } else if (qName.equalsIgnoreCase("pitch")) {
-                            inPitch = false;
-                        }
-
-                        if (qName.equalsIgnoreCase("note") && currentStep != null) {
-                            bufferedWriter.write("<lyric><text>" + noteToSyllable.get(currentStep) + "</text></lyric>");
-                            currentStep = null;
-                        }
-                        bufferedWriter.write("</" + qName + ">");
-                    } catch (IOException e) {
-                        throw new SAXException(e);
-                    }
-                }
-
-                @Override
-                public void characters(char[] ch, int start, int length) throws SAXException {
-                    try {
-                        if (inStep && inPitch) {
-                            currentStep = new String(ch, start, length);
-                        }
-                        bufferedWriter.write(new String(ch, start, length));
-                    } catch (IOException e) {
-                        throw new SAXException(e);
-                    }
-                }
-            });
-        } catch (Exception e) {
-            throw new IOException("Failed to modify MusicXML file", e);
-        }
-    }
-
     private String compressMusicXml(String xmlFilePath) throws IOException {
         File xmlFile = new File(xmlFilePath);
         File outputDir = xmlFile.getParentFile();
@@ -318,27 +363,6 @@ public class MusicService {
         return mxlFilePath;
     }
 
-    private String createMusicImg(String title) {
-        // OpenAI API를 사용하여 이미지를 생성하는 로직
-        // 생성된 이미지 경로를 반환
-        return "/path/to/generated/image.png";
-    }
-
-    private MusicDTO mapMusicToDTO(Music music) {
-        MusicDTO musicDTO = new MusicDTO();
-        musicDTO.setId(music.getId());
-        musicDTO.setTitle(music.getTitle());
-        musicDTO.setOriginalFileRoute(music.getOriginalFileRoute());
-        musicDTO.setMusicXmlRoute(music.getMusicXmlRoute());
-        musicDTO.setModifiedMusicXmlRoute(music.getModifiedMusicXmlRoute());
-        musicDTO.setUserId(music.getUser().getId());
-        musicDTO.setMusicImg(music.getMusicImg());
-        musicDTO.setFavorite(music.getFavorite());
-        musicDTO.setUploadDate(music.getUploadDate());
-        musicDTO.setArtist(music.getArtist());
-        return musicDTO;
-    }
-
     public List<MusicDTO> getAllMusic() {
         List<Music> musicList = musicRepository.findAll();
         return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
@@ -351,8 +375,17 @@ public class MusicService {
 
     @Transactional
     public void deleteMusic(int id) {
-        musicRepository.deleteById(id);
+        Optional<Music> optionalMusic = musicRepository.findById(id);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+
+            // 연관된 엔티티 삭제 (CascadeType.ALL 설정으로 인해 자동 삭제)
+            musicRepository.delete(music);
+        } else {
+            throw new RuntimeException("Music not found with id " + id);
+        }
     }
+
 
     @Transactional
     public void favoriteMusic(int id, boolean favorite) {
@@ -386,18 +419,6 @@ public class MusicService {
     public boolean getFavoriteStatus(int id) {
         Optional<Music> music = musicRepository.findById(id);
         return music.map(Music::getFavorite).orElse(false);
-    }
-
-    public MusicDTO updateMusic(int id, MusicDTO musicDTO) {
-        Optional<Music> optionalMusic = musicRepository.findById(id);
-        if (optionalMusic.isPresent()) {
-            Music music = optionalMusic.get();
-            music.setTitle(musicDTO.getTitle());
-            music.setArtist(musicDTO.getArtist());
-            Music updatedMusic = musicRepository.save(music);
-            return mapMusicToDTO(updatedMusic);
-        }
-        return null;
     }
 
     public List<MusicDTO> getMusicByUserAndSort(String userId, String sortBy, String direction) {
@@ -451,24 +472,6 @@ public class MusicService {
         musicDTO.setUploadDate(music.getUploadDate());
         musicDTO.setArtist(music.getArtist());
         return musicDTO;
-    }
-
-    @Transactional
-    public MusicDTO addDummyMusic(String title, String artist, String userId, String fileRoute, String musicImg, boolean favorite, LocalDate uploadDate) {
-        Music music = new Music();
-        music.setTitle(title);
-        music.setArtist(artist);
-        music.setOriginalFileRoute(fileRoute);
-        music.setMusicImg(musicImg);
-        music.setFavorite(favorite);
-        music.setUploadDate(uploadDate);
-
-        Member user = memberRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
-        music.setUser(user);
-
-        Music savedMusic = musicRepository.save(music);
-        return mapMusicToDTO(savedMusic);
     }
 
 }
