@@ -7,7 +7,9 @@
         <PianoSheet />
       </div>
       <div class="right">
-        <DetailPractice />
+        <div class="detail">
+          <DetailPractice />
+        </div>
         <Buttons />
       </div>
     </div>
@@ -49,5 +51,9 @@ onMounted(() => {
   flex: 1; /* 오른쪽 콘텐츠 영역이 가로 공간을 차지하도록 설정 */
   display: flex;
   flex-direction: column; /* 수직으로 정렬 */
+}
+
+.detail{
+  margin-bottom: 20px;
 }
 </style>

@@ -33,6 +33,6 @@ onMounted(() => {
 .container {
   width: 30vw;
   height: 70wh;
-  border: 1px solid black;
+  border: 2px solid #F5E5D1;
 }
 </style>
