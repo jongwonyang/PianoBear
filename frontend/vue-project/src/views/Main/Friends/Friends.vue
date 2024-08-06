@@ -81,12 +81,7 @@
             <v-card class="add-friend-form">
                 <v-card-title class="headline">친구 검색</v-card-title>
                 <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-                <v-text-field label="친구 아이디" v-model="searchQuery"></v-text-field>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn text @click="showDialog = false">취소</v-btn>
-                    <v-btn text @click="searchFriend">검색</v-btn>
-                </v-card-actions>
+                <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
                 <v-card-text v-if="searchResult">
                     <div class="friend-item">
                         <div class="my-friends-ele-left">
@@ -98,13 +93,19 @@
                                 <md-elevation></md-elevation>
                                 {{ searchResult.statusMessage }}
                             </div>
-                            <v-btn v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.userId"
+                            <v-btn v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.id"
                                 class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
-                            <v-btn v-else-if="searchResult.id == userInfo.userId" disabled>자신은 추가할 수 없습니다</v-btn>
+                            <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
                             <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
                         </div>
                     </div>
                 </v-card-text>
+                <v-btn v-else-if="!searchResult" disabled>찾을 수 없습니다</v-btn>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="showDialog = false">취소</v-btn>
+                    <v-btn text @click="searchFriend">검색</v-btn>
+                </v-card-actions>
             </v-card>
         </v-dialog>
     </div>
@@ -160,6 +161,7 @@ const searchFriend = () => {
             console.log(res);
         })
         .catch((err) => {
+            searchResult.value = null;
             console.log(err);
         });
 };

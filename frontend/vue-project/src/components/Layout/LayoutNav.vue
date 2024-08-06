@@ -93,7 +93,7 @@ onMounted(() => {
     .then((res) => {
       userInfo.value.userEmail = res.data.email;
       userInfo.value.userName = res.data.name;
-      userInfo.value.profileImage = "https://i.namu.wiki/i/W-XZ2Oy1qM9Sxd3wxVUN837dvaI_Ed3GCCIwyJ7is037aZgMPOFdUq3XtjI_EGJ7rsFMyNqpYFhHb58GNc2AnsIVg8uGcLc6RuwicIS6CNWCbwJ7niosjDS_zyEbgQzuTnubiPUnVy2ke4focfz5kg.webp"
+      userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg"
     })
     .catch((err) => {
       console.log(err);
@@ -150,6 +150,7 @@ const deleteChatMessage = (index) => {
 
 .notification-actions {
   justify-content: flex-end;
+  padding-bottom: 4px;
 }
 
 .delete-all {
