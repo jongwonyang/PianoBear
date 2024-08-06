@@ -9,6 +9,9 @@ import { useUserStore } from '@/stores/user';
 import { useWebSocketStore } from '@/stores/websocket';
 import { storeToRefs } from 'pinia';
 
+console.log(`mode: ${import.meta.env.MODE}`)
+console.log(`VITE_API_BASE_URL: ${import.meta.env.VITE_API_BASE_URL}`)
+
 const userStore = useUserStore();
 const webSocketStore = useWebSocketStore();
 

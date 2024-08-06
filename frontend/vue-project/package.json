@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host --mode {@}",
-    "apitest": "vite --host --mode dev",
+    "dev": "vite --host --mode development",
+    "dev:staging": "vite --host --mode staging",
+    "dev:production": "vite --host --mode production",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
