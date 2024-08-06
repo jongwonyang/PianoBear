@@ -8,3 +8,12 @@ import PracticePiano from '@/components/PianoSheet/PracticePiano.vue';
 
 const route = useRoute();
 </script>
+<style>
+h2 {
+    position: absolute;
+    top: 3vh;
+    left: 13vh;
+    width: 25vh;
+
+}
+</style>
