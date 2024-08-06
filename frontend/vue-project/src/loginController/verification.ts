@@ -3,7 +3,7 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:7000/api/v1/",
+  baseURL: import.meta.env.VITE_API_BASE_URL + "/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -37,7 +37,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res = await axios.post(
-          "http://localhost:7000/api/v1/auth/refresh",
+          import.meta.env.VITE_API_BASE_URL + "/auth/refresh",
           {
             refreshToken: userStore.GetRefreshToken(),
           }
