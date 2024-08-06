@@ -1,14 +1,14 @@
 import * as MusicXMLPlayer from "./distmxl/musicxml-player.esm.js";
-import { TimingObject } from "https://cdn.jsdelivr.net/npm/timing-object@3.1.61/+esm";
+import { TimingObject } from "./distmxl/timing-object.esm.js";
 import { ref } from "vue";
 
 const DEFAULT_OUTPUT = "local";
 const PLAYER_PLAYING = 1;
 const notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
-export const num = ref([]);
 const LOCALSTORAGE_KEY = "musicxml-player";
+export const num = ref([]);
 
-export const g_state = {
+const g_state = {
   webmidi: null,
   player: null,
   params: null,
@@ -163,7 +163,6 @@ export async function sheetSelect(input) {
 function handleOptionChange(e) {
   g_state.options.mute = e.target.checked;
   g_state.player.changeMute(g_state.options.mute);
-  console.log(g_state.options.mute);
 }
 
 function handleVelocityChange(e) {
@@ -195,7 +194,6 @@ export async function pageLoad() {
   });
   document.getElementById("pause").addEventListener("click", async () => {
     g_state.timingObject?.update({ velocity: 0 });
-    console.log(g_state.player);
   });
   document.getElementById("rewind").addEventListener("click", async () => {
     g_state.timingObject?.update({ position: 0, velocity: 0 });
@@ -235,8 +233,8 @@ function currPitch() {
     currPlayer._renderer._notes.forEach((e) => {
       const i = g_state.player._renderer._vrv.getMIDIValuesForElement(e).pitch;
       if (i) {
-        const o = Math.floor((i - 21) / 12);
-        const k = (i - 21) % 12;
+        const o = Math.floor((i - 9) / 12);
+        const k = (i - 9) % 12;
         arr.push(o.toString() + notes[k]);
       }
     });
@@ -244,10 +242,15 @@ function currPitch() {
   }
 }
 
+export function reset() {
+  g_state.player?._midiPlayerStop();
+  window.localStorage.removeItem(LOCALSTORAGE_KEY);
+}
+
 export default {
   pageLoad,
   sheetSelect,
   createPlayer,
   num,
-  g_state,
+  reset,
 };
