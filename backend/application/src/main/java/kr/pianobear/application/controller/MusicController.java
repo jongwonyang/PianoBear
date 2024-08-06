@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,34 +36,27 @@ public class MusicController {
     }
 
 
-    @Operation(summary = "PDF 업로드", description = "PDF 파일을 업로드하고 악보를 추가합니다.")
-    @PostMapping("/upload")
-    public ResponseEntity<MusicDTO> uploadPdf(@RequestParam("file") MultipartFile file) throws IOException {
-        System.out.println("Received file: " + file.getOriginalFilename());
-        MusicDTO createdMusic = musicService.uploadPdf(file);
+//    @Operation(summary = "PDF 업로드 및 변환", description = "PDF 파일을 업로드하고 MusicXML로 변환합니다.")
+//    @PostMapping(value = "/convert", consumes = "multipart/form-data")
+//    public ResponseEntity<MusicDTO> uploadPdf(@RequestPart("file") MultipartFile file) throws IOException, InterruptedException {
+//        MusicDTO createdMusic = musicService.convertPdf(file);
+//        return ResponseEntity.ok(createdMusic);
+//    }
+
+    @Operation(summary = "PDF 변환", description = "PDF 파일을 업로드하고 변환을 요청합니다.")
+    @PostMapping(value="/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MusicDTO> processPdfUpload(@RequestPart (name = "file") MultipartFile file) throws IOException, InterruptedException {
+        MusicDTO createdMusic = musicService.processPdfUpload(file);
         return ResponseEntity.ok(createdMusic);
     }
 
-    @Operation(summary = "PDF를 MusicXML로 변환", description = "PDF 파일을 MusicXML 파일로 변환합니다.")
-    @PostMapping("/{id}/convert")
-    public ResponseEntity<MusicDTO> convertPdfToMusicXml(@PathVariable int id) throws IOException, InterruptedException {
-        MusicDTO convertedMusic = musicService.convertPdfToMusicXml(id);
-        return ResponseEntity.ok(convertedMusic);
-    }
-
-    @Operation(summary = "악보 저장", description = "변환된 악보를 저장합니다.")
+    @Operation(summary = "Music 저장", description = "Music 데이터를 저장합니다.")
     @PostMapping("/save")
-    public ResponseEntity<MusicDTO> saveMusic(@RequestParam("file") MultipartFile file,
-                                              @RequestParam("title") String title,
-                                              @RequestParam("artist") String artist) throws IOException {
-        MusicDTO musicDTO = new MusicDTO();
-        musicDTO.setTitle(title);
-        musicDTO.setArtist(artist);
-        musicDTO.setUploadDate(LocalDate.now());
-
-        MusicDTO createdMusic = musicService.saveMusic(musicDTO, file);
-        return ResponseEntity.ok(createdMusic);
+    public ResponseEntity<MusicDTO> saveMusic(@RequestBody MusicDTO musicDTO) {
+        MusicDTO savedMusic = musicService.saveMusic(musicDTO);
+        return ResponseEntity.ok(savedMusic);
     }
+
 
     @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보를 불러옵니다.")
     @GetMapping

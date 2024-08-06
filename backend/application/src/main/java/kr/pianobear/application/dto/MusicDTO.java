@@ -27,10 +27,6 @@ public class MusicDTO {
     private String title;
 
     @NotBlank
-    @Schema(description = "악보 원본")
-    private String originalFileRoute;
-
-    @NotBlank
     @Schema(description = "악보 mxl 경로")
     private String musicXmlRoute;
 
