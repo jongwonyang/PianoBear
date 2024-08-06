@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const REST_PIANOSHEET_API = `http://localhost:7000/api/v1/music`;
+const REST_PIANOSHEET_API = `${import.meta.env.VITE_API_BASE_URL}/music`;
 
 // 기본제공 악보
 interface BasicSheet {

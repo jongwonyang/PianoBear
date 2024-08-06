@@ -3,10 +3,8 @@ import { defineStore } from "pinia";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import { useRouter } from "vue-router";
 
-const REST_USER_API = "https://apitest.pianobear.kr/api/v1/users/";
-const REST_AUTH_API = "https://apitest.pianobear.kr/api/v1/auth/";
-// const REST_USER_API = "http://localhost:7000/api/v1/users/";
-// const REST_AUTH_API = "http://localhost:7000/api/v1/auth/";
+const REST_USER_API = import.meta.env.VITE_API_BASE_URL + "/users/";
+const REST_AUTH_API = import.meta.env.VITE_API_BASE_URL + "/auth/";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref({

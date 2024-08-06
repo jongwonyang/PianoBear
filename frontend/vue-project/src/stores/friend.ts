@@ -2,9 +2,8 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import { useRouter } from "vue-router";
-import { API_BASE_URL } from "@/api";
 
-const REST_FRIEND_API = API_BASE_URL + "/friends/";
+const REST_FRIEND_API = import.meta.env.VITE_API_BASE_URL + "/friends/";
 
 export const useFriendStore = defineStore("friend", () => {
   const GetFriendList = async () => {
