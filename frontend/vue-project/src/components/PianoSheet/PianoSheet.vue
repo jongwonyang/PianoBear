@@ -1,9 +1,14 @@
 <template>
   <div class="container">
     <h3>악보 컴포넌트</h3>
-    <!-- <img v-if="store.detailSheet[0].musicImg" :src="store.detailSheet[0].musicImg" alt="악보 이미지" class="sheet-image" />
-        <p v-else>악보 이미지가 없습니다.</p> -->
-    <img src="" alt="">
+    <img
+      v-if="store.detailSheet?.musicImg"
+      :src="store.detailSheet?.musicImg"
+      alt="악보 이미지"
+      class="sheet-image"
+    />
+    <p v-else>악보 이미지가 없습니다.</p>
+    <img src="" alt="" />
   </div>
 </template>
 
