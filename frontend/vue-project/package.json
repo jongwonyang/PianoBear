@@ -9,7 +9,7 @@
     "dev:production": "vite --host --mode production",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only": "vite build --mode production",
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {

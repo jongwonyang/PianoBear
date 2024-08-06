@@ -1,7 +1,7 @@
 services:
   application-server:
     build:
-      context: ./application
+      context: ./backend/application
       dockerfile: Dockerfile
     ports:
       - "7000:8080"
@@ -21,11 +21,24 @@ services:
       - redis-server
     volumes:
       - pianobear-app-data:/app/data
+    networks:
+      - pianobear-network
+
+  frontend-server:
+    build:
+      context: ./frontend/vue-project
+      dockerfile: Dockerfile
+    ports:
+      - "7001:80"
+    networks:
+      - pianobear-network
 
   redis-server:
     image: redis:latest
     ports:
       - 6379:6379
+    networks:
+      - pianobear-network
 
   postgres-server:
     image: postgres:latest
@@ -37,6 +50,8 @@ services:
       - "5432:5432"
     volumes:
       - pianobear-db-data:/var/lib/postgresql/data
+    networks:
+      - pianobear-network
 
 networks:
   pianobear-network:
