@@ -5,7 +5,7 @@
         </v-card-title>
         <v-card-text class="edit-element">
             <div class="profile-section">
-                <div class="profile-image"></div>
+                <img :src="userInfo.profilePic" alt="내 이미지">
                 <v-btn class="img-edit-button" @click="changeProfileImage">
                     프로필 사진 변경
                 </v-btn>
@@ -39,13 +39,7 @@ const userInfo = ref({});
 
 onMounted(() => {
     // 유저 정보 불러오기
-    userStore.GetUserInfo()
-        .then((response) => {
-            userInfo.value = response.data;
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+    userInfo.value = userStore.user;
 });
 
 const props = defineProps({

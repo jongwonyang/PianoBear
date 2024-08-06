@@ -7,9 +7,9 @@
             </div>
             <div v-else>
                 <div class="my-status-box">
-                    <img class="my-status-image" :src="userInfo.profileImage">
+                    <img class="my-status-image" :src="userInfo.profilePic">
                     <div class="my-status-ele">
-                        <div class="my-name">{{ userInfo.userName }}</div>
+                        <div class="my-name">{{ userInfo.name }}</div>
                         <div class="my-status-message-box">
                             <md-elevation></md-elevation>
                             <div class="my-status-message">
@@ -116,10 +116,7 @@ import { useUserStore } from '@/stores/user';
 import { useFriendStore } from '@/stores/friend';
 
 const userInfo = ref({
-    userId: "string",
-    userName: "string",
-    profileImage: "string",
-    statusMessage: "string",
+
 });
 
 const isLoading = ref({
@@ -139,24 +136,15 @@ const searchResult = ref(null); // 검색 결과를 저장할 상태
 const friendInfo = ref(null); // 친구 정보를 저장할 상태
 
 onMounted(() => {
-    userStore.GetUserInfo()
-        .then((res) => {
-            userInfo.value.userId = res.data.id;
-            userInfo.value.userName = res.data.name;
-            userInfo.value.profileImage = "https://i.namu.wiki/i/W-XZ2Oy1qM9Sxd3wxVUN837dvaI_Ed3GCCIwyJ7is037aZgMPOFdUq3XtjI_EGJ7rsFMyNqpYFhHb58GNc2AnsIVg8uGcLc6RuwicIS6CNWCbwJ7niosjDS_zyEbgQzuTnubiPUnVy2ke4focfz5kg.webp";
-            userInfo.value.statusMessage = res.data.statusMessage;
-            isLoading.value.userInfo = false;
-            console.log(res);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
 
     // 친구 목록을 불러오는 로직을 여기에 구현합니다.
     friendStore.GetFriendList()
         .then((res) => {
             friends.value = res.data;
             isLoading.value.friendList = false;
+            // 유저정보가 친구목록이 로딩되면 가져오도록 함.
+            userInfo.value = userStore.user;
+            isLoading.value.userInfo = false;
             console.log(res);
             console.log(res.data.length);
         })

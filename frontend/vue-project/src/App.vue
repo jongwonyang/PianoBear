@@ -20,6 +20,14 @@ onMounted(() => {
 
   if (token !== null) {
     userStore.isLoggedIn = true;
+    userStore.GetUserInfo()
+      .then((response) => {
+        userStore.user = response.data;
+        console.log(userStore.user);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   if (isLoggedIn.value) {

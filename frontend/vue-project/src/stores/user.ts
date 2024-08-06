@@ -10,17 +10,7 @@ const REST_USER_API = API_BASE_URL + "/users/";
 const REST_AUTH_API = API_BASE_URL + "/auth/";
 
 export const useUserStore = defineStore("user", () => {
-  const user = ref({
-    id: "",
-    email: "",
-    name: "",
-    gender: "",
-    birthday: "",
-    profilePic: "",
-    statusMessage: "",
-    authEmail: "",
-    role: "",
-  });
+  const user = ref({});
 
   const isLoggedIn = ref(false);
   const accessToken = ref(localStorage.getItem("accessToken") || "");

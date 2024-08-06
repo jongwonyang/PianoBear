@@ -70,7 +70,14 @@ async function Login() {
             sessionStorage.setItem("refreshToken", res.data.refreshToken);
             userStore.SetAccessToken(res.data.accessToken);
             userStore.SetRefreshToken(res.data.refreshToken);
-            userStore.GetUserInfo();
+            userStore.GetUserInfo()
+                .then((response) => {
+                    userStore.user = response.data;
+                    console.log(userStore.user);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
             router.push("/main");
             console.log(userStore.isLoggedIn);
         } else if (res.status === 403) {
