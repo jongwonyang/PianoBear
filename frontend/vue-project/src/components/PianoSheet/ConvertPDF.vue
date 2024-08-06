@@ -3,19 +3,21 @@
   <div class="container">
     <!-- <Loading :visible="isLoading" /> -->
     <button @click="convertFile" class="round-button">
-        <v-icon>mdi-arrow-right-thick</v-icon>
-        <h5>시작</h5>
+      <v-icon>mdi-arrow-right-thick</v-icon>
+      <h5>시작</h5>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Loading from "./Loading.vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 // const isLoading = ref<boolean>(false);
 const store = usePianoSheetStore();
+const route = useRoute();
 
 // const fetchData = () => {
 //   isLoading.value = true;
@@ -28,7 +30,7 @@ const store = usePianoSheetStore();
 const convertFile = async (): Promise<void> => {
   const selectedFile = store.selectedFile;
   if (selectedFile) {
-    store.convertFilefun(selectedFile);
+    store.convertFilefun(selectedFile, Number(route.params.id));
   }
 };
 </script>
@@ -44,7 +46,7 @@ img {
   height: 100px;
   border-radius: 50%;
   border: none;
-  background-color: #F5E5D1;
+  background-color: #f5e5d1;
   color: #947650;
   font-size: 16px;
   display: flex;

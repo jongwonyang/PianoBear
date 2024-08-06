@@ -32,11 +32,14 @@ public class Music {
     private LocalDate uploadDate;
     private String artist;
 
-    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MusicPractice> practices;
 
-    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MusicTest> tests;
+
+    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MusicHighScore> highScores;
 
     public void setUser(Member user) {
         this.user = user;

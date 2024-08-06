@@ -34,10 +34,14 @@
                         class="regist-input birth" :value="userBirth" @input="setUserBirth"></md-outlined-text-field>
                 </div>
             </div>
-            <md-elevated-button class="regist-button" @click="RegistUser">회원가입</md-elevated-button>
+            <v-btn class="regist-button" @click="RegistUser" :loading="isLoading" :disabled="isLoading">
+                회원가입
+            </v-btn>
+
         </div>
     </div>
 </template>
+
 
 <script setup>
 import { useUserStore } from '@/stores/user';
@@ -61,6 +65,8 @@ const emailErrorMessage = ref('');
 const passwordError = ref(false);
 const passwordErrorMessage = ref('');
 const PasswordCheck = ref('');
+
+const isLoading = ref(false); // 로딩 상태 변수
 
 const checkDuplicateId = (e) => {
     userId.value = e.target.value;
@@ -128,6 +134,7 @@ const checkPassword = (e) => {
 const RegistUser = async () => {
     userStore.user.id = userId.value;
     userStore.user.email = userEmail.value;
+
     if (idError.value === true || emailError.value === true || passwordError.value === true) {
         alert('입력값을 확인해주세요.');
         return;
@@ -136,10 +143,19 @@ const RegistUser = async () => {
         alert('입력값을 확인해주세요.');
         return;
     }
-    console.log(userStore.user);
-    await userStore.RegistUser();
+
+    isLoading.value = true; // 로딩 시작
+    try {
+        await userStore.RegistUser();
+    } catch (error) {
+        console.error(error);
+        alert('회원가입에 실패했습니다.');
+    } finally {
+        isLoading.value = false; // 로딩 종료
+    }
 };
 </script>
+
 
 <style scoped>
 .regist-container {
@@ -181,8 +197,8 @@ const RegistUser = async () => {
 .regist-button {
     width: calc(100% - 40px);
     margin: 10px 0;
-    color: #F5E5D1;
-    background-color: #947650;
+    color: #947650;
+    background-color: #D9F6D9;
     border-radius: 10px;
     font-size: 16px;
 }

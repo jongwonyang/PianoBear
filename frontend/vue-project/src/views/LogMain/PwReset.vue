@@ -11,7 +11,7 @@
                 <md-outlined-text-field label="이름" type="text" class="reset-input name"></md-outlined-text-field>
                 <md-outlined-text-field label="이메일" type="email" class="reset-input email"></md-outlined-text-field>
             </div>
-            <md-elevated-button class="reset-button">임시 비밀번호 발급</md-elevated-button>
+            <v-btn class="reset-button">임시 비밀번호 발급</v-btn>
         </div>
     </div>
 </template>
@@ -62,8 +62,8 @@ const router = useRouter();
 
 .reset-button {
     margin-top: 20px;
-    background-color: #947650;
-    color: #FFF9E0;
+    background-color: #D9F6D9;
+    color: #947650;
     border-radius: 10px;
     font-size: 16px;
 }

@@ -1,13 +1,12 @@
-import * as MusicXMLPlayer from "./distmxl/musicxml-player.esm.js";
-import { TimingObject } from "./distmxl/timing-object.esm.js";
+import * as MusicXMLPlayer from "./dist/musicxml-player.esm.js";
+import { TimingObject } from "https://cdn.jsdelivr.net/npm/timing-object@3.1.61/+esm";
 import { ref } from "vue";
 
 const DEFAULT_OUTPUT = "local";
 const PLAYER_PLAYING = 1;
 const notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
-const LOCALSTORAGE_KEY = "musicxml-player";
-export const playStatus = ref(1);
 export const num = ref([]);
+const LOCALSTORAGE_KEY = "musicxml-player";
 
 export const g_state = {
   webmidi: null,
@@ -164,14 +163,13 @@ export async function sheetSelect(input) {
 function handleOptionChange(e) {
   g_state.options.mute = e.target.checked;
   g_state.player.changeMute(g_state.options.mute);
+  console.log(g_state.options.mute);
 }
 
 function handleVelocityChange(e) {
-  if (g_state.player.state === PLAYER_PLAYING) {
-    g_state.timingObject?.update({
-      velocity: Number(document.getElementById("velocity").value),
-    });
-  }
+  g_state.timingObject?.update({
+    velocity: Number(document.getElementById("velocity").value),
+  });
 }
 
 export async function pageLoad() {
@@ -197,6 +195,7 @@ export async function pageLoad() {
   });
   document.getElementById("pause").addEventListener("click", async () => {
     g_state.timingObject?.update({ velocity: 0 });
+    console.log(g_state.player);
   });
   document.getElementById("rewind").addEventListener("click", async () => {
     g_state.timingObject?.update({ position: 0, velocity: 0 });
@@ -251,5 +250,4 @@ export default {
   createPlayer,
   num,
   g_state,
-  playStatus,
 };

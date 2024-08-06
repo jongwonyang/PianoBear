@@ -42,9 +42,9 @@ const menu = ref(false);
 const loading = ref(false);
 const loaded = ref(false);
 
-const userSheetItems = [{ title: "연습량 순" }, { title: "악보등록 순" }, { title: "즐겨찾기 순" }];
+const userSheetItems = [{ title: "즐겨찾기 순" }, { title: "연습량 순" }, { title: "등록 순" }];
 
-const basicSheetItems = [{ title: "연습량 순" }, { title: "즐겨찾기 순" }];
+const basicSheetItems = [{ title: "즐겨찾기 순" }, { title: "연습량 순" }];
 
 const displayedItems = computed(() => {
   return props.currentTab === "UserSheet" ? userSheetItems : basicSheetItems;
@@ -63,6 +63,7 @@ const onClickAppend = () => {
 };
 
 const changeSort = (index: number) => {
+  console.log("Child Component: changeSort index:", index);
   emit("update:sortOption", index);
 };
 </script>

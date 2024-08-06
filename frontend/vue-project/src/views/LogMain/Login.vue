@@ -3,30 +3,31 @@
         <div class="login-box">
             <md-elevation></md-elevation>
             <div class="login-text">로그인</div>
-            <md-outlined-text-field label="아이디" type="text" class="login-input id" :value="userId"
-                @input="setUserId"></md-outlined-text-field>
+            <md-outlined-text-field label="아이디" type="text" class="login-input id" :value="userId" @input="setUserId"
+                @keyup.enter="Login"></md-outlined-text-field>
             <md-outlined-text-field label="비밀번호" type="password" class="login-input" :value="userPassword"
-                @input="setUserPassword"></md-outlined-text-field>
-            <md-elevated-button class="login-button" @click="Login()">로그인</md-elevated-button>
+                @input="setUserPassword" @keyup.enter="Login"></md-outlined-text-field>
+            <v-btn class="login-button" @click="Login" :loading="isLoading" :disabled="isLoading">로그인</v-btn>
             <div class="regist-pwReset-box">
-                <md-elevated-button class="secondary-button" @click="router.push({ name: 'regist' })">
+                <v-btn class="secondary-button" @click="router.push({ name: 'regist' })">
                     회원가입
-                </md-elevated-button>
-                <md-elevated-button class="secondary-button" @click="router.push({ name: 'pwReset' })">
+                </v-btn>
+                <v-btn class="secondary-button" @click="router.push({ name: 'pwReset' })">
                     비밀번호 재설정
-                </md-elevated-button>
+                </v-btn>
             </div>
-            <div class="social-login-buttons">
+            <!-- <div class="social-login-buttons">
                 <a class="social-button" @click="kakaoLogin()">
                     <img src="@/assets/images/카카오로그인 이미지.png" alt="카카오로그인 버튼">
                 </a>
                 <a class="social-button" @click="googleLogin()">
                     <img src="@/assets/images/구글로그인 이미지.png" alt="구글로그인 버튼">
                 </a>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue';
@@ -47,6 +48,7 @@ const userStore = useUserStore();
 
 const userId = ref('');
 const userPassword = ref('');
+const isLoading = ref(false); // 로딩 상태 변수 추가
 
 const setUserId = (e) => {
     userId.value = e.target.value;
@@ -57,10 +59,7 @@ const setUserPassword = (e) => {
 };
 
 async function Login() {
-    userStore.LoginUser(userId.value, userPassword.value)
-        .then(res => {
-            console.log(res);
-        });
+    isLoading.value = true; // 로그인 시작 시 로딩 상태로 설정
     try {
         const res = await userStore.LoginUser(userId.value, userPassword.value);
         if (res.status === 200) {
@@ -71,7 +70,14 @@ async function Login() {
             sessionStorage.setItem("refreshToken", res.data.refreshToken);
             userStore.SetAccessToken(res.data.accessToken);
             userStore.SetRefreshToken(res.data.refreshToken);
-            userStore.GetUserInfo();
+            userStore.GetUserInfo()
+                .then((response) => {
+                    userStore.user = response.data;
+                    console.log(userStore.user);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
             router.push("/main");
             console.log(userStore.isLoggedIn);
         } else if (res.status === 403) {
@@ -84,9 +90,12 @@ async function Login() {
     } catch (error) {
         console.log("아이디 또는 비밀번호가 일치하지 않습니다.");
         alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+    } finally {
+        isLoading.value = false; // 로그인 프로세스 완료 후 로딩 상태 해제
     }
 }
 </script>
+
 
 
 <style scoped>
@@ -138,7 +147,7 @@ async function Login() {
     flex: 1;
     padding: 10px;
     margin: 0 20px;
-    background-color: #F5E5D1;
+    background-color: #D9F6D9;
     color: #947650;
     border: none;
     border-radius: 4px;
@@ -159,10 +168,6 @@ async function Login() {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
-}
-
-.login-button:hover {
-    background-color: #8dfa92;
 }
 
 .secondary-button a {

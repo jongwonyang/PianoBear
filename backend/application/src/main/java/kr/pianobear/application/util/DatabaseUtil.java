@@ -46,6 +46,13 @@ public class DatabaseUtil {
             "let-it-go.pdf"
     );
 
+    private final List<String> musicResource = List.of(
+            "music.jpg",
+            "let-it-go.mxl",
+            "let-it-go.omr",
+            "let-it-go.pdf"
+    );
+
     @Autowired
     public DatabaseUtil(FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder, MusicRepository musicRepository, MusicPracticeRepository musicPracticeRepository, MusicTestRepository musicTestRepository, MusicHighScoreRepository musicHighScoreRepository) {
         this.fileDataRepository = fileDataRepository;
@@ -58,7 +65,7 @@ public class DatabaseUtil {
     }
 
     @Bean
-    CommandLineRunner initDatabase() {
+    CommandLineRunner initDatgitabase() {
         return new CommandLineRunner() {
             @Override
             @Transactional
@@ -138,7 +145,7 @@ public class DatabaseUtil {
                 MusicPractice practice = new MusicPractice();
                 practice.setMusic(music);
                 practice.setMember(user1);
-                practice.setPracticeDate(LocalDateTime.now().minusDays(random.nextInt(1000)));
+                practice.setPracticeDate(LocalDate.now().minusDays(random.nextInt(1000)));
                 practice.setPracticeCount(random.nextInt(100));
 
                 musicPracticeRepository.save(practice);
@@ -179,6 +186,16 @@ public class DatabaseUtil {
             Path targetPath = targetDirectory.resolve(resource.getFilename());
             if (!Files.exists(targetPath)) {  // 파일이 존재하지 않는 경우에만 복사
                 try (InputStream inputStream = resource.getInputStream()) {
+                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        }
+
+        for (String resourceMName : musicResource) {
+            Resource resourceMusic = new ClassPathResource(SAMPLE_PATH + resourceMName);
+            Path targetPath = targetDirectory.resolve(resourceMusic.getFilename());
+            if (!Files.exists(targetPath)) {  // 파일이 존재하지 않는 경우에만 복사
+                try (InputStream inputStream = resourceMusic.getInputStream()) {
                     Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
