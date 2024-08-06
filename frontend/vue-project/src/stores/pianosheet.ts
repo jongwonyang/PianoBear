@@ -185,7 +185,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 상세 - 산딸기(연습기록 불러오기)
   const practiceDatafun = async (id: number): Promise<void> => {
-    console.log("연습기록!!");
+    // console.log("연습기록!!");
     try {
       const response = await axios.get<PracticeRecord[]>(
         `${REST_PIANOSHEET_API}/practice/${id}/sorted`
@@ -198,7 +198,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       }
 
       // console.log(practiceData.value);
-      console.log(practiceCountSum.value);
+      // console.log(practiceCountSum.value);
     } catch (error) {
       console.error("기록 불러오기 실패", error);
     }
@@ -250,16 +250,15 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
-  // 상세 악보 데이터
-  let detailSheet: UserSheet[] = [];
+  const detailSheet = ref<UserSheet>();
 
   // 상세 - 특정 악보 불러오기
   const detailSheetfun = async (id: number): Promise<void> => {
     try {
       console.log("악보상세");
-      const response = await axios.get<UserSheet[]>(`${REST_PIANOSHEET_API}/${id}`);
-      detailSheet = response.data;
-      console.log(detailSheet);
+      const response = await axios.get<UserSheet>(`${REST_PIANOSHEET_API}/${id}`);
+      detailSheet.value = response.data;
+      console.log(detailSheet.value);
     } catch (error) {
       console.error("불러오기 실패", error);
     }

@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div>
-      <button class="prev" @click="downCount"></button>
+    <div class="button-container">
+      <button class="prev" @click="downCount" :class="{ hidden: !canGoBack }"></button>
     </div>
-    <div class="page" v-if="currentList.length">
+    <div class="page">
       <div v-for="pageIndex in 2" :key="pageIndex" class="line">
         <div :class="`bookshelf${pageIndex}`">
           <div class="shelf">
@@ -30,14 +30,14 @@
               :key="index"
               class="title"
             >
-              {{ book.id }}번 악보
+              {{ book.title }}
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div>
-      <button class="next" @click="upCount"></button>
+    <div class="button-container">
+      <button class="next" @click="upCount" :class="{ hidden: !canGoForward }"></button>
     </div>
   </div>
 </template>
@@ -50,18 +50,20 @@ const store = usePianoSheetStore();
 const bookCount = ref<number>(0);
 const pageCount = ref<number>(0);
 const currentSortOption = ref<number>(0);
-const currentTab = ref<string>("UserSheet");
 
 const maxCount = computed<number>(() => Math.floor((store.userSheetList.length - 1) / 10));
+const canGoBack = computed<boolean>(() => bookCount.value > 0);
+const canGoForward = computed<boolean>(() => maxCount.value > pageCount.value);
 
 const downCount = (): void => {
-  if (bookCount.value > 0) {
+  if (canGoBack.value) {
     bookCount.value -= 2;
     pageCount.value -= 1;
   }
 };
+
 const upCount = (): void => {
-  if (maxCount.value > pageCount.value) {
+  if (canGoForward.value) {
     bookCount.value += 2;
     pageCount.value += 1;
   }
@@ -92,7 +94,6 @@ watch(
     currentSortOption.value = newSortOption;
   }
 );
-
 </script>
 
 <style scoped>
@@ -197,19 +198,28 @@ watch(
   box-shadow: 3px 3px 3px gray;
 }
 
+.button-container {
+  flex: 0 0 50px; /* 버튼이 항상 자리를 차지하도록 설정 */
+}
+
 .prev {
-  margin-right: 30px;
   border-bottom: 20px solid transparent;
   border-top: 20px solid transparent;
   border-left: 20px solid transparent;
   border-right: 20px solid black;
+  margin-right: 20px;
 }
 
 .next {
-  margin-left: 30px;
   border-bottom: 20px solid transparent;
   border-top: 20px solid transparent;
   border-left: 20px solid black;
   border-right: 20px solid transparent;
+  margin-left: 20px;
+}
+
+.hidden {
+  opacity: 0; /* 버튼을 시각적으로 숨깁니다 */
+  pointer-events: none; /* 버튼 클릭 방지 */
 }
 </style>
