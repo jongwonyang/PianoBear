@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
+import apiClient from "@/loginController/verification";
 
 const REST_PIANOSHEET_API = `http://localhost:7000/api/v1/music`;
 
@@ -49,7 +50,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 기본 악보 목록을 가져오는 함수
   const basicSheetListfun = async (): Promise<void> => {
     try {
-      const response = await axios.get<BasicSheet[]>(REST_PIANOSHEET_API);
+      const response = await apiClient.get<BasicSheet[]>(REST_PIANOSHEET_API);
       const data = response.data;
 
       // 연습량 기준으로 정렬
@@ -90,7 +91,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     formData.append("file", file); // key, value 형태고 key의 변수명을 백엔드랑 맞춰야 함
 
     try {
-      const response = await axios.post(`${REST_PIANOSHEET_API}/${id}/convert`, formData, {
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/convert`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -104,7 +105,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // PDF에서 MXL로 변환 완료된 악보 가져오기
   const convertedFilefun = async (): Promise<void> => {
     try {
-      const response = await axios.get(REST_PIANOSHEET_API);
+      const response = await apiClient.get(REST_PIANOSHEET_API);
       if (response.status >= 200 && response.status < 300) {
         // 상태 코드가 200번대인 경우
         console.log("악보 변환 성공!");
@@ -127,7 +128,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 변환된 악보 저장
   const saveSheet = async (): Promise<void> => {
     try {
-      const response = await axios.post(REST_PIANOSHEET_API);
+      const response = await apiClient.post(REST_PIANOSHEET_API);
     } catch (error) {
       console.error("악보 저장 실패ㅠ", error);
     }
@@ -138,7 +139,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const checkFavorite = async (id: number): Promise<void> => {
     try {
-      const response = await axios.get(`${REST_PIANOSHEET_API}/${id}/favorite`);
+      const response = await apiClient.get(`${REST_PIANOSHEET_API}/${id}/favorite`);
       isFavorite.value = response.data;
       // console.log("즐겨찾기 여부 " + response.data);
     } catch (error) {
@@ -148,7 +149,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const handleFavorite = async (id: number, favorite: boolean): Promise<void> => {
     try {
-      const response = await axios.post(`${REST_PIANOSHEET_API}/${id}/favorite`, null, {
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/favorite`, null, {
         params: {
           favorite: favorite,
         },
@@ -167,7 +168,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const handleDelete = async (id: number) => {
     console.log("삭제 요청 보냄~~");
     try {
-      const response = await axios.delete(`${REST_PIANOSHEET_API}/${id}`);
+      const response = await apiClient.delete(`${REST_PIANOSHEET_API}/${id}`);
       if (response.status >= 200 && response.status < 300) {
         console.log("삭제 성공!");
       } else {
@@ -187,7 +188,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const practiceDatafun = async (id: number): Promise<void> => {
     // console.log("연습기록!!");
     try {
-      const response = await axios.get<PracticeRecord[]>(
+      const response = await apiClient.get<PracticeRecord[]>(
         `${REST_PIANOSHEET_API}/practice/${id}/sorted`
       );
       practiceData.value = response.data;
@@ -198,7 +199,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       }
 
       // console.log(practiceData.value);
-      // console.log(practiceCountSum.value);
+      console.log(practiceCountSum.value);
     } catch (error) {
       console.error("기록 불러오기 실패", error);
     }
@@ -212,7 +213,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const userSheetListfun = async (): Promise<void> => {
     try {
-      const response = await axios.get<UserSheet[]>(REST_PIANOSHEET_API);
+      const response = await apiClient.get<UserSheet[]>(REST_PIANOSHEET_API);
       const data = response.data;
 
       // 각 악보의 총 연습량 계산
@@ -256,7 +257,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const detailSheetfun = async (id: number): Promise<void> => {
     try {
       console.log("악보상세");
-      const response = await axios.get<UserSheet>(`${REST_PIANOSHEET_API}/${id}`);
+      const response = await apiClient.get<UserSheet>(`${REST_PIANOSHEET_API}/${id}`);
       detailSheet.value = response.data;
       console.log(detailSheet.value);
     } catch (error) {
