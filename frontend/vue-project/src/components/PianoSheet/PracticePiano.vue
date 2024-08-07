@@ -1,54 +1,47 @@
 <template>
-    <div style="width: 200vh; height: 100vh;">
-        <div class="practice-options">
-            <!-- <div>
+    <div class="back">
+        <div class="sheetback">
+            <div class="practice-options">
+                <!-- <div>
                 {{ num[0] ? num : "loading.." }}
-            </div> -->
-            <v-row align="center" justify="space-around">
-                <v-col>
-                    <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135"
-                        style="border-radius: 20px; display: flex; align-items: center; padding:1.5vh; justify-content: space-between;">
-                        <label for="velocity"> 속도 </label>
-                        <input type="number" id="velocity" name="velocity" :value="velo" min="0.25" max="2" step="0.25"
-                            readonly style="width: 6.5vh; position: relative; left: 1.5vh;" />
-                        <v-btn icon="mdi-triangle-small-down" class="velo" @click="velo >= 0.5 ? velo -= 0.25 : null"
-                            size="small" :width="15" :height="15" variant="tonal"
-                            style="position:relative; top: 1.1vh; left: 1.5vh;"></v-btn>
+                </div> -->
+                <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
+                    <label for="velocity"> 속도 </label>
+                    <input type="number" id="velocity" name="velocity" :value="velo" min="0.25" max="2" step="0.25"
+                        readonly style="width: 6.5vh; position: relative; left: 1.5vh;" />
+
+                    <div class="btns">
                         <v-btn icon="mdi-triangle-small-up" class="velo" @click="velo <= 1.75 ? velo += 0.25 : null"
-                            size="small" :width="15" :height="15" variant="tonal"
-                            style="position:relative; top: -1.1vh; left: -0.8vh;"></v-btn>
-                    </v-sheet>
-                </v-col>
-                <v-col>
-                    <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135"
-                        style="border-radius: 20px; display: flex; align-items: center; padding:1.5vh; justify-content: space-between;">
-                        <v-switch color="#6c8056" label="음소거" type="checkbox" class="player-option" id="option-mute"
-                            value="mute" hide-details></v-switch>
-                    </v-sheet>
-                </v-col>
-            </v-row>
-        </div>
-
-        <div id="player">
-            <v-btn-toggle v-model="toggle_one" mandatory shaped>
-                <v-btn icon="mdi-reload" :width="27" :height="27" class="player" id="rewind" variant="tonal"></v-btn>
-                <v-btn icon="mdi-pause" :width="27" :height="27" class="player" id="pause" variant="tonal"></v-btn>
-                <v-btn icon="mdi-play" :width="27" :height="27" class="player" id="play" variant="tonal"></v-btn>
-            </v-btn-toggle>
-        </div>
-
-        <div id="sheet-container" :value="status" ref="mxlSheet">
-            <div v-if="!status">
-                <img src="@/assets/characters/토니/토니악보변환.png" width="250vh"
-                    style="position: relative; top: 14vh; left: 76vh;" />
-                <h2 style="position: relative; top: 18vh; left: 82vh; text-align: center;">Now Loading...
-                    <v-progress-linear color="dark-blue" indeterminate></v-progress-linear>
-                </h2>
+                            size="small" :width="15" :height="15" variant="tonal"></v-btn>
+                        <v-btn icon="mdi-triangle-small-down" class="velo" @click="velo >= 0.5 ? velo -= 0.25 : null"
+                            size="small" :width="15" :height="15" variant="tonal"></v-btn>
+                    </div>
+                </v-sheet>
+                <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
+                    <v-switch color="#6c8056" label="음소거" type="checkbox" class="player-option" id="option-mute"
+                        value="mute" hide-details></v-switch>
+                </v-sheet>
             </div>
-        </div>
-        <Piano :curr-pitch="num" style="margin:auto; margin-top: 2vh;" />
-    </div>
 
+            <v-sheet id="player" :elevation="1" color="#D9F6D9" :height="36" :width="140">
+                <v-btn-toggle v-model="toggle_one" mandatory shaped>
+                    <v-btn icon="mdi-reload" :width="27" :height="27" class="player" id="rewind" variant="text"></v-btn>
+                    <v-btn icon="mdi-pause" :width="27" :height="27" class="player" id="pause" variant="text"></v-btn>
+                    <v-btn icon="mdi-play" :width="27" :height="27" class="player" id="play" variant="text"></v-btn>
+                </v-btn-toggle>
+            </v-sheet>
+
+            <div v-show="status" id="sheet-container" :value="status" ref="mxlSheet"></div>
+            <div v-if="!status" class="loading">
+                <img src="@/assets/characters/토니/토니악보변환.png" width="270px" />
+                <h1>Now Loading...
+                    <v-progress-linear color="dark-blue" indeterminate></v-progress-linear>
+                </h1>
+            </div>
+            <Piano :curr-pitch="num" style="position: relative; margin: auto; margin-top: 2vh;" />
+
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -86,35 +79,91 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.sheetback {
+    width: 150vh;
+    position: relative;
+    top: 0;
+    left: 30vh;
+}
+
+.sheetback * {
+    font-weight: bold;
+}
+
 #sheet-container {
-    height: 70vh;
-    margin: 0 0 0 5vh;
-    border: 1px solid black;
+    width: 150vh;
+    height: 100%;
+    border: 5px solid #bde7bd7d;
+    border-radius: 5px;
+    padding: 0 5vh;
+    background: #FFFFF8;
 }
 
 #player {
-    bottom: 95vh;
-    width: 16vh;
+    position: relative;
     margin: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
     z-index: 1000;
+    border-radius: 20px;
+    margin-bottom: 2vh;
 }
 
 .player {
     font-size: larger;
     margin: 5px;
-    height: 35px;
-    width: 35px;
 }
 
 .practice-options {
     position: relative;
-    text-align: right;
-    width: 42vh;
-    left: 150vh;
+    display: flex;
+    justify-content: flex-end;
+    width: 150vh;
     top: 5vh;
     z-index: 0;
+}
+
+.setOption {
+    margin-left: 1.5vh;
+    margin-right: 1.5vh;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    padding: 1.5vh;
+    justify-content: space-between;
+}
+
+.btns {
+    width: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-content: center;
+}
+
+.loading {
+    position: relative;
+    display: flex;
+    width: 150vh;
+    height: 70vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    position: relative;
+    left: 0;
+    top: 3vh;
+    width: 40vh;
+    text-align: center;
 }
 </style>

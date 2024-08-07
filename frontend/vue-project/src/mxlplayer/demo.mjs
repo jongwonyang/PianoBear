@@ -44,7 +44,6 @@ export async function createPlayer() {
         timingsrc: g_state.timingObject,
         mute: options.mute,
       });
-
       // Save the state and player parameters.
       g_state.player = player;
       g_state.options = options;
@@ -166,9 +165,11 @@ function handleOptionChange(e) {
 }
 
 function handleVelocityChange(e) {
-  g_state.timingObject?.update({
-    velocity: Number(document.getElementById("velocity").value),
-  });
+  if (g_state.player.state === PLAYER_PLAYING) {
+    g_state.timingObject?.update({
+      velocity: Number(document.getElementById("velocity").value),
+    });
+  }
 }
 
 export async function pageLoad() {
@@ -194,6 +195,8 @@ export async function pageLoad() {
   });
   document.getElementById("pause").addEventListener("click", async () => {
     g_state.timingObject?.update({ velocity: 0 });
+    // g_state.player._output._player.queueWaveTable(60, 3);
+    console.log(g_state.player._output._player);
   });
   document.getElementById("rewind").addEventListener("click", async () => {
     g_state.timingObject?.update({ position: 0, velocity: 0 });
