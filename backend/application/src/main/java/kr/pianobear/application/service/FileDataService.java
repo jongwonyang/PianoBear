@@ -156,4 +156,29 @@ public class FileDataService {
 
         return fileData;
     }
+
+    public FileData saveFile(MultipartFile file) throws IOException {
+        Path directory = Paths.get(SAVE_PATH);
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String savedName = UUID.randomUUID().toString() + fileExtension;
+        String path = Paths.get(SAVE_PATH, savedName).toString();
+
+        FileData fileData = new FileData();
+        fileData.setOriginalName(originalFilename);
+        fileData.setSavedName(savedName);
+        fileData.setPath(path);
+        fileData.setType(file.getContentType());
+
+        fileData = fileDataRepository.save(fileData);
+
+        file.transferTo(new File(path));
+
+        return fileData;
+    }
+
 }

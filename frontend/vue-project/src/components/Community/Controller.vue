@@ -3,14 +3,14 @@
         <v-sheet class="surface" :elevation="10" :height="64" :width="600" rounded="lg">
             <div class="controller">
                 <v-btn icon="mdi-video-off" v-if="!videoCheck" @click="turnOnVideo" />
-                <v-btn icon="mdi-video"  v-else @click="turnOnVideo" variant="tonal" />
+                <v-btn icon="mdi-video" v-else @click="turnOnVideo" variant="tonal" />
                 <v-btn icon="mdi-microphone-off" v-if="!audioCheck" @click="turnOnAudio" />
-                <v-btn icon="mdi-microphone" v-else  @click="turnOnAudio" variant="tonal" />
+                <v-btn icon="mdi-microphone" v-else @click="turnOnAudio" variant="tonal" />
                 <v-btn icon="mdi-emoticon" v-if="!emoteCheck" @click="switchEmote" />
                 <v-btn icon="mdi-emoticon" v-else @click="switchEmote" variant="tonal" />
                 <v-btn icon="mdi-music-note" v-if="!playCheck" @click="switchPlay" />
                 <v-btn icon="mdi-music-note" v-else @click="switchPlay" variant="tonal" />
-                <FriendList variant="tonal"/>
+                <FriendList variant="tonal" />
                 <DialogsModal text="나가기" content="나가시겠습니까?" @join="exit" />
             </div>
         </v-sheet>
@@ -20,66 +20,66 @@
     </div>
 </template>
 <script lang="ts" setup>
-    import {onMounted, ref, defineProps, defineEmits} from 'vue';
-    import {useRouter, useRoute} from 'vue-router';
-    import FriendList from './FriendListTest.vue';
-    import DialogsModal from './DialogsModal.vue';
+import { onMounted, ref, defineProps, defineEmits } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import FriendList from './FriendListTest.vue';
+import DialogsModal from './DialogsModal.vue';
 
-    const emits = defineEmits([
-        'play'
-    ])
+const emits = defineEmits([
+    'play'
+])
 
-    const router = useRouter();
-    const route = useRoute();
-    const videoCheck = ref(false);
-    const audioCheck = ref(false);
-    const emoteCheck = ref(false);
-    const playCheck = ref(false);
-    const master = ref(false);
+const router = useRouter();
+const route = useRoute();
+const videoCheck = ref(false);
+const audioCheck = ref(false);
+const emoteCheck = ref(false);
+const playCheck = ref(false);
+const master = ref(false);
 
-    const turnOnVideo = function() {
-        if(!videoCheck.value) {
-            videoCheck.value = true;
-        }else {
-            videoCheck.value = false;
-        }
+const turnOnVideo = function () {
+    if (!videoCheck.value) {
+        videoCheck.value = true;
+    } else {
+        videoCheck.value = false;
     }
+}
 
-    const turnOnAudio = function() {
-        if (!audioCheck.value) {
-            audioCheck.value = true;
-        }else {
-            audioCheck.value = false;
-        }
+const turnOnAudio = function () {
+    if (!audioCheck.value) {
+        audioCheck.value = true;
+    } else {
+        audioCheck.value = false;
     }
+}
 
-    const switchEmote = function() {
-        if (!emoteCheck.value) {
-            emoteCheck.value = true;
-        }else {
-            emoteCheck.value = false;
-        }
+const switchEmote = function () {
+    if (!emoteCheck.value) {
+        emoteCheck.value = true;
+    } else {
+        emoteCheck.value = false;
     }
+}
 
-    const switchPlay = function() {
-        if (!playCheck.value) {
-            playCheck.value = true;
-            emits('play', false)
-        }else {
-            playCheck.value = false;
-            emits('play', true)
-        }
+const switchPlay = function () {
+    if (!playCheck.value) {
+        playCheck.value = true;
+        emits('play', false)
+    } else {
+        playCheck.value = false;
+        emits('play', true)
     }
+}
 
-    const exit = function() {
-        if (master.value) {
-            router.push({name: 'community'});
-        }else {
-            router.push({name: 'communityJoin', params: {id: route.query.value as string}});
-        }
+const exit = function () {
+    if (master.value) {
+        router.push({ name: 'community' });
+    } else {
+        router.push({ name: 'communityJoin', params: { id: route.query.value as string } });
     }
+}
 
-    
+
 </script>
 <style scoped>
 .surface {
@@ -89,8 +89,9 @@
     left: 35%;
     padding: 0;
 }
+
 .controller {
-    display : flex;
+    display: flex;
     position: relative;
     top: 7px;
     justify-content: space-evenly;

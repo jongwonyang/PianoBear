@@ -51,10 +51,10 @@
                     </div>
                 </div>
             </div>
-            <div class="logout-btn">
-                <md-elevated-button @click="LogOut">
+            <div>
+                <v-btn @click="LogOut" class="logout-btn">
                     로그아웃
-                </md-elevated-button>
+                </v-btn>
             </div>
         </div>
 
@@ -301,7 +301,7 @@ async function LogOut() {
     max-width: 2000px;
     width: 100%;
     margin-bottom: 20px;
-    animation: fadeIn 1s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .profile-content {
@@ -337,17 +337,16 @@ async function LogOut() {
     position: absolute;
     bottom: 10px;
     right: 10px;
+    background: #F5E5D1;
+    color: #e31515;
 }
 
-.logout-btn md-elevated-button {
-    padding: 0 15px;
-}
 
 .practice-online {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    animation: fadeIn 1s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .practice-box,

@@ -197,8 +197,8 @@ const RegistUser = async () => {
 .regist-button {
     width: calc(100% - 40px);
     margin: 10px 0;
-    color: #F5E5D1;
-    background-color: #947650;
+    color: #947650;
+    background-color: #D9F6D9;
     border-radius: 10px;
     font-size: 16px;
 }

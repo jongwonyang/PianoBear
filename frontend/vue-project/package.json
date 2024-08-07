@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --host --mode development",
+    "dev:staging": "vite --host --mode staging",
+    "dev:production": "vite --host --mode production",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only": "vite build --mode production",
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
@@ -17,6 +19,7 @@
     "@types/sockjs-client": "^1.5.4",
     "@types/stompjs": "^2.3.9",
     "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "nvm": "^0.0.4",
     "openvidu-browser": "^2.30.1",
     "pinia": "^2.1.7",

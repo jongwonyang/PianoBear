@@ -5,37 +5,64 @@
         </v-card-title>
         <v-card-text class="edit-element">
             <div class="profile-section">
-                <div class="profile-image"></div>
-                <md-elevated-button class="img-edit-button">
+                <img :src="userInfo.profilePic" alt="내 이미지">
+                <v-btn class="img-edit-button" @click="changeProfileImage">
                     프로필 사진 변경
-                </md-elevated-button>
+                </v-btn>
             </div>
             <div class="edit-buttons">
-                <md-elevated-button class="edit-button">
+                <v-btn class="edit-button" @click="changeEmail">
                     이메일 변경
-                </md-elevated-button>
-                <md-elevated-button class="edit-button">
+                </v-btn>
+                <v-btn class="edit-button" @click="changeName">
                     이름 변경
-                </md-elevated-button>
-                <md-elevated-button class="edit-button">
+                </v-btn>
+                <v-btn class="edit-button" @click="changePassword">
                     비밀번호 변경
-                </md-elevated-button>
+                </v-btn>
             </div>
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <md-elevated-button class="close-button" @click="props.closeDialog">닫기</md-elevated-button>
+            <v-btn class="close-button" @click="props.closeDialog">닫기</v-btn>
         </v-card-actions>
     </v-card>
 </template>
 
+
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps, onMounted, ref } from 'vue';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = ref({});
+
+onMounted(() => {
+    // 유저 정보 불러오기
+    userInfo.value = userStore.user;
+});
 
 const props = defineProps({
     closeDialog: Function
 });
+
+const changeProfileImage = () => {
+    // 프로필 사진 변경 로직
+};
+
+const changeEmail = () => {
+    // 이메일 변경 로직
+};
+
+const changeName = () => {
+    // 이름 변경 로직
+};
+
+const changePassword = () => {
+    // 비밀번호 변경 로직
+};
 </script>
+
 
 <style scoped>
 .edit-box {
@@ -77,7 +104,7 @@ const props = defineProps({
     margin-bottom: 20px;
 }
 
-.img-edit-button {
+.v-btn.img-edit-button {
     width: 100%;
     padding: 10px;
     background-color: #D9F6D9;
@@ -89,7 +116,7 @@ const props = defineProps({
     transition: background-color 0.3s;
 }
 
-.img-edit-button:hover {
+.v-btn.img-edit-button:hover {
     background-color: #8dfa92;
 }
 
@@ -100,7 +127,7 @@ const props = defineProps({
     gap: 10px;
 }
 
-.edit-button {
+.v-btn.edit-button {
     width: 100%;
     padding: 10px;
     background-color: #F5E5D1;
@@ -112,18 +139,12 @@ const props = defineProps({
     transition: background-color 0.3s;
 }
 
-.edit-button:hover {
+.v-btn.edit-button:hover {
     background-color: #ffcb77;
 }
 
-.close-button {
-    padding: 10px;
+.v-btn.close-button {
     background-color: #F5E5D1;
     color: #e31515;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 </style>

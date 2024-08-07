@@ -14,10 +14,11 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <md-elevated-button class="close-button" @click="props.closeDialog(props.index)">닫기</md-elevated-button>
+            <v-btn class="close-button" @click="props.closeDialog(props.index)">닫기</v-btn>
         </v-card-actions>
     </v-card>
 </template>
+
 
 <script setup>
 import { defineProps, ref } from 'vue';
@@ -35,6 +36,7 @@ const props = defineProps({
 const filledHoney = honeyFilledImg;
 const emptyHoney = honeyEmptyImg;
 </script>
+
 
 <style scoped>
 .practice-box {
@@ -75,8 +77,14 @@ const emptyHoney = honeyEmptyImg;
     height: 100%;
 }
 
-.close-button {
+.v-btn.close-button {
     padding: 0 15px;
-    /* 좌우에 15px의 여백 추가 */
+    background-color: #F5E5D1;
+    color: #946450;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 </style>

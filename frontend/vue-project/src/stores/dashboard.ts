@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import { useRouter } from "vue-router";
 
-const REST_DASHBOARD_API = "http://localhost:7000/api/v1/dashboard/";
+const REST_DASHBOARD_API = import.meta.env.VITE_API_BASE_URL + "/dashboard/";
 
 export const useDashboardStore = defineStore("dashboard", () => {
   const router = useRouter();

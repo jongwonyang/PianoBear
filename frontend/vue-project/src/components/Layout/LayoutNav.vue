@@ -158,8 +158,8 @@ const deleteChatMessage = (index) => {
 }
 
 .yes-btn {
-  color: #FFF9E0;
-  background: #947650;
+  color: #947650;
+  background: #D9F6D9;
 }
 
 .no-btn {

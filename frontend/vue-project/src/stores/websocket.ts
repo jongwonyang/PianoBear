@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { API_BASE_URL } from "@/api";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
@@ -17,7 +16,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
       Authorization: "Bearer " + localStorage.getItem("accessToken")
     }
 
-    const socket = new SockJS(API_BASE_URL + "/ws");
+    const socket = new SockJS(import.meta.env.VITE_API_BASE_URL + "/ws");
     const client = new Client({
       webSocketFactory: () => socket,
       connectHeaders: headers,
