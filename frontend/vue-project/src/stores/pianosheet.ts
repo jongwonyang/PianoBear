@@ -265,6 +265,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
+  // 정렬기준
+  const sortOption = ref<number>();
+
   return {
     basicSheetList,
     basicPracticeList,
@@ -290,5 +293,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     practiceDatafun,
     detailSheet,
     detailSheetfun,
+    sortOption,
   };
 });

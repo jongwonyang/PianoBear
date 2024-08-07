@@ -53,7 +53,7 @@ onMounted(() => {
   flex-direction: column; /* 수직으로 정렬 */
 }
 
-.detail{
+.detail {
   margin-bottom: 20px;
 }
 </style>

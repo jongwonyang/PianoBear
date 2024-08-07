@@ -19,6 +19,7 @@
       </router-link>
     </div>
   </div>
+  <!-- <PianoSheetDetail v-else /> -->
 </template>
 
 <script setup lang="ts">
@@ -28,42 +29,26 @@ import UserSheet from "@/components/PianoSheet/UserSheet.vue";
 import BasicSheet from "@/components/PianoSheet/BasicSheet.vue";
 import SearchBar from "@/components/PianoSheet/SearchBar.vue";
 import Tabs from "@/components/PianoSheet/Tabs.vue";
+// import PianoSheetDetail from "./PianoSheetDetail.vue";
 
 const store = usePianoSheetStore();
 const tab = ref<number>(1);
 const currentTab = ref<string>("UserSheet");
 const currentSortOption = ref<number>(0);
-const bookCount = ref<number>(0);
-const pageCount = ref<number>(0);
-
-const maxCount = computed<number>(() => Math.floor((store.userSheetList.length - 1) / 10));
-
-const downCount = function (): void {
-  if (bookCount.value > 0) {
-    bookCount.value -= 2;
-    pageCount.value -= 1;
-  }
-};
-const upCount = function (): void {
-  if (maxCount.value > pageCount.value) {
-    bookCount.value += 2;
-    pageCount.value += 1;
-  }
-};
+// const check = ref<boolean>(true);
 
 // 페이지 로드 시 localStorage에서 정렬 기준을 불러옵니다.
 onMounted(() => {
-  const savedSortOption = localStorage.getItem("sortOption");
+  const savedSortOption = store.sortOption;
   if (savedSortOption) {
-    currentSortOption.value = parseInt(savedSortOption, 10);
+    currentSortOption.value = savedSortOption;
   }
 });
 
 // 사용자가 정렬 기준을 변경하면 localStorage에 저장합니다.
 const updateSort = (index: number) => {
-  console.log("Parent Component: updateSort index:", index);
   currentSortOption.value = index;
-  localStorage.setItem("sortOption", index.toString());
+  store.sortOption = index;
 };
 
 const setCurrentTab = (tabName: string) => {
