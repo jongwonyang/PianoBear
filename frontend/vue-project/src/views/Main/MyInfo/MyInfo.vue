@@ -338,7 +338,7 @@ async function LogOut() {
     bottom: 10px;
     right: 10px;
     background: #F5E5D1;
-    color: rgb(255, 96, 96);
+    color: #e31515;
 }
 
 

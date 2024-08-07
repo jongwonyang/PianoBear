@@ -30,7 +30,7 @@ const route = useRoute();
 const convertFile = async (): Promise<void> => {
   const selectedFile = store.selectedFile;
   if (selectedFile) {
-    store.convertFilefun(selectedFile, Number(route.params.id));
+    store.convertFilefun(selectedFile);
   }
 };
 </script>

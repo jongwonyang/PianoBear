@@ -147,7 +147,7 @@ async function Login() {
     flex: 1;
     padding: 10px;
     margin: 0 20px;
-    background-color: #D9F6D9;
+    background-color: #F5E5D1;
     color: #947650;
     border: none;
     border-radius: 4px;
