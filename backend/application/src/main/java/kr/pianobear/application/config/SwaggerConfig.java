@@ -101,4 +101,12 @@ public class SwaggerConfig {
                 .pathsToMatch("/api/v1/friends/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi transcriberGroup() {
+        return GroupedOpenApi.builder()
+                .group("Transcriber")
+                .pathsToMatch("/api/v1/transcriber/**")
+                .build();
+    }
 }

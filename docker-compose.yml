@@ -43,8 +43,8 @@ services:
   postgres-server:
     image: postgres:latest
     environment:
-      POSTGRES_USER: ${ENV_SPRING_DB_USERNAME}
-      POSTGRES_PASSWORD: ${ENV_SPRING_DB_PASSWORD}
+      POSTGRES_USER: ${SPRING_DB_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DB_PASSWORD}
       POSTGRES_DB: pianobear
     ports:
       - "5432:5432"
