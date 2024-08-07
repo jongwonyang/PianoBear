@@ -16,7 +16,7 @@
               class="router"
             >
               <div class="book">
-                <img src="@/assets/images/정수 거울셀카.jpg" alt="Book Image" />
+                <img src="@/assets/images/blur.png" alt="Book Image" />
               </div>
             </router-link>
           </div>
