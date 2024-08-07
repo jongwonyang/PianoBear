@@ -174,3 +174,6 @@ mt3/
 input/
 output/
 temp_files/
+
+# Backups
+*.tar

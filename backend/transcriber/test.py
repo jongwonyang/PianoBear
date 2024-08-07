@@ -7,7 +7,7 @@ from service import predict, split_piano_other_ns, ns_to_pretty_midi, save_prett
 from service import midi_to_musicxml
 
 def main():
-    audio_path = './input/Let It Go (Instrumental Karaoke) - Frozen (OST).wav'
+    audio_path = './temp_files/Sparkle (Instrumental Only).wav'
     checkpoint_path = 'checkpoints/mt3/'
     est_ns = predict(audio_path, checkpoint_path)
     piano_ns, other_ns = split_piano_other_ns(est_ns)
@@ -16,12 +16,12 @@ def main():
     piano_midi = ns_to_pretty_midi(piano_ns)
     other_midi = ns_to_pretty_midi(other_ns)
 
-    save_pretty_midi(all_midi, 'output/all.mid')
-    save_pretty_midi(piano_midi, 'output/piano.mid')
-    save_pretty_midi(other_midi, 'output/other.mid')
-    midi_to_musicxml('output/all.mid', 'output/all.mxl')
-    midi_to_musicxml('output/piano.mid', 'output/piano.mxl')
-    midi_to_musicxml('output/other.mid', 'output/other.mxl')
+    save_pretty_midi(all_midi, 'temp_files/all.mid')
+    save_pretty_midi(piano_midi, 'temp_files/piano.mid')
+    save_pretty_midi(other_midi, 'temp_files/other.mid')
+    midi_to_musicxml('temp_files/all.mid', 'temp_files/all.musicxml')
+    midi_to_musicxml('temp_files/piano.mid', 'temp_files/piano.musicxml')
+    midi_to_musicxml('temp_files/other.mid', 'temp_files/other.musicxml')
 
 if __name__ == "__main__":
     main()
