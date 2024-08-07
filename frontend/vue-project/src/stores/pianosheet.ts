@@ -81,7 +81,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   };
 
   // pdf 파일 변환 시작 요청
-  const convertFilefun = async (file: File, id: number): Promise<void> => {
+  const convertFilefun = async (file: File): Promise<void> => {
     if (!file) {
       alert("먼저 악보를 선택해주세요!");
       return;
@@ -91,7 +91,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     formData.append("file", file); // key, value 형태고 key의 변수명을 백엔드랑 맞춰야 함
 
     try {
-      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/convert`, formData, {
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/process`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -265,6 +265,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
+  // 정렬기준
+  const sortOption = ref<number>();
+
   return {
     basicSheetList,
     basicPracticeList,
@@ -290,5 +293,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     practiceDatafun,
     detailSheet,
     detailSheetfun,
+    sortOption,
   };
 });

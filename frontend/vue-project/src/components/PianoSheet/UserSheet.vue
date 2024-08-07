@@ -16,7 +16,7 @@
               class="router"
             >
               <div class="book">
-                <img src="@/assets/images/정수 거울셀카.jpg" alt="Book Image" />
+                <img src="@/assets/images/blur.png" alt="Book Image" />
               </div>
             </router-link>
           </div>
@@ -106,20 +106,20 @@ watch(
 
 .bookshelf1 {
   flex-direction: column;
-  width: 900px;
-  height: 195px;
+  width: 70vw;
+  height: 27vh;
   background-color: #d2b48c;
-  padding: 35px;
-  padding-bottom: 0px;
+  padding: 5vh;
+  /* padding-bottom: 0vh; */
 }
 
 .bookshelf2 {
   flex-direction: column;
-  width: 900px;
-  height: 195px;
+  width: 70vw;
+  height: 27vh;
   background-color: #e8c8a0;
-  padding: 35px;
-  padding-bottom: 0px;
+  padding: 5vh;
+  /* padding-bottom: 0vh; */
 }
 
 .shelf {
@@ -133,24 +133,23 @@ watch(
 }
 
 .book {
-  width: 126px;
-  height: 160px;
-  background-color: white;
+  width: 9vw;
+  height: 20.75vh;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s linear; /* 악보 천천히 커지게 하는 효과 */
-  margin-left: 20px;
-  margin-right: 20px; /* 악보들 사이의 고정된 간격 */
+  margin-left: 2vw;
+  margin-right: 2vw;
 }
 
 .title {
-  width: 126px;
+  width: 9vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-left: 2vw;
+  margin-right: 2vw;
 }
 
 .book:hover {
@@ -159,22 +158,20 @@ watch(
 
 .support1 {
   background-color: #e8c8a0;
-  padding: 3px;
-  width: 900px;
-  height: 30px;
+  padding: 0.5vh;
+  width: 70vw;
+  height: 4vh;
   flex-direction: column;
-  padding-left: 35px;
-  padding-right: 35px;
+  padding-left: 2.6vw;
 }
 
 .support2 {
   background-color: #d2b48c;
-  padding: 3px;
-  width: 900px;
-  height: 30px;
+  padding: 0.5vh;
+  width: 70vw;
+  height: 4vh;
   flex-direction: column;
-  padding-left: 35px;
-  padding-right: 35px;
+  padding-left: 2.6vw;
 }
 
 .router {
@@ -183,8 +180,8 @@ watch(
 }
 
 .book img {
-  width: 126px;
-  height: 160px;
+  width: 18vw;
+  height: 23vh;
 }
 
 .container {
@@ -194,28 +191,24 @@ watch(
 }
 
 .line {
-  margin-bottom: 20px;
-  box-shadow: 3px 3px 3px gray;
-}
-
-.button-container {
-  flex: 0 0 50px; /* 버튼이 항상 자리를 차지하도록 설정 */
+  margin-bottom: 4vh;
+  box-shadow: 0.1vw 0.4vh 0.8vh gray;
 }
 
 .prev {
-  border-bottom: 20px solid transparent;
-  border-top: 20px solid transparent;
-  border-left: 20px solid transparent;
-  border-right: 20px solid black;
-  margin-right: 20px;
+  border-bottom: 3vh solid transparent;
+  border-top: 3vh solid transparent;
+  border-left: 2vw solid transparent;
+  border-right: 2vw solid #a48253;
+  margin-right: 3vw;
 }
 
 .next {
-  border-bottom: 20px solid transparent;
-  border-top: 20px solid transparent;
-  border-left: 20px solid black;
-  border-right: 20px solid transparent;
-  margin-left: 20px;
+  border-bottom: 3vh solid transparent;
+  border-top: 3vh solid transparent;
+  border-left: 2vw solid #a48253;
+  border-right: 2vw solid transparent;
+  margin-left: 3vw;
 }
 
 .hidden {
