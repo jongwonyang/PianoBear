@@ -24,12 +24,10 @@
           <v-icon @click="closeModal">mdi-close</v-icon>
         </div>
         <div class="content">
-          <div class="text">
-            <h2>정말 {{ store.detailSheet?.title }} 악보를 삭제하시겠습니까?</h2>
-          </div>
+          <div class="text">정말 {{ store.detailSheet?.title }} 악보를 삭제하시겠습니까?</div>
           <div class="modal-actions">
-            <button @click="handleDelete(Number(route.params.id))"><h2>네</h2></button>
-            <button @click="closeModal"><h2>아니요</h2></button>
+            <button @click="handleDelete(Number(route.params.id))">네</button>
+            <button @click="closeModal">아니요</button>
           </div>
         </div>
       </div>
@@ -158,6 +156,8 @@ onMounted(() => {
   padding: 100px;
   padding-top: 110px;
   padding-bottom: 150px;
+  font-size: x-large;
+  font-weight: bold;
 }
 
 .modal-actions {
