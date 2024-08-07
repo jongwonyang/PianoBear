@@ -73,7 +73,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #FFFFF8;
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -81,14 +81,36 @@ body {
   margin: 0;
   padding: 0;
   --md-sys-color-outline: #FFFFFF;
-  /* 기본상태 테두리 색상 */
   --md-sys-color-on-surface: #947650;
-  /* 호버상태 테두리 색상 */
   --md-sys-color-primary: #947650;
-  /* 포커스상태 테두리 색상 */
   --md-elevation-level: 5;
-  /* 그림자 레벨 */
   --md-sys-color-shadow: #d2b659;
-  /* 그림자 색상 */
+  animation: backgroundChange 30s infinite;
+}
+
+@keyframes backgroundChange {
+  0% {
+    background-image: url('./assets/images/background.webp');
+  }
+
+  20% {
+    background-image: url('./assets/images/background2.webp');
+  }
+
+  40% {
+    background-image: url('./assets/images/background3.webp');
+  }
+
+  60% {
+    background-image: url('./assets/images/background4.webp');
+  }
+
+  80% {
+    background-image: url('./assets/images/background5.webp');
+  }
+
+  100% {
+    background-image: url('./assets/images/background.webp');
+  }
 }
 </style>

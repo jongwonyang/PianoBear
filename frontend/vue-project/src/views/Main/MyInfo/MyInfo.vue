@@ -173,9 +173,9 @@ const updatePracticeDays = (year, month) => {
     dialogState.value = Array.from({ length: daysInMonth }, () => false);
 };
 
-const fetchPracticeRecords = (year, month) => {
+const fetchPracticeRecords = (year, month, day = null) => {
     isLoading.value.practice = true;
-    dashboardStore.GetMonthlyPracticeRecord(year, month)
+    dashboardStore.GetMonthlyPracticeRecord(year, month, day)
         .then((res) => {
             practiceRecord.value = Array.isArray(res.data) ? res.data : [];
             practiceRecord.value.forEach(record => {
@@ -221,7 +221,7 @@ onMounted(() => {
             userInfo.value.userId = res.data.userId;
             userInfo.value.userName = res.data.userName;
             // userInfo.value.profileImage = res.data.profileImage;
-            userInfo.value.profileImage = "https://i.namu.wiki/i/SddraDi09VYq0oCCOUERyLBj_WRMc9SXVXYW7ctya2JYNZtI0x1tnfejQtL9SNfhQyr_QqvqWn45PkRIupeTp5RxZ-He16vBNYb7kDwnRXU2Q-71QqDRpWYQrZuvhhe0D2jIonoYtqK4q4pr6wWv2g.webp";
+            userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg";
             userInfo.value.streak = res.data.streak;
             userInfo.value.most = res.data.most;
 

@@ -227,7 +227,7 @@ const removeFriend = (id) => {
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
-    animation: fadeIn 1s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .my-status {
