@@ -20,9 +20,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     day: number | null = null
   ) => {
     let url =
-      REST_DASHBOARD_API +
-      "monthly-practice-record" +
-      `?year=${year}&month=${month}`;
+      REST_DASHBOARD_API + "practice-records" + `?year=${year}&month=${month}`;
     if (day !== null) {
       url += `&day=${day}`;
     }
