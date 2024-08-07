@@ -113,6 +113,7 @@ const exit = function () {
   left: 35%;
   padding: 0;
 }
+
 .controller {
   display: flex;
   position: relative;

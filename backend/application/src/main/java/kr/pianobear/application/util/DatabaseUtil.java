@@ -127,7 +127,6 @@ public class DatabaseUtil {
 
             Music music = new Music();
             music.setTitle(title);
-            music.setOriginalFileRoute(originalFileRoute);
             music.setMusicXmlRoute("musicXmlRoute" + random.nextInt(1000));
             music.setModifiedMusicXmlRoute(modifiedMusicXmlRoute);
             music.setUser(user1);

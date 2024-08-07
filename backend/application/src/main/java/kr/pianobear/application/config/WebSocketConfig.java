@@ -2,6 +2,7 @@ package kr.pianobear.application.config;
 
 import kr.pianobear.application.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -22,6 +23,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${application.allowed-origins}")
+    private String[] allowedOrigins;
+
     private final JwtUtil jwtUtil;
 
     @Autowired
@@ -37,7 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/api/v1/ws").setAllowedOrigins("http://127.0.0.1:5173", "http://localhost:5173", "https://5173.sgr.cspark.kr").withSockJS();
+        registry.addEndpoint("/api/v1/ws").setAllowedOrigins(allowedOrigins).withSockJS();
     }
 
     @Override

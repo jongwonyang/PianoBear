@@ -14,13 +14,13 @@ public class PdfToMusicXmlService {
     @Value("${file.save-path}")
     private String outputDirectory;
 
-    private static final String AUDIVERIS_PATH = "/app/audiveris/bin";
+    private static final String AUDIVERIS_PATH = "/app/audiveris/bin/Audiveris";
 
     public String convertPdfToMusicXml(String pdfPath) throws IOException, InterruptedException {
         String mxlFilePath = Paths.get(outputDirectory, new File(pdfPath).getName().replace(".pdf", ".mxl")).toString();
-
+        System.out.println(mxlFilePath);
         ProcessBuilder processBuilder = new ProcessBuilder(
-                AUDIVERIS_PATH, "-batch", pdfPath, "-export", "xml"
+                AUDIVERIS_PATH, "-batch", pdfPath, "-export", "-output", "/app/data/uploads"
         );
         processBuilder.directory(new File(outputDirectory));
         Process process = processBuilder.start();

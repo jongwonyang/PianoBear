@@ -5,7 +5,7 @@
     <div class="third-row">
       <button @click="toggleFavorite" class="btn">
         <v-icon>{{ isFavorite ? "mdi-heart" : "mdi-heart-outline" }}</v-icon>
-        <span>즐겨찾기</span>
+        <span style="color: darkkhaki">즐겨찾기</span>
       </button>
       <button @click="openModal" class="btn">
         <span>
@@ -17,14 +17,20 @@
   </div>
 
   <!-- 삭제 모달 -->
-  <div class="text-center pa-4">
+  <div>
     <div v-if="isModalOpen" class="modal-overlay">
       <div class="modal-content">
-        <h3>ㅇㅇㅇ 삭제</h3>
-        <p>정말 삭제하시겠습니까?</p>
-        <div class="modal-actions">
-          <button @click="closeModal">취소</button>
-          <button @click="handleDelete(Number(route.params.id))">삭제</button>
+        <div class="close">
+          <v-icon @click="closeModal">mdi-close</v-icon>
+        </div>
+        <div class="content">
+          <div class="text">
+            <h2>정말 {{ store.detailSheet?.title }} 악보를 삭제하시겠습니까?</h2>
+          </div>
+          <div class="modal-actions">
+            <button @click="handleDelete(Number(route.params.id))"><h2>네</h2></button>
+            <button @click="closeModal"><h2>아니요</h2></button>
+          </div>
         </div>
       </div>
     </div>
@@ -141,16 +147,34 @@ onMounted(() => {
 }
 
 .modal-content {
-  background: #fff;
-  padding: 20px;
+  background: #fffff8;
   border-radius: 8px;
-  width: 100%;
-  max-width: 400px;
+  width: 80%; /* 부모 요소의 80% 너비로 설정 */
+  width: 800px;
+  height: 500px;
+}
+
+.content {
+  padding: 100px;
+  padding-top: 110px;
+  padding-bottom: 150px;
 }
 
 .modal-actions {
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+.text {
+  display: flex;
+  justify-content: center;
+}
+
+.close {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  padding: 20px;
 }
 </style>

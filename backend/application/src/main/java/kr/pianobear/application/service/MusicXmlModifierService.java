@@ -85,7 +85,7 @@ public class MusicXmlModifierService {
             StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(source, result);
         } catch (Exception e) {
-            throw new IOException("Failed to modify MusicXML file", e);
+            throw new IOException("Failed to modify MusicXML file" + e);
         }
 
         return xmlFilePath;
