@@ -50,16 +50,6 @@ public class MusicService {
 
     private static final Map<String, String> noteToSyllable = new HashMap<>();
 
-    static {
-        noteToSyllable.put("C", "도");
-        noteToSyllable.put("D", "레");
-        noteToSyllable.put("E", "미");
-        noteToSyllable.put("F", "파");
-        noteToSyllable.put("G", "솔");
-        noteToSyllable.put("A", "라");
-        noteToSyllable.put("B", "시");
-    }
-
     @Autowired
     public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService) {
         this.musicRepository = musicRepository;
@@ -70,38 +60,6 @@ public class MusicService {
         this.pdfToMusicXmlService = pdfToMusicXmlService;
         this.musicXmlModifierService = musicXmlModifierService;
     }
-//
-//    @Transactional
-//    public MusicDTO convertPdf(MultipartFile pdfFile) throws IOException, InterruptedException {
-//        String originalFileName = pdfFile.getOriginalFilename();
-//        if (originalFileName == null) {
-//            throw new RuntimeException("Invalid file");
-//        }
-//
-//        String savedPdfPath = saveFile(pdfFile, originalFileName);
-//
-//        Music music = new Music();
-//        music.setTitle(originalFileName.replace(".pdf", ""));
-//        music.setUploadDate(LocalDate.now());
-//        music.setFavorite(false);
-//
-//        String currentUserId = getCurrentUserId();
-//        Member user = memberRepository.findById(currentUserId)
-//                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
-//        music.setUser(user);
-//
-//        // PDF -> MusicXML 변환
-//        String mxlFilePath = pdfToMusicXmlService.convertPdfToMusicXml(savedPdfPath);
-//        music.setMusicXmlRoute(mxlFilePath);
-//
-//        // MusicXML 수정
-//        String modifiedXmlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
-//        music.setModifiedMusicXmlRoute(modifiedXmlFilePath);
-//
-//        Music savedMusic = musicRepository.save(music);
-//
-//        return mapMusicToDTO(savedMusic);
-//    }
 
     @Transactional
     public MusicDTO processPdfUpload(MultipartFile pdfFile) throws IOException, InterruptedException {
