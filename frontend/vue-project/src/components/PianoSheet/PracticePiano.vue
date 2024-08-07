@@ -39,7 +39,7 @@
                 </h1>
             </div>
             <Piano :curr-pitch="num" style="position: relative; margin: auto; margin-top: 2vh;" />
-
+            <button @click="test()">통신테스트</button>
         </div>
     </div>
 </template>
@@ -47,13 +47,19 @@
 <script setup>
 import { onMounted, ref, onUnmounted } from 'vue';
 import { pageLoad, sheetSelect, createPlayer, num, reset } from '@/mxlplayer/demo.mjs';
+import { usePianoSheetStore } from '@/stores/pianosheet';
 import Piano from './Piano.vue';
-const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/let-it-go.musicxml"
-// const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/SchbAvMaSample.musicxml"
+
+// const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/let-it-go.musicxml"
+// const musicXml = "https://public.sgr.cspark.kr/SSAFY/musicxml/let-it-go.mxl"
 const velo = ref(1);
 const mxlSheet = ref(null);
 const status = ref(false);
 const toggle_one = ref(1);
+const store = usePianoSheetStore();
+const musicXml = ref();
+const nowSheet = ref(1);
+
 window.addEventListener("keydown", (e) => {
     if (e.key === " ") {
         if (toggle_one.value == 2) {
@@ -64,18 +70,23 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
+const loadMxl = async function (id) {
+    musicXml.value = await store.mxlLoadfun(id);
+}
+
 onMounted(async () => {
     await pageLoad();
-    await sheetSelect(musicXml);
+    await loadMxl(nowSheet.value);
+    await sheetSelect(musicXml.value);
     await createPlayer();
     status.value = true;
     toggle_one.value = playStatus.value;
+    store.mxlLoadfun(1);
 });
 
 onUnmounted(() => {
     reset();
 })
-
 </script>
 
 <style scoped>

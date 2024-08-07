@@ -149,11 +149,11 @@ function handlePlayPauseKey(e) {
 
 export async function sheetSelect(input) {
   if (!input) return;
-  const sheet = input;
+  // const sheet = input;
   try {
-    const musicXml = await (await MusicXMLPlayer.fetish(sheet)).arrayBuffer();
-    g_state.musicXml = musicXml;
-    g_state.params.set("sheet", sheet);
+    // const musicXml = await (await MusicXMLPlayer.fetish(sheet)).arrayBuffer();
+    g_state.musicXml = input;
+    g_state.params.set("sheet", "let-it-go");
   } catch (error) {
     console.error(`Failed to load sheet ${sheet}: ${error}`);
   }

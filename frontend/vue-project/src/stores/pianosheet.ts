@@ -54,7 +54,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       const data = response.data;
 
       // 연습량 기준으로 정렬
-      basicPracticeList.value = [...data].sort((a, b) => b.practiceCountP - a.practiceCountP);
+      basicPracticeList.value = [...data].sort(
+        (a, b) => b.practiceCountP - a.practiceCountP
+      );
 
       // 즐겨찾기 기준으로 정렬
       const favorites = data.filter((sheet) => sheet.favoriteP);
@@ -91,11 +93,15 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     formData.append("file", file); // key, value 형태고 key의 변수명을 백엔드랑 맞춰야 함
 
     try {
-      const response = await apiClient.post(`${REST_PIANOSHEET_API}/process`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await apiClient.post(
+        `${REST_PIANOSHEET_API}/process`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       console.log("악보 백엔드 전송 성공!", response.data);
     } catch (error) {
       console.error("악보 백엔드 전송 실패!", error);
@@ -139,7 +145,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const checkFavorite = async (id: number): Promise<void> => {
     try {
-      const response = await apiClient.get(`${REST_PIANOSHEET_API}/${id}/favorite`);
+      const response = await apiClient.get(
+        `${REST_PIANOSHEET_API}/${id}/favorite`
+      );
       isFavorite.value = response.data;
       // console.log("즐겨찾기 여부 " + response.data);
     } catch (error) {
@@ -147,13 +155,20 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
-  const handleFavorite = async (id: number, favorite: boolean): Promise<void> => {
+  const handleFavorite = async (
+    id: number,
+    favorite: boolean
+  ): Promise<void> => {
     try {
-      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/favorite`, null, {
-        params: {
-          favorite: favorite,
-        },
-      });
+      const response = await apiClient.post(
+        `${REST_PIANOSHEET_API}/${id}/favorite`,
+        null,
+        {
+          params: {
+            favorite: favorite,
+          },
+        }
+      );
 
       if (response.status >= 200 && response.status < 300) {
         isFavorite.value = favorite;
@@ -234,7 +249,8 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
       // 악보등록 기준으로 정렬
       userUploadList.value = [...data].sort(
-        (a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+        (a, b) =>
+          new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
       );
 
       // 즐겨찾기 기준으로 정렬
@@ -257,11 +273,27 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const detailSheetfun = async (id: number): Promise<void> => {
     try {
       console.log("악보상세");
-      const response = await apiClient.get<UserSheet>(`${REST_PIANOSHEET_API}/${id}`);
+      const response = await apiClient.get<UserSheet>(
+        `${REST_PIANOSHEET_API}/${id}`
+      );
       detailSheet.value = response.data;
       console.log(detailSheet.value);
     } catch (error) {
       console.error("불러오기 실패", error);
+    }
+  };
+
+  // mxl 로드 function
+  const mxlLoadfun = async (id: number): Promise<ArrayBuffer> => {
+    try {
+      const response = await apiClient.get<ArrayBuffer>(
+        `${REST_PIANOSHEET_API}/api/v1/music/1/download-modified-music-xml`,
+        { responseType: "arraybuffer" }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
@@ -294,5 +326,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     detailSheet,
     detailSheetfun,
     sortOption,
+    mxlLoadfun,
   };
 });
