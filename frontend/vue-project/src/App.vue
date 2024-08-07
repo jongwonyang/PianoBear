@@ -85,7 +85,7 @@ body {
   --md-sys-color-primary: #947650;
   --md-elevation-level: 5;
   --md-sys-color-shadow: #d2b659;
-  animation: backgroundChange 30s infinite;
+  animation: backgroundChange 20s infinite;
 }
 
 @keyframes backgroundChange {

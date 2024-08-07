@@ -64,7 +64,7 @@
                 <div class="practice-header">
                     <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact"
                         @click="previousMonth"></v-btn>
-                    <div>{{ currentMonth }}월 나의 연습 기록</div>
+                    <div>{{ currentYear }}년 {{ currentMonth }}월 연습 스티커</div>
                     <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact"
                         @click="nextMonth"></v-btn>
                 </div>
@@ -83,7 +83,7 @@
                             </template>
                             <template v-slot:default="{ isActive }">
                                 <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1"
-                                    :closeDialog="closeDialog" :index="index" />
+                                    :year="currentYear" :closeDialog="closeDialog" :index="index" />
                             </template>
                         </v-dialog>
                     </template>
