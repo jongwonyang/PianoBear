@@ -35,14 +35,6 @@ public class MusicController {
         this.musicService = musicService;
     }
 
-
-//    @Operation(summary = "PDF 업로드 및 변환", description = "PDF 파일을 업로드하고 MusicXML로 변환합니다.")
-//    @PostMapping(value = "/convert", consumes = "multipart/form-data")
-//    public ResponseEntity<MusicDTO> uploadPdf(@RequestPart("file") MultipartFile file) throws IOException, InterruptedException {
-//        MusicDTO createdMusic = musicService.convertPdf(file);
-//        return ResponseEntity.ok(createdMusic);
-//    }
-
     @Operation(summary = "PDF 변환", description = "PDF 파일을 업로드하고 변환을 요청합니다.")
     @PostMapping(value="/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MusicDTO> processPdfUpload(@RequestPart (name = "file") MultipartFile file) throws IOException, InterruptedException {
@@ -56,7 +48,6 @@ public class MusicController {
         MusicDTO savedMusic = musicService.saveMusic(musicDTO);
         return ResponseEntity.ok(savedMusic);
     }
-
 
     @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보를 불러옵니다.")
     @GetMapping
@@ -137,16 +128,16 @@ public class MusicController {
         return ResponseEntity.ok(musicImgPath);
     }
 
-    @Operation(summary = "MusicXML 경로 불러오기", description = "악보의 MusicXML 경로를 불러옵니다.")
-    @GetMapping("/{id}/music-xml-route")
-    public ResponseEntity<Resource> getMusicXmlRoute(@PathVariable int id) {
+    @Operation(summary = "MusicXML 경로 불러오기", description = "악보의 MusicXML 파일을 다운로드합니다.")
+    @GetMapping("/{id}/download-music-xml")
+    public ResponseEntity<Resource> downloadMusicXml(@PathVariable int id) {
         String musicXmlRoute = musicService.getMusicXmlRoute(id);
         return getFileResponse(musicXmlRoute);
     }
 
-    @Operation(summary = "수정된 MusicXML 경로 불러오기", description = "악보의 수정된 MusicXML 경로를 불러옵니다.")
-    @GetMapping("/{id}/modified-music-xml-route")
-    public ResponseEntity<Resource> getModifiedMusicXmlRoute(@PathVariable int id) {
+    @Operation(summary = "수정된 MusicXML 경로 불러오기", description = "악보의 수정된 MusicXML 파일을 다운로드합니다.")
+    @GetMapping("/{id}/download-modified-music-xml")
+    public ResponseEntity<Resource> downloadModifiedMusicXml(@PathVariable int id) {
         String modifiedMusicXmlRoute = musicService.getModifiedMusicXmlRoute(id);
         return getFileResponse(modifiedMusicXmlRoute);
     }

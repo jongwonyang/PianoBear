@@ -16,6 +16,8 @@ services:
       ENV_JWT_SECRET: ${JWT_SECRET}
       ENV_APP_SERVICE_URL: ${APP_SERVICE_URL}
       ENV_APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS}
+      ENV_OPENVIDU_URL: ${OPENVIDU_URL}
+      ENV_OPENVIDU_SECRET: ${OPENVIDU_SECRET}
     depends_on:
       - postgres-server
       - redis-server
