@@ -2,9 +2,7 @@ package kr.pianobear.application.service;
 
 import io.openvidu.java.client.Connection;
 import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduRole;
 import io.openvidu.java.client.Session;
-import io.openvidu.java.client.TokenOptions;
 import jakarta.annotation.PostConstruct;
 import kr.pianobear.application.util.SecurityUtil;
 
@@ -48,7 +46,7 @@ public class OpenViduService {
         return session.getSessionId();
     }
 
-    public String createToken(String sessionId) throws Exception {
+    public String enterSession(String sessionId) throws Exception {
         Session session = openVidu.getActiveSession(sessionId);
         if (session == null) {
             sessions.remove(sessionId);
@@ -64,4 +62,23 @@ public class OpenViduService {
         sessionParticipants.get(sessionId).add(currentUserId);
         return connection.getConnectionId();
     }
+
+    public String exitSession(String sessionId) throws Exception {
+        Session session = openVidu.getActiveSession(sessionId);
+        if (session == null) {
+            sessions.remove(sessionId);
+            throw new Exception("Session not found");
+        }
+
+        if (sessionParticipants.get(sessionId).size() >= MAX_PARTICIPANTS) {
+            throw new Exception("Max participants reached");
+        }
+
+        Connection connection = session.createConnection();
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        sessionParticipants.get(sessionId).add(currentUserId);
+        return connection.getConnectionId();
+    }
+
+    
 }
