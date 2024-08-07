@@ -17,6 +17,7 @@
             >
               <div class="book">
                 <img src="@/assets/images/blur.png" alt="Book Image" />
+                <!-- <img :src="{{ store.userSheetList.value.musicImg }}" alt="" /> -->
               </div>
             </router-link>
           </div>
