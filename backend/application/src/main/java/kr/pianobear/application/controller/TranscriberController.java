@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/transcriber")
 public class TranscriberController {
 
-    @PostMapping(value = "/upload-audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload-audio")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     public void uploadAudio() {
 
