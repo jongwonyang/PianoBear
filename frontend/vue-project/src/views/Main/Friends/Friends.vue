@@ -123,6 +123,7 @@
 import { onMounted, ref } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useFriendStore } from '@/stores/friend';
+import { useNotificationStore } from '@/stores/notification';
 
 const userInfo = ref({
 
@@ -138,6 +139,7 @@ const friends = ref([]);
 
 const userStore = useUserStore();
 const friendStore = useFriendStore();
+const notificationStore = useNotificationStore();
 const showDialog = ref(false); // 친구 검색 다이얼로그 상태 추가
 const friendInfoDialog = ref(false); // 친구 정보 다이얼로그 상태 추가
 const searchQuery = ref(''); // 검색어를 저장할 상태

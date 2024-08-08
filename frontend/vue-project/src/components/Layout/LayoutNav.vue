@@ -85,9 +85,13 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useNotificationStore } from '@/stores/notification';
+import { useFriendStore } from '@/stores/friend';
 
 const router = useRouter();
 const userStore = useUserStore();
+const notificationStore = useNotificationStore();
+const friendStore = useFriendStore();
 
 const userInfo = ref({
   userEmail: "",
@@ -97,29 +101,38 @@ const userInfo = ref({
 
 const showDialog = ref(false);
 const showConfirmDeleteDialog = ref(false);
-const notifications = ref([
-  { type: "friendRequest", title: "친구 추가 요청", message: "홍길동님이 친구 추가를 요청했습니다." },
-  { type: "meetingInvite", title: "회의실 초대", message: "회의실에 초대되었습니다." },
-  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
-  { type: "sheetTranslation", title: "악보 변환 알림", message: "악보변환이 완료되었습니다." },
-  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
-  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
-]);
+
+const notifications = ref([]);
+const notificationCount = ref(0);
 
 onMounted(() => {
   userStore.GetUserInfo()
     .then((res) => {
       userInfo.value.userEmail = res.data.email;
       userInfo.value.userName = res.data.name;
-      userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg"
+      userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg";
     })
     .catch((err) => {
       console.log(err);
     });
+
+  // 알림 목록과 개수 가져오기
+  notificationStore.GetNotificationList().then(() => {
+    notifications.value = notificationStore.notifications;
+    console.log(notifications.value);
+  });
+
+  notificationStore.GetNotificationCount().then(() => {
+    notificationCount.value = notificationStore.notificationCount;
+    console.log(notificationCount.value);
+  });
+
+  // SSE 연결 설정
+  notificationStore.SubscribeToNotifications();
 });
 
 const clearAllNotifications = () => {
-  notifications.value = [];
+  notificationStore.ClearNotifications();
 };
 
 const confirmDeleteAllNotifications = () => {
@@ -129,39 +142,45 @@ const confirmDeleteAllNotifications = () => {
 
 const acceptFriendRequest = (index) => {
   console.log("친구 추가 요청 수락:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
-  // 알림 DB에서도 삭제되게
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const declineFriendRequest = (index) => {
   console.log("친구 추가 요청 거절:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const acceptMeetingInvite = (index) => {
   console.log("회의실 초대 수락:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const declineMeetingInvite = (index) => {
   console.log("회의실 초대 거절:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const goToChat = (index) => {
   console.log("채팅으로 이동:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const deleteChatMessage = (index) => {
   console.log("채팅 메시지 삭제:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const goToSheet = (index) => {
   router.push({ name: 'pianoUpload', params: { sheetId: 1 } });
   console.log("악보로 이동:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 </script>
 
@@ -206,10 +225,5 @@ const goToSheet = (index) => {
 .no-btn {
   color: #ffffff;
   background: #ff7957;
-}
-
-.delete-box {
-  background: #FFF9E0;
-  color: #947650;
 }
 </style>
