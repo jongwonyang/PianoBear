@@ -31,8 +31,10 @@ const title = ref(store.convertedFile?.title || "");
 const artist = ref(store.convertedFile?.artist || "");
 
 const closeModal = () => {
-  store.convertedFile.title = title.value;
-  store.convertedFile.artist = artist.value;
+  if (store.convertedFile) {
+    store.convertedFile.title = title.value;
+    store.convertedFile.artist = artist.value;
+  }
   store.isOpen = false; // 모달을 닫도록 설정
   // console.log(title.value);
   // console.log(store.convertedFile);

@@ -139,6 +139,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
     try {
       const response = await apiClient.post(`${REST_PIANOSHEET_API}/save`, convertedFile.value);
+      console.log("변환된 악보", convertedFile.value);
       console.log("저장된 정보", response.data);
     } catch (error) {
       console.error("악보 저장 실패ㅠ", error);

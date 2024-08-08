@@ -69,9 +69,8 @@ public class MusicService {
         String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
         music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
 
-        // Music 엔티티 저장
-        Music savedMusic = musicRepository.save(music);
-        return mapMusicToDTO(savedMusic);
+        // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환
+        return mapMusicToDTO(music);
     }
 
     public String getModifiedMusicXmlRoute(int musicId) {
