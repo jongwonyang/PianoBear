@@ -153,7 +153,7 @@ export async function sheetSelect(input) {
   try {
     // const musicXml = await (await MusicXMLPlayer.fetish(sheet)).arrayBuffer();
     g_state.musicXml = input;
-    g_state.params.set("sheet", "let-it-go");
+    g_state.params.set("sheet", "mxl-Player");
   } catch (error) {
     console.error(`Failed to load sheet ${sheet}: ${error}`);
   }
@@ -250,10 +250,30 @@ export function reset() {
   window.localStorage.removeItem(LOCALSTORAGE_KEY);
 }
 
+export const osmd = async function (container, musicXml) {
+  const k = new MusicXMLPlayer.OpenSheetMusicDisplayRenderer();
+  const options = {
+    backend: "svg",
+    drawFromMeasureNumber: 1,
+    drawUpToMeasureNumber: Number.MAX_SAFE_INTEGER, // draw all measures, up to the end of the sample
+    drawMeasureNumbers: false,
+    newSystemFromXML: false,
+    newPageFromXML: false,
+    followCursor: true,
+    disableCursor: false,
+    autoResize: false,
+    drawMetronomeMarks: false,
+    pageFormat: "Letter P",
+    drawingParameters: "preview",
+  };
+  await k.load(container, musicXml, options);
+};
+
 export default {
   pageLoad,
   sheetSelect,
   createPlayer,
   num,
   reset,
+  osmd,
 };

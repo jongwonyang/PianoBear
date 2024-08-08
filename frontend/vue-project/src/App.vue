@@ -91,4 +91,8 @@ body {
   --md-sys-color-shadow: #d2b659;
   /* 그림자 색상 */
 }
+
+body::-webkit-scrollbar {
+  display: none;
+}
 </style>
