@@ -1,5 +1,6 @@
 package kr.pianobear.application.service;
 
+import kr.pianobear.application.dto.FriendDTO;
 import kr.pianobear.application.model.FriendRequest;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.repository.FriendRequestRepository;
@@ -10,7 +11,9 @@ import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendService {
@@ -81,6 +84,35 @@ public class FriendService {
 
             // 실시간 알림 전송
 //            notificationController.sendNotificationToClients("친구 추가 거절당했습니다..");
+        }
+    }
+
+    public List<FriendRequest> getPendingFriendRequests(String userId) {
+        Optional<Member> userOpt = memberRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            return friendRequestRepository.findByReceiver(userOpt.get());
+        }
+        return List.of();
+    }
+
+    public List<FriendDTO> getFriends(String memberId) {
+        Optional<Member> memberOpt = memberRepository.findById(memberId);
+        if (memberOpt.isPresent()) {
+            Member member = memberOpt.get();
+
+            return member.getFriends().stream().map(FriendDTO::fromMember).collect(Collectors.toList());
+        } else {
+            throw new RuntimeException("Member not found");
+        }
+    }
+
+    public FriendDTO getFriendById(String userId) {
+        Optional<Member> memberOpt = memberRepository.findById(userId);
+
+        if (memberOpt.isPresent()) {
+            return FriendDTO.fromMember(memberOpt.get());
+        } else {
+            throw new RuntimeException("Member not found");
         }
     }
 }
