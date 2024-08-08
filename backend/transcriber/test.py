@@ -6,7 +6,7 @@ warnings.filterwarnings("ignore")
 from service import predict, split_piano_other_ns, ns_to_pretty_midi, save_pretty_midi
 from service import midi_to_musicxml
 
-def main():
+def test():
     audio_path = './temp_files/Sparkle (Instrumental Only).wav'
     checkpoint_path = 'checkpoints/mt3/'
     est_ns = predict(audio_path, checkpoint_path)
@@ -24,4 +24,4 @@ def main():
     midi_to_musicxml('temp_files/other.mid', 'temp_files/other.musicxml')
 
 if __name__ == "__main__":
-    main()
+    test()

@@ -14,7 +14,10 @@ app = FastAPI()
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:7000", 
+                   "http://localhost:8888", 
+                   "http://localhost:5173", 
+                   "https://pianobear.kr"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
