@@ -4,7 +4,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from service import predict, split_piano_other_ns, ns_to_pretty_midi, save_pretty_midi
-from service import midi_to_musicxml
+from service import midi_to_mxl
 
 def test():
     audio_path = './temp_files/Sparkle (Instrumental Only).wav'
@@ -19,9 +19,9 @@ def test():
     save_pretty_midi(all_midi, 'temp_files/all.mid')
     save_pretty_midi(piano_midi, 'temp_files/piano.mid')
     save_pretty_midi(other_midi, 'temp_files/other.mid')
-    midi_to_musicxml('temp_files/all.mid', 'temp_files/all.musicxml')
-    midi_to_musicxml('temp_files/piano.mid', 'temp_files/piano.musicxml')
-    midi_to_musicxml('temp_files/other.mid', 'temp_files/other.musicxml')
+    midi_to_mxl('temp_files/all.mid', 'temp_files/all.musicxml')
+    midi_to_mxl('temp_files/piano.mid', 'temp_files/piano.musicxml')
+    midi_to_mxl('temp_files/other.mid', 'temp_files/other.musicxml')
 
 if __name__ == "__main__":
     test()

@@ -2,13 +2,11 @@ package kr.pianobear.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
+import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.dto.TranscriberResponseDTO;
 import kr.pianobear.application.service.TranscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStreamReader;
 import java.util.Optional;
 
 @RestController
@@ -44,9 +41,20 @@ public class TranscriberController {
     @GetMapping("/download")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @Operation(summary = "변환 결과 파일 다운로드")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String path) {
+    public ResponseEntity<FileSystemResource> downloadFile(@RequestParam String path) {
+        // FastAPI 서버에서 파일 다운로드 및 사용자에게 전달
         return transcriberService.downloadFromGpuServer(path);
     }
 
+    @GetMapping("/add-to-me")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    @Operation(summary = "내 보관함에 악보 추가")
+    public ResponseEntity<MusicDTO> addMxlToMe(@RequestParam String mxlPath) {
+        Optional<MusicDTO> musicDTO = transcriberService.addMxlToMe(mxlPath);
 
+        if (musicDTO.isEmpty())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(musicDTO.get());
+    }
 }

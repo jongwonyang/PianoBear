@@ -1,5 +1,7 @@
 # utils.py
 
+import os
+import zipfile
 import note_seq
 from inference_model import InferenceModel
 from note_seq.protobuf import music_pb2
@@ -70,18 +72,36 @@ def save_pretty_midi(pretty_midi_obj, output_path):
     """
     pretty_midi_obj.write(output_path)
 
-def midi_to_musicxml(midi_path, musicxml_output_path):
+def midi_to_mxl(midi_path, musicxml_output_path):
     """
-    MIDI 파일을 MusicXML 형식으로 변환하여 저장합니다.
+    MIDI 파일을 압축된 MusicXML (.mxl) 형식으로 변환하여 저장합니다.
 
     Args:
         midi_path (str): 입력 MIDI 파일 경로.
-        musicxml_output_path (str): 출력 MusicXML 파일 경로.
+        musicxml_output_path (str): 출력 MXL 파일 경로.
     """
     # MIDI 파일을 읽어서 Music21 스트림으로 변환
     midi = music21.converter.parse(midi_path)
     
-    # MusicXML로 변환하여 저장
-    musicxml = music21.musicxml.m21ToXml.GeneralObjectExporter(midi).parse()
-    with open(musicxml_output_path, 'wb') as f:
-        f.write(musicxml)
+    # MusicXML로 변환하여 임시 .xml 파일로 저장
+    temp_xml_path = musicxml_output_path.replace('.mxl', '.xml')
+    midi.write('musicxml', fp=temp_xml_path)
+    
+    # XML 파일을 읽어 DTD 선언 제거
+    with open(temp_xml_path, 'r', encoding='utf-8') as file:
+        xml_content = file.read()
+    
+    xml_content = xml_content.replace(
+        '<!DOCTYPE score-partwise  PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">',
+        ''
+    )
+    
+    with open(temp_xml_path, 'w', encoding='utf-8') as file:
+        file.write(xml_content)
+    
+    # .xml 파일을 .mxl로 압축
+    with zipfile.ZipFile(musicxml_output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.write(temp_xml_path, os.path.basename(temp_xml_path))
+    
+    # 임시 .xml 파일 삭제
+    os.remove(temp_xml_path)

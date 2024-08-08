@@ -6,15 +6,15 @@ import lombok.Data;
 @Data
 public class TranscriberResponseDTO {
 
-    @JsonProperty("original_midi")
-    private String originalMidi;
+    @JsonProperty("all_midi")
+    private String allMidi;
 
     @JsonProperty("piano_midi")
     private String pianoMidi;
 
-    @JsonProperty("other_instruments_midi")
+    @JsonProperty("other_inst_midi")
     private String otherInstMidi;
 
-    @JsonProperty("piano_musicxml")
-    private String pianoMusicxml;
+    @JsonProperty("piano_mxl")
+    private String pianoMxl;
 }

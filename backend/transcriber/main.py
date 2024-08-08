@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 import os
 import shutil
-from service import predict, ns_to_pretty_midi, save_pretty_midi, split_piano_other_ns, midi_to_musicxml
+from service import predict, ns_to_pretty_midi, save_pretty_midi, split_piano_other_ns, midi_to_mxl
 from tempfile import NamedTemporaryFile
 from fastapi.middleware.cors import CORSMiddleware
 import uuid
@@ -53,9 +53,9 @@ async def upload_audio(file: UploadFile = File(...)):
         original_ns = predict(temp_audio_file, checkpoint_path)
 
         # 원본 MIDI 파일 저장
-        original_midi_path = os.path.join(UPLOAD_DIR, unique_filename + "_original.mid")
+        all_midi_path = os.path.join(UPLOAD_DIR, unique_filename + "_all.mid")
         original_midi_data = ns_to_pretty_midi(original_ns)
-        save_pretty_midi(original_midi_data, original_midi_path)
+        save_pretty_midi(original_midi_data, all_midi_path)
 
         # 피아노와 다른 악기들로 분리
         piano_ns, other_ns = split_piano_other_ns(original_ns)
@@ -66,19 +66,19 @@ async def upload_audio(file: UploadFile = File(...)):
         save_pretty_midi(piano_midi_data, piano_midi_path)
 
         # 다른 악기들 MIDI 파일 저장
-        other_midi_path = os.path.join(UPLOAD_DIR, unique_filename + "_other_instruments.mid")
+        other_midi_path = os.path.join(UPLOAD_DIR, unique_filename + "_other_inst.mid")
         other_midi_data = ns_to_pretty_midi(other_ns)
         save_pretty_midi(other_midi_data, other_midi_path)
 
         # 피아노 MusicXML 파일 저장
-        piano_musicxml_path = os.path.join(UPLOAD_DIR, unique_filename + "_piano.musicxml")
-        midi_to_musicxml(piano_midi_path, piano_musicxml_path)
+        piano_mxl_path = os.path.join(UPLOAD_DIR, unique_filename + "_piano.mxl")
+        midi_to_mxl(piano_midi_path, piano_mxl_path)
 
         return JSONResponse(content={
-            "original_midi": original_midi_path,
+            "piano_mxl": piano_mxl_path,
+            "all_midi": all_midi_path,
             "piano_midi": piano_midi_path,
-            "piano_musicxml": piano_musicxml_path,
-            "other_instruments_midi": other_midi_path
+            "other_inst_midi": other_midi_path
         })
     finally:
         os.remove(temp_audio_file)
