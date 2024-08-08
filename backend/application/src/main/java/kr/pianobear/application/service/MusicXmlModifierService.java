@@ -164,12 +164,22 @@ public class MusicXmlModifierService {
                 }
             }
 
+            // 수정된 XML 내용을 로그로 출력
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            DOMSource source = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            String modifiedXmlContent = writer.getBuffer().toString();
+            System.out.println("Modified XML Content: " + modifiedXmlContent);
+
+            // 수정된 내용을 파일에 저장
             StreamResult result = new StreamResult(new File(xmlFilePath));
-            transformer.transform(source, result);
+            transformer.transform(new DOMSource(doc), result);
+
+            // 저장된 파일을 다시 읽어서 로그로 출력하여 수정이 제대로 되었는지 확인
+            String resultContent = new String(Files.readAllBytes(Paths.get(xmlFilePath)), StandardCharsets.UTF_8);
+            System.out.println("Saved XML Content: " + resultContent);
         } catch (Exception e) {
             throw new IOException("Failed to modify XML file", e);
         }

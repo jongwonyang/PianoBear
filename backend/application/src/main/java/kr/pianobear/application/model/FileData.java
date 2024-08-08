@@ -18,4 +18,8 @@ public class FileData {
     private String savedName;
     private String type;
     private String path;
+
+    public String getFilePath() {
+        return path + "/" + savedName;
+    }
 }

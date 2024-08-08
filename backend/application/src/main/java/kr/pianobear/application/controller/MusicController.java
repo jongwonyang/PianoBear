@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.service.MusicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -128,15 +129,14 @@ public class MusicController {
         return ResponseEntity.ok(musicImgPath);
     }
 
-    @Operation(summary = "MusicXML 경로 불러오기", description = "악보의 MusicXML 파일을 다운로드합니다.")
-    @GetMapping("/{id}/download-music-xml")
+
+    @GetMapping("/api/v1/music/{id}/download-music-xml")
     public ResponseEntity<Resource> downloadMusicXml(@PathVariable int id) {
         String musicXmlRoute = musicService.getMusicXmlRoute(id);
         return getFileResponse(musicXmlRoute);
     }
 
-    @Operation(summary = "수정된 MusicXML 경로 불러오기", description = "악보의 수정된 MusicXML 파일을 다운로드합니다.")
-    @GetMapping("/{id}/download-modified-music-xml")
+    @GetMapping("/api/v1/music/{id}/download-modified-music-xml")
     public ResponseEntity<Resource> downloadModifiedMusicXml(@PathVariable int id) {
         String modifiedMusicXmlRoute = musicService.getModifiedMusicXmlRoute(id);
         return getFileResponse(modifiedMusicXmlRoute);
@@ -145,7 +145,7 @@ public class MusicController {
     private ResponseEntity<Resource> getFileResponse(String filePath) {
         try {
             Path path = Paths.get(filePath);
-            Resource resource = new UrlResource(path.toUri());
+            Resource resource = new FileSystemResource(path.toFile());
 
             if (!resource.exists() || !resource.isReadable()) {
                 throw new RuntimeException("Could not read file: " + filePath);
@@ -153,8 +153,9 @@ public class MusicController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM) // MIME 타입 설정
                     .body(resource);
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }

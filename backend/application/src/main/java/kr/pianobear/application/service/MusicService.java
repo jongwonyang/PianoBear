@@ -44,36 +44,6 @@ public class MusicService {
         this.musicXmlModifierService = musicXmlModifierService;
     }
 
-//    @Transactional
-//    public MusicDTO processPdfUpload(MultipartFile pdfFile) throws IOException, InterruptedException {
-//        // PDF 파일 저장
-//        FileData fileData = fileDataService.savePdfFile(pdfFile);
-//
-//        // 새로운 Music 엔티티 생성 및 초기화
-//        Music music = new Music();
-//        music.setTitle(pdfFile.getOriginalFilename().replace(".pdf", ""));
-//        music.setFavorite(false);
-//        music.setUploadDate(LocalDate.now());
-//
-//        // 현재 사용자 정보 설정
-//        String currentUserId = getCurrentUserId();
-//        Member user = memberRepository.findById(currentUserId)
-//                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
-//        music.setUser(user);
-//
-//        // PDF to MusicXML 변환
-//        String mxlFilePath = pdfToMusicXmlService.convertPdfToMusicXml(fileData.getPath());
-//        music.setMusicXmlRoute(mxlFilePath);
-//
-//        // MusicXML 수정
-//        String modifiedXmlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
-//        music.setModifiedMusicXmlRoute(modifiedXmlFilePath);
-//
-//        // Music 엔티티 저장
-//        Music savedMusic = musicRepository.save(music);
-//        return mapMusicToDTO(savedMusic);
-//    }
-
     @Transactional
     public MusicDTO processPdfUpload(MultipartFile pdfFile) throws IOException, InterruptedException {
         // PDF 파일 저장
