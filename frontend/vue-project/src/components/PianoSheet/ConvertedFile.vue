@@ -7,27 +7,21 @@
       </div>
       <div class="text">
         <!-- 변환된 악보가 있을 때 제목을 표시 -->
-        <h4 v-if="store.convertedFile?.title">{{ store.convertedFile.title }}</h4>
+        <span v-if="store.convertedFile?.title">{{ store.convertedFile.title }}</span>
         <!-- 변환된 악보가 없을 때 기본 메시지 표시 -->
-        <h4 v-else>여기에 악보가 만들어집니다.</h4>
+        <span v-else>여기에 악보가 만들어집니다.</span>
+        <span v-if="store.convertedFile?.title">
+          <v-icon @click="openModal">mdi-pencil</v-icon>
+        </span>
       </div>
-      <!-- 제목 수정 아이콘은 악보가 있을 때만 표시 -->
       <div v-if="store.convertedFile?.title">
-        <v-icon @click="openModal">mdi-pencil</v-icon>
-      </div>
-      <div v-if="store.convertedFile?.title">
-        <button @click="saveSheet">저장</button>
-      </div>
-      <div class="text-center pa-4" v-if="store.convertedFile">
-        <v-dialog v-model="isModalOpen" max-width="400" persistent>
-          <v-card prepend-icon="mdi-map-marker" text="악보 제목 변경!" title="ㅇㅇㅇ">
-            <template v-slot:actions>
-              <v-spacer></v-spacer>
-              <v-btn @click="closeModal">취소</v-btn>
-              <v-btn @click="editTitle">수정</v-btn>
-            </template>
-          </v-card>
-        </v-dialog>
+        <button @click="saveSheet" v-if="!goDetail"  class="button">저장</button>
+        <router-link
+          v-if="goDetail"
+          :to="`/main/piano-sheet/${store.convertedFile.id}`"
+          class="router"
+          >악보 바로가기</router-link
+        >
       </div>
     </div>
   </div>
@@ -38,35 +32,19 @@ import { ref, onMounted } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
-const isModalOpen = ref(false);
-
-// 악보 데이터를 가져오는 함수
-const fetchSheetData = async () => {
-  await store.convertedFilefun(); // 스토어의 convertedFile 메서드 호출
-  console.log(store.convertedFile);
-};
+const goDetail = ref(false);
 
 const openModal = () => {
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-};
-
-// 제목 수정 함수 (클릭 시 호출됨)
-const editTitle = async (): Promise<void> => {
-  await store.editTitle();
+  store.isOpen = true;
 };
 
 // 악보 저장
 const saveSheet = () => {
+  // console.log(store.convertedFile.id);
   store.saveSheet();
+  // console.log(store.convertedFile.id);
+  goDetail.value = true;
 };
-
-onMounted(() => {
-  fetchSheetData(); // 컴포넌트가 마운트될 때 악보 데이터 가져오기
-});
 </script>
 
 <style scoped>
@@ -81,7 +59,7 @@ onMounted(() => {
 
 .filebox {
   border: 2px dashed #f5e5d1;
-  width: 350;
+  width: 350px;
   height: 530px;
   padding-left: 70px;
   padding-right: 70px;
@@ -91,5 +69,30 @@ onMounted(() => {
 
 .icon {
   margin-bottom: 10px;
+}
+
+.router {
+  text-decoration: none;
+  color: #947650;
+  font-weight: bold;
+}
+
+.text {
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.text span {
+  margin-right: 10px;
+}
+
+.button {
+  font-weight: bold;
+  background-color: #947650;
+  color: white;
+  width: 80px;
+  height: 40px;
+  border-radius: 15%;
 }
 </style>
