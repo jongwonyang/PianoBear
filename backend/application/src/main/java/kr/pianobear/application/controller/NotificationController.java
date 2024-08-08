@@ -79,4 +79,17 @@ public class NotificationController {
         }
         emitters.removeAll(deadEmitters);
     }
+
+
+    public void sendNotificationCountUpdate(long count) {
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().name("notificationCount").data(count));
+            } catch (IOException e) {
+                deadEmitters.add(emitter);
+            }
+        }
+        emitters.removeAll(deadEmitters);
+    }
 }

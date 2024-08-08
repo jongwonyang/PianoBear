@@ -1,5 +1,6 @@
 package kr.pianobear.application.service;
 
+import kr.pianobear.application.controller.NotificationController;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.model.Notification;
 import kr.pianobear.application.repository.NotificationRepository;
@@ -14,9 +15,14 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private NotificationController notificationController;
+
     public void createNotification(Member receiver, String type, String content) {
         Notification notification = new Notification(receiver, type, content);
         notificationRepository.save(notification);
+        long newCount = notificationRepository.countByReceiver(receiver);
+        notificationController.sendNotificationCountUpdate(newCount);
     }
 
     public List<Notification> getNotifications(Member receiver) {
