@@ -26,12 +26,12 @@
     <v-dialog v-model="showDialog" max-width="500px">
       <v-card class="notification-box">
         <v-card-title class="headline">
-          알림
-          <v-spacer></v-spacer>
-          <v-btn class="delete-all" icon @click="clearAllNotifications">
+          <div>알림</div>
+          <v-btn class="delete-all" icon @click="showConfirmDeleteDialog = true">
             <v-icon>mdi-delete-outline</v-icon>
           </v-btn>
         </v-card-title>
+        <v-divider></v-divider>
         <v-card-text>
           <v-list class="notification-list">
             <v-list-item v-for="(notification, index) in notifications" :key="index">
@@ -52,6 +52,9 @@
                   <v-btn class="yes-btn" small text @click="goToChat(index)">이동</v-btn>
                   <v-btn class="no-btn" small text @click="deleteChatMessage(index)">삭제</v-btn>
                 </template>
+                <template v-else-if="notification.type === 'sheetTranslation'">
+                  <v-btn class="yes-btn" small text @click="goToSheet(index), showDialog = false">이동</v-btn>
+                </template>
               </v-list-item-action>
             </v-list-item>
           </v-list>
@@ -59,6 +62,19 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="showDialog = false">닫기</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 전체 삭제 확인 다이얼로그 -->
+    <v-dialog v-model="showConfirmDeleteDialog" max-width="400px">
+      <v-card class="delete-box">
+        <v-card-title class="headline">알림 전체 삭제</v-card-title>
+        <v-card-text>알림을 전체 삭제하시겠습니까?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="confirmDeleteAllNotifications">삭제</v-btn>
+          <v-btn text @click="showConfirmDeleteDialog = false">닫기</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -80,10 +96,12 @@ const userInfo = ref({
 });
 
 const showDialog = ref(false);
+const showConfirmDeleteDialog = ref(false);
 const notifications = ref([
   { type: "friendRequest", title: "친구 추가 요청", message: "홍길동님이 친구 추가를 요청했습니다." },
   { type: "meetingInvite", title: "회의실 초대", message: "회의실에 초대되었습니다." },
   { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
+  { type: "sheetTranslation", title: "악보 변환 알림", message: "악보변환이 완료되었습니다." },
   { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
   { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
 ]);
@@ -104,9 +122,15 @@ const clearAllNotifications = () => {
   notifications.value = [];
 };
 
+const confirmDeleteAllNotifications = () => {
+  clearAllNotifications();
+  showConfirmDeleteDialog.value = false;
+};
+
 const acceptFriendRequest = (index) => {
   console.log("친구 추가 요청 수락:", notifications.value[index].message);
   // notifications.value.splice(index, 1);
+  // 알림 DB에서도 삭제되게
 };
 
 const declineFriendRequest = (index) => {
@@ -133,6 +157,12 @@ const deleteChatMessage = (index) => {
   console.log("채팅 메시지 삭제:", notifications.value[index].message);
   // notifications.value.splice(index, 1);
 };
+
+const goToSheet = (index) => {
+  router.push({ name: 'pianoUpload', params: { sheetId: 1 } });
+  console.log("악보로 이동:", notifications.value[index].message);
+  // notifications.value.splice(index, 1);
+};
 </script>
 
 <style scoped>
@@ -140,6 +170,16 @@ const deleteChatMessage = (index) => {
   margin-top: 20px;
   background: #FFF9E0;
   color: #947650;
+}
+
+.headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-top: 16px;
+  margin-left: 16px;
+  margin-right: 16px;
 }
 
 .notification-list {
@@ -166,5 +206,10 @@ const deleteChatMessage = (index) => {
 .no-btn {
   color: #ffffff;
   background: #ff7957;
+}
+
+.delete-box {
+  background: #FFF9E0;
+  color: #947650;
 }
 </style>

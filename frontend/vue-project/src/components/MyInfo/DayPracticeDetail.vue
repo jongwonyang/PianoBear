@@ -69,7 +69,6 @@ onMounted(() => {
 <style scoped>
 .practice-box {
     max-width: 700px;
-    max-height: 500px;
     padding: 20px;
     margin: auto;
 }
@@ -87,7 +86,6 @@ onMounted(() => {
 }
 
 .practice-item {
-    width: 100%;
     max-height: 300px;
     background: #FFF9E0;
 }
@@ -96,7 +94,6 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-
     margin-bottom: 10px;
 }
 

@@ -1,53 +1,61 @@
 <template>
     <div class="friend-container">
-        <div class="my-status">
-            <md-elevation></md-elevation>
-            <div v-if="isLoading.userInfo" class="loading-bar">
-                <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
-            </div>
-            <div v-else>
-                <div class="my-status-box">
-                    <img class="my-status-image" :src="userInfo.profilePic">
-                    <div class="my-status-ele">
-                        <div class="my-name">{{ userInfo.name }}</div>
-                        <div class="my-status-message-box">
-                            <md-elevation></md-elevation>
-                            <div class="my-status-message">
-                                {{ userInfo.statusMessage }}
+        <div class="left-panel">
+            <div class="my-status">
+                <md-elevation></md-elevation>
+                <div v-if="isLoading.userInfo" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <div v-else>
+                    <div class="my-status-box">
+                        <img class="my-status-image" :src="userInfo.profilePic">
+                        <div class="my-status-ele">
+                            <div class="my-name">{{ userInfo.name }}</div>
+                            <div class="my-status-message-box">
+                                <md-elevation></md-elevation>
+                                <div class="my-status-message">
+                                    {{ userInfo.statusMessage }}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="friend-box">
-            <md-elevation></md-elevation>
-            <div class="my-friends-header">
-                <div class="my-friends-text">친구들</div>
-                <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn"
-                    @click="showDialog = true">친구 검색</v-btn>
-            </div>
-            <div v-if="isLoading.friendList" class="loading-bar">
-                <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
-            </div>
-            <div v-else class="my-friends-ele">
-                <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
-                    <div class="my-friends-ele-left">
-                        <img :src="friend.profilePic" alt="친구 img">
-                    </div>
-                    <div class="my-friends-ele-right">
-                        <div class="friend-name">{{ friend.name }}</div>
-                        <div class="friend-status-message">
-                            <md-elevation></md-elevation>
-                            {{ friend.statusMessage }}
-                        </div>
-                    </div>
+            <div class="friend-box">
+                <md-elevation></md-elevation>
+                <div class="my-friends-header">
+                    <div class="my-friends-text">친구들</div>
+                    <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn"
+                        @click="showDialog = true">친구 검색</v-btn>
                 </div>
                 <v-divider></v-divider>
+                <div v-if="isLoading.friendList" class="loading-bar">
+                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+                </div>
+                <div v-else class="my-friends-ele">
+                    <div class="friend-item" v-for="friend in friends" :key="friend.id"
+                        @click="viewFriendInfo(friend.id)">
+                        <div class="my-friends-ele-left">
+                            <img :src="friend.profilePic" alt="친구 img">
+                        </div>
+                        <div class="my-friends-ele-right">
+                            <div class="friend-name">{{ friend.name }}</div>
+                            <div class="friend-status-message">
+                                <md-elevation></md-elevation>
+                                {{ friend.statusMessage }}
+                            </div>
+                        </div>
+                    </div>
+                    <v-divider></v-divider>
+                </div>
             </div>
         </div>
         <div class="chat-box">
             <md-elevation></md-elevation>
+            <div class="my-chatting-header">
+                <div class="my-chatting-text">채팅</div>
+            </div>
+            <v-divider></v-divider>
         </div>
 
         <!-- 친구 정보 다이얼로그 -->
@@ -224,10 +232,16 @@ const removeFriend = (id) => {
 
 .friend-container {
     display: flex;
-    flex-direction: column;
     height: 100vh;
     overflow: hidden;
     animation: fadeIn 0.5s ease-in-out;
+}
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .my-status {
@@ -420,6 +434,35 @@ const removeFriend = (id) => {
 
 .friend-info-form {
     background: #FFF9E0;
+    color: #947650;
+}
+
+.chat-box {
+    flex: 1;
+    width: 500px;
+    background: #FFF9E0;
+    position: relative;
+    padding: 30px;
+    border-radius: 30px;
+    text-align: center;
+    overflow-y: auto;
+    scrollbar-width: none;
+    --md-sys-color-shadow: #947650;
+}
+
+.my-chatting-header {
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: #FFF9E0;
+    z-index: 10;
+    padding: 10px 0;
+}
+
+.my-chatting-text {
+    font-size: 20px;
+    font-weight: 700;
     color: #947650;
 }
 </style>

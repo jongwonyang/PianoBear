@@ -58,7 +58,6 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
-
 </script>
 
 <style>
@@ -70,47 +69,18 @@ onBeforeUnmount(() => {
 
 html,
 body {
-  position: relative;
   width: 100%;
   height: 100%;
-  background-size: cover;
+  margin: 0;
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
   --md-sys-color-outline: #FFFFFF;
   --md-sys-color-on-surface: #947650;
   --md-sys-color-primary: #947650;
   --md-elevation-level: 5;
   --md-sys-color-shadow: #d2b659;
-  animation: backgroundChange 20s infinite;
-}
-
-@keyframes backgroundChange {
-  0% {
-    background-image: url('./assets/images/background.webp');
-  }
-
-  20% {
-    background-image: url('./assets/images/background2.webp');
-  }
-
-  40% {
-    background-image: url('./assets/images/background3.webp');
-  }
-
-  60% {
-    background-image: url('./assets/images/background4.webp');
-  }
-
-  80% {
-    background-image: url('./assets/images/background5.webp');
-  }
-
-  100% {
-    background-image: url('./assets/images/background.webp');
-  }
 }
 </style>
