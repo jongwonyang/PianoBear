@@ -13,7 +13,7 @@
         <template v-slot:activator="{ props }">
           <v-icon v-bind="props">mdi-menu</v-icon>
         </template>
-        <v-list class="list" style="background-color: #fff9e0" elevation="2">
+        <v-list class="list" style="background-color: #fff9e0" elevation="2" font-weight="bold">
           <v-list-item
             v-for="(item, index) in displayedItems"
             :key="index"

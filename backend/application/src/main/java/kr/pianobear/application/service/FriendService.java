@@ -1,6 +1,7 @@
 package kr.pianobear.application.service;
 
 
+import kr.pianobear.application.controller.NotificationController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,16 @@ public class FriendService {
     @Autowired
     private FriendRequestRepository friendRequestRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private NotificationController notificationController;
+
     public void sendFriendRequest(String senderId, String receiverId) {
-        if(senderId.equals(receiverId))
+        if (senderId.equals(receiverId))
             return;
+
         Optional<Member> senderOpt = memberRepository.findById(senderId);
         Optional<Member> receiverOpt = memberRepository.findById(receiverId);
 
@@ -34,6 +42,14 @@ public class FriendService {
             Member receiver = receiverOpt.get();
             FriendRequest friendRequest = new FriendRequest(sender, receiver);
             friendRequestRepository.save(friendRequest);
+
+            // 알림 생성
+            String content = String.format("{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\"}",
+                    sender.getId(), sender.getName(), sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "");
+            notificationService.createNotification(receiver, "FRIEND_REQUEST", content);
+
+            // 실시간 알림 전송
+            notificationController.sendNotificationToClients(content);
         }
     }
 
