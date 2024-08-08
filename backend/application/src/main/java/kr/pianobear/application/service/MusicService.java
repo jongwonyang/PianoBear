@@ -13,16 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.*;
-import java.io.FileInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,11 +21,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 @Service
 public class MusicService {
@@ -47,8 +32,6 @@ public class MusicService {
     private final MusicPracticeRepository musicPracticeRepository;
     private final PdfToMusicXmlService pdfToMusicXmlService;
     private final MusicXmlModifierService musicXmlModifierService;
-
-    private static final Map<String, String> noteToSyllable = new HashMap<>();
 
     @Autowired
     public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService) {
@@ -83,12 +66,21 @@ public class MusicService {
         music.setMusicXmlRoute(mxlFilePath);
 
         // MusicXML 수정
-        String modifiedXmlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
-        music.setModifiedMusicXmlRoute(modifiedXmlFilePath);
+        String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
+        music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
 
-        // Music 엔티티 저장
-        Music savedMusic = musicRepository.save(music);
-        return mapMusicToDTO(savedMusic);
+        // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환
+        return mapMusicToDTO(music);
+    }
+
+    public String getModifiedMusicXmlRoute(int musicId) {
+        Optional<Music> optionalMusic = musicRepository.findById(musicId);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+            return music.getModifiedMusicXmlRoute();
+        } else {
+            throw new RuntimeException("Music not found with id " + musicId);
+        }
     }
 
     @Transactional
@@ -169,15 +161,15 @@ public class MusicService {
         }
     }
 
-    public String getModifiedMusicXmlRoute(int musicId) {
-        Optional<Music> optionalMusic = musicRepository.findById(musicId);
-        if (optionalMusic.isPresent()) {
-            Music music = optionalMusic.get();
-            return music.getModifiedMusicXmlRoute();
-        } else {
-            throw new RuntimeException("Music not found with id " + musicId);
-        }
-    }
+//    public String getModifiedMusicXmlRoute(int musicId) {
+//        Optional<Music> optionalMusic = musicRepository.findById(musicId);
+//        if (optionalMusic.isPresent()) {
+//            Music music = optionalMusic.get();
+//            return music.getModifiedMusicXmlRoute();
+//        } else {
+//            throw new RuntimeException("Music not found with id " + musicId);
+//        }
+//    }
 
     public List<MusicDTO> getAllMusic() {
         List<Music> musicList = musicRepository.findAll();
