@@ -110,7 +110,7 @@ public class DatabaseUtil {
                 .getPath();
 
         Set<String> existingTitles = new HashSet<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 13; i++) {
             String title;
             int attempt = 0;
             do {
@@ -145,7 +145,7 @@ public class DatabaseUtil {
                 practice.setMusic(music);
                 practice.setMember(user1);
                 practice.setPracticeDate(LocalDate.now().minusDays(random.nextInt(1000)));
-                practice.setPracticeCount(random.nextInt(100));
+                practice.setPracticeCount(random.nextInt(5));
 
                 musicPracticeRepository.save(practice);
             }
@@ -174,8 +174,6 @@ public class DatabaseUtil {
 
         System.out.println("sample music data inserted");
     }
-
-
 
     private void copyFiles() throws IOException {
         Path targetDirectory = Paths.get("/app/data/uploads");
