@@ -36,6 +36,9 @@ public class MusicPracticeDTO {
     @Schema(description = "악보 아이디")
     private int musicId;
 
+    @Schema(description = "악보 제목")
+    private String musicTitle;
+
     @NotBlank
     @Schema(description = "사용자 아이디")
     private String userId;
@@ -45,6 +48,7 @@ public class MusicPracticeDTO {
         musicPracticeDTO.setId(musicPractice.getId());
         musicPracticeDTO.setUserId(musicPractice.getUserId());
         musicPracticeDTO.setMusicId(musicPractice.getMusic().getId());
+        musicPracticeDTO.setMusicTitle(musicPractice.getMusic().getTitle());
         musicPracticeDTO.setPracticeDate(LocalDate.parse(musicPractice.getPracticeDate().toString()));
         musicPracticeDTO.setPracticeCount(musicPractice.getPracticeCount());
         return musicPracticeDTO;

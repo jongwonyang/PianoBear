@@ -26,12 +26,12 @@
     <v-dialog v-model="showDialog" max-width="500px">
       <v-card class="notification-box">
         <v-card-title class="headline">
-          알림
-          <v-spacer></v-spacer>
-          <v-btn class="delete-all" icon @click="clearAllNotifications">
+          <div>알림</div>
+          <v-btn class="delete-all" icon @click="showConfirmDeleteDialog = true">
             <v-icon>mdi-delete-outline</v-icon>
           </v-btn>
         </v-card-title>
+        <v-divider></v-divider>
         <v-card-text>
           <v-list class="notification-list">
             <v-list-item v-for="(notification, index) in notifications" :key="index">
@@ -52,6 +52,9 @@
                   <v-btn class="yes-btn" small text @click="goToChat(index)">이동</v-btn>
                   <v-btn class="no-btn" small text @click="deleteChatMessage(index)">삭제</v-btn>
                 </template>
+                <template v-else-if="notification.type === 'sheetTranslation'">
+                  <v-btn class="yes-btn" small text @click="goToSheet(index), showDialog = false">이동</v-btn>
+                </template>
               </v-list-item-action>
             </v-list-item>
           </v-list>
@@ -62,6 +65,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- 전체 삭제 확인 다이얼로그 -->
+    <v-dialog v-model="showConfirmDeleteDialog" max-width="400px">
+      <v-card class="delete-box">
+        <v-card-title class="headline">알림 전체 삭제</v-card-title>
+        <v-card-text>알림을 전체 삭제하시겠습니까?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="confirmDeleteAllNotifications">삭제</v-btn>
+          <v-btn text @click="showConfirmDeleteDialog = false">닫기</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -69,9 +85,13 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useNotificationStore } from '@/stores/notification';
+import { useFriendStore } from '@/stores/friend';
 
 const router = useRouter();
 const userStore = useUserStore();
+const notificationStore = useNotificationStore();
+const friendStore = useFriendStore();
 
 const userInfo = ref({
   userEmail: "",
@@ -80,58 +100,87 @@ const userInfo = ref({
 });
 
 const showDialog = ref(false);
-const notifications = ref([
-  { type: "friendRequest", title: "친구 추가 요청", message: "홍길동님이 친구 추가를 요청했습니다." },
-  { type: "meetingInvite", title: "회의실 초대", message: "회의실에 초대되었습니다." },
-  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
-  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
-  { type: "chatMessage", title: "채팅 알림", message: "새로운 채팅 메시지가 도착했습니다." },
-]);
+const showConfirmDeleteDialog = ref(false);
+
+const notifications = ref([]);
+const notificationCount = ref(0);
 
 onMounted(() => {
   userStore.GetUserInfo()
     .then((res) => {
       userInfo.value.userEmail = res.data.email;
       userInfo.value.userName = res.data.name;
-      userInfo.value.profileImage = "https://i.namu.wiki/i/W-XZ2Oy1qM9Sxd3wxVUN837dvaI_Ed3GCCIwyJ7is037aZgMPOFdUq3XtjI_EGJ7rsFMyNqpYFhHb58GNc2AnsIVg8uGcLc6RuwicIS6CNWCbwJ7niosjDS_zyEbgQzuTnubiPUnVy2ke4focfz5kg.webp"
+      userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg";
     })
     .catch((err) => {
       console.log(err);
     });
+
+  // 알림 목록과 개수 가져오기
+  notificationStore.GetNotificationList().then(() => {
+    notifications.value = notificationStore.notifications;
+    console.log(notifications.value);
+  });
+
+  notificationStore.GetNotificationCount().then(() => {
+    notificationCount.value = notificationStore.notificationCount;
+    console.log(notificationCount.value);
+  });
+
+  // SSE 연결 설정
+  notificationStore.SubscribeToNotifications();
 });
 
 const clearAllNotifications = () => {
-  notifications.value = [];
+  notificationStore.ClearNotifications();
+};
+
+const confirmDeleteAllNotifications = () => {
+  clearAllNotifications();
+  showConfirmDeleteDialog.value = false;
 };
 
 const acceptFriendRequest = (index) => {
   console.log("친구 추가 요청 수락:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const declineFriendRequest = (index) => {
   console.log("친구 추가 요청 거절:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const acceptMeetingInvite = (index) => {
   console.log("회의실 초대 수락:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const declineMeetingInvite = (index) => {
   console.log("회의실 초대 거절:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const goToChat = (index) => {
   console.log("채팅으로 이동:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 
 const deleteChatMessage = (index) => {
   console.log("채팅 메시지 삭제:", notifications.value[index].message);
-  // notifications.value.splice(index, 1);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
+};
+
+const goToSheet = (index) => {
+  router.push({ name: 'pianoUpload', params: { sheetId: 1 } });
+  console.log("악보로 이동:", notifications.value[index].message);
+  // 특정 알림 삭제
+  notificationStore.DeleteNotification(notifications.value[index].id);
 };
 </script>
 
@@ -142,6 +191,16 @@ const deleteChatMessage = (index) => {
   color: #947650;
 }
 
+.headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-top: 16px;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
 .notification-list {
   background: #FFF9E0;
   color: #947650;
@@ -150,6 +209,7 @@ const deleteChatMessage = (index) => {
 
 .notification-actions {
   justify-content: flex-end;
+  padding-bottom: 4px;
 }
 
 .delete-all {
