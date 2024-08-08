@@ -37,12 +37,14 @@ public class NotificationController {
     public List<Notification> getNotifications() {
         String currentUserId = SecurityUtil.getCurrentUserId();
         Member receiver = new Member(currentUserId);
-        return notificationService.getUnreadNotifications(receiver);
+        return notificationService.getNotifications(receiver);
     }
 
-    @PostMapping("/{id}/read")
-    public void markAsRead(@PathVariable Long id) {
-        notificationService.markAsRead(id);
+    @GetMapping("/count")
+    public long getNotificationCount() {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        Member receiver = new Member(currentUserId);
+        return notificationService.getNotificationCount(receiver);
     }
 
     @DeleteMapping("/{id}")

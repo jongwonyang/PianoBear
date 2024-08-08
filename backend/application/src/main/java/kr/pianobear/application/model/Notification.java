@@ -15,14 +15,12 @@ public class Notification {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
-    private String type; // "FRIEND_REQUEST", "CHAT", "PLAYGROUND"
+    private String type; // "FRIEND_REQUEST", "CHAT", "PLAYGROUND" // "친구 추기" "채팅" "놀이터"
     private String content;
-    private boolean read;
     private LocalDateTime createdAt;
 
     public Notification() {
         this.createdAt = LocalDateTime.now();
-        this.read = false;
     }
 
     public Notification(Member receiver, String type, String content) {
