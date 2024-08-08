@@ -15,14 +15,11 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    @Autowired
-    private NotificationController notificationController;
-
     public void createNotification(Member receiver, String type, String content) {
         Notification notification = new Notification(receiver, type, content);
         notificationRepository.save(notification);
-        long newCount = notificationRepository.countByReceiver(receiver);
-        notificationController.sendNotificationCountUpdate(newCount);
+//        long newCount = notificationRepository.countByReceiver(receiver);
+//        notificationController.sendNotificationCountUpdate(newCount);
     }
 
     public List<Notification> getNotifications(Member receiver) {
