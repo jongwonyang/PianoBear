@@ -14,13 +14,19 @@ export const useDashboardStore = defineStore("dashboard", () => {
   };
 
   // 월별 연습 기록
-  const GetMonthlyPracticeRecord = (year: number, month: number) => {
-    return apiClient.get(
-      REST_DASHBOARD_API +
-        "monthly-practice-record" +
-        `?year=${year}&month=${month}`
-    );
+  const GetMonthlyPracticeRecord = (
+    year: number,
+    month: number,
+    day: number | null = null
+  ) => {
+    let url =
+      REST_DASHBOARD_API + "practice-records" + `?year=${year}&month=${month}`;
+    if (day !== null) {
+      url += `&day=${day}`;
+    }
+    return apiClient.get(url);
   };
+
   // 온라인 친구 목록
   const GetOnlineFriends = () => {
     return apiClient.get(REST_DASHBOARD_API + "online-friends");

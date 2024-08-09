@@ -186,6 +186,73 @@ public class MusicXmlModifierService {
         }
     }
 
+
+//    private void modifyXmlFile(String xmlFilePath) throws IOException {
+//        try {
+//            // XML 파일을 읽고 내용을 정리합니다.
+//            String xmlContent = new String(Files.readAllBytes(Paths.get(xmlFilePath)), StandardCharsets.UTF_8);
+//            xmlContent = removeInvalidCharacters(xmlContent);
+//
+//            // 정리된 XML 내용을 ByteArrayInputStream을 통해 파싱합니다.
+//            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+//            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+//            Document doc = dBuilder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
+//            doc.getDocumentElement().normalize();
+//
+//            NodeList noteList = doc.getElementsByTagName("note");
+//
+//            for (int i = 0; i < noteList.getLength(); i++) {
+//                Node note = noteList.item(i);
+//
+//                if (note.getNodeType() == Node.ELEMENT_NODE) {
+//                    Element noteElement = (Element) note;
+//
+//                    NodeList pitchList = noteElement.getElementsByTagName("pitch");
+//                    if (pitchList.getLength() > 0) {
+//                        Element pitch = (Element) pitchList.item(0);
+//                        String step = pitch.getElementsByTagName("step").item(0).getTextContent();
+//                        String syllable = noteToSyllable.get(step);
+//
+//                        // <notations> 태그가 없는 경우 생성
+//                        NodeList notationsList = noteElement.getElementsByTagName("notations");
+//                        Element notations;
+//                        if (notationsList.getLength() > 0) {
+//                            notations = (Element) notationsList.item(0);
+//                        } else {
+//                            notations = doc.createElement("notations");
+//                            noteElement.appendChild(notations);
+//                        }
+//
+//                        // <text> 태그 추가
+//                        Element text = doc.createElement("text");
+//                        text.setTextContent(syllable);
+//                        notations.appendChild(text);
+//                    }
+//                }
+//            }
+//
+//            // 수정된 XML 내용을 로그로 출력
+//            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+//            Transformer transformer = transformerFactory.newTransformer();
+//            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+//            StringWriter writer = new StringWriter();
+//            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+//            String modifiedXmlContent = writer.getBuffer().toString();
+//            System.out.println("Modified XML Content: " + modifiedXmlContent);
+//
+//            // 수정된 내용을 파일에 저장
+//            StreamResult result = new StreamResult(new File(xmlFilePath));
+//            transformer.transform(new DOMSource(doc), result);
+//
+//            // 저장된 파일을 다시 읽어서 로그로 출력하여 수정이 제대로 되었는지 확인
+//            String resultContent = new String(Files.readAllBytes(Paths.get(xmlFilePath)), StandardCharsets.UTF_8);
+//            System.out.println("Saved XML Content: " + resultContent);
+//        } catch (Exception e) {
+//            throw new IOException("Failed to modify XML file", e);
+//        }
+//    }
+
+
     private void deleteDirectory(File file) throws IOException {
         if (file.isDirectory()) {
             for (File subFile : file.listFiles()) {
