@@ -50,9 +50,13 @@ public class NotificationService {
     public SseEmitter addEmitter(Member receiver, int connectionTimeOut) {
         SseEmitter emitter = new SseEmitter(connectionTimeOut * 1000L);
         emitters.add(emitter);
+
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError((e) -> emitters.remove(emitter));
+        emitter.onError((e) -> {
+            System.err.println("SSE connection error: " + e.getMessage());
+            emitters.remove(emitter);
+        });
 
         // 클라이언트가 연결될 때 밀린 알림 전송
         List<NotificationDTO> missedNotifications = getNotifications(receiver);
@@ -60,13 +64,17 @@ public class NotificationService {
             try {
                 emitter.send(SseEmitter.event().name("notification").data(notification));
             } catch (IOException e) {
-                // 전송 실패 시 해당 emitter 제거
+                // 전송 실패 시 해당 emitter 제거 및 로그 기록
+                System.err.println("Failed to send missed notification: " + e.getMessage());
                 emitters.remove(emitter);
+                break;
             }
         }
 
         return emitter;
     }
+
+
 
     private void sendNotificationToClients(NotificationDTO notification) {
         List<SseEmitter> deadEmitters = new ArrayList<>();
