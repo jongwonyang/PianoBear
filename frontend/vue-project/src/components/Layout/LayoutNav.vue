@@ -36,19 +36,29 @@
           <v-list class="notification-list">
             <v-list-item v-for="(notification, index) in notifications" :key="index">
               <v-list-item-content>
-                <v-list-item-title>{{ notification.title }}</v-list-item-title>
-                <v-list-item-subtitle>{{ notification.message }}</v-list-item-subtitle>
+                <template v-if="notification.type === 'FRIEND_REQUEST'">
+                  <v-list-item-title>친구 요청</v-list-item-title>
+                  <v-list-item-subtitle>{{ notification.content.senderName }} 님이 친구 요청을 보냈습니다!</v-list-item-subtitle>
+                </template>
+                <template v-else-if="notification.type === 'PLAYGROUND'">
+                  <v-list-item-title>놀이터 초대</v-list-item-title>
+                  <v-list-item-subtitle>{{ notification.content.senderName }} 님이 놀이터에 초대하였습니다!</v-list-item-subtitle>
+                </template>
+                <template v-else-if="notification.type === 'CHAT'">
+                  <v-list-item-title>친구 요청</v-list-item-title>
+                  <v-list-item-subtitle>{{ notification.content.senderName }} 님이 채팅을 보냈습니다!</v-list-item-subtitle>
+                </template>
               </v-list-item-content>
               <v-list-item-action class="notification-actions">
-                <template v-if="notification.type === 'friendRequest'">
+                <template v-if="notification.type === 'FRIEND_REQUEST'">
                   <v-btn class="yes-btn" small text @click="acceptFriendRequest(index)">수락</v-btn>
                   <v-btn class="no-btn" small text @click="declineFriendRequest(index)">거절</v-btn>
                 </template>
-                <template v-else-if="notification.type === 'meetingInvite'">
+                <template v-else-if="notification.type === 'PLAYGROUND'">
                   <v-btn class="yes-btn" small text @click="acceptMeetingInvite(index)">수락</v-btn>
                   <v-btn class="no-btn" small text @click="declineMeetingInvite(index)">거절</v-btn>
                 </template>
-                <template v-else-if="notification.type === 'chatMessage'">
+                <template v-else-if="notification.type === 'CHAT'">
                   <v-btn class="yes-btn" small text @click="goToChat(index)">이동</v-btn>
                   <v-btn class="no-btn" small text @click="deleteChatMessage(index)">삭제</v-btn>
                 </template>
@@ -56,6 +66,11 @@
                   <v-btn class="yes-btn" small text @click="goToSheet(index), showDialog = false">이동</v-btn>
                 </template>
               </v-list-item-action>
+            </v-list-item>
+            <v-list-item v-if="notifications.length === 0">
+              <v-list-item-content>
+                <v-list-item-title>알림이 비어있습니다!</v-list-item-title>
+              </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -73,7 +88,7 @@
         <v-card-text>알림을 전체 삭제하시겠습니까?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="confirmDeleteAllNotifications">삭제</v-btn>
+          <v-btn text @click="confirmDeleteAllNotifications" style="color: red">삭제</v-btn>
           <v-btn text @click="showConfirmDeleteDialog = false">닫기</v-btn>
         </v-card-actions>
       </v-card>
@@ -102,8 +117,8 @@ const userInfo = ref({
 const showDialog = ref(false);
 const showConfirmDeleteDialog = ref(false);
 
-const notifications = ref([]);
-const notificationCount = ref(0);
+const notifications = notificationStore.notifications;
+const notificationCount = notificationStore.notificationCount;
 
 onMounted(() => {
   userStore.GetUserInfo()
@@ -117,15 +132,9 @@ onMounted(() => {
     });
 
   // 알림 목록과 개수 가져오기
-  notificationStore.GetNotificationList().then(() => {
-    notifications.value = notificationStore.notifications;
-    console.log(notifications.value);
-  });
+  notificationStore.GetNotificationList();
 
-  notificationStore.GetNotificationCount().then(() => {
-    notificationCount.value = notificationStore.notificationCount;
-    console.log(notificationCount.value);
-  });
+  notificationStore.GetNotificationCount();
 
   // SSE 연결 설정
   notificationStore.SubscribeToNotifications();
@@ -133,6 +142,9 @@ onMounted(() => {
 
 const clearAllNotifications = () => {
   notificationStore.ClearNotifications();
+  notifications.value.splice(0, notifications.value.length);
+  // notifications.value = [];
+  // notificationCount.value = 0;
 };
 
 const confirmDeleteAllNotifications = () => {
@@ -141,39 +153,47 @@ const confirmDeleteAllNotifications = () => {
 };
 
 const acceptFriendRequest = (index) => {
+  // 친구 요청 수락 API 호출
+
   console.log("친구 추가 요청 수락:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 
 const declineFriendRequest = (index) => {
   console.log("친구 추가 요청 거절:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 
 const acceptMeetingInvite = (index) => {
   console.log("회의실 초대 수락:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 
 const declineMeetingInvite = (index) => {
   console.log("회의실 초대 거절:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 
 const goToChat = (index) => {
   console.log("채팅으로 이동:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 
 const deleteChatMessage = (index) => {
   console.log("채팅 메시지 삭제:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 
 const goToSheet = (index) => {
@@ -181,6 +201,7 @@ const goToSheet = (index) => {
   console.log("악보로 이동:", notifications.value[index].message);
   // 특정 알림 삭제
   notificationStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
 };
 </script>
 
@@ -225,5 +246,10 @@ const goToSheet = (index) => {
 .no-btn {
   color: #ffffff;
   background: #ff7957;
+}
+
+.delete-box {
+  background: #FFF9E0;
+  color: #947650;
 }
 </style>

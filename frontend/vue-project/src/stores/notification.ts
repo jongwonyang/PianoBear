@@ -12,9 +12,15 @@ export const useNotificationStore = defineStore("notification", () => {
   const notificationCount = ref(0);
   const userStore = useUserStore();
 
+  const accessToken = ref(userStore.accessToken);
+
   const GetNotificationList = async () => {
     try {
       const response = await apiClient.get(REST_NOTIFICATION_API);
+      for (let i = 0; i < response.data.length; i++) {
+        response.data[i].content = JSON.parse(response.data[i].content);
+      }
+      console.log("response.data", response.data);
       notifications.value = response.data;
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -54,29 +60,23 @@ export const useNotificationStore = defineStore("notification", () => {
 
   const SubscribeToNotifications = () => {
     const eventSource = new EventSource(REST_NOTIFICATION_API + "subscribe", {
+      header: {
+        Authorization: `Bearer ${accessToken.value}`,
+      },
       withCredentials: true,
     });
 
     eventSource.onopen = () => {
       console.log("SSE connection opened");
-      console.log(eventSource);
     };
 
-    eventSource.onmessage = (event) => {
+    eventSource.addEventListener("notification", (event) => {
       console.log("event.data", event.data);
       const newNotification = JSON.parse(event.data);
+      newNotification.content = JSON.parse(newNotification.content);
       notifications.value.push(newNotification);
       notificationCount.value += 1;
       console.log("New notification:", newNotification);
-    };
-
-    eventSource.close = () => {
-      console.log("SSE connection closed");
-    };
-
-    eventSource.addEventListener("connected", (event) => {
-      const { data: receivedConnectData } = event;
-      console.log("Connected to SSE server:", receivedConnectData);
     });
 
     eventSource.onerror = (error) => {
