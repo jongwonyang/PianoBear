@@ -27,7 +27,9 @@
         <div>악보 미리보기</div>
         <div ref="osmdContainer"></div>
         <div>악기 분리</div>
-        <div></div>
+        <div>
+          <html-midi-player ref="midiPlayer"></html-midi-player>
+        </div>
       </div>
     </div>
   </div>
@@ -37,54 +39,24 @@
 import { onMounted, ref } from "vue";
 import { uploadAudio, downloadFile } from "@/api/transcriber";
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
+import JSZip from "jszip";
+import "html-midi-player";
 
 const fileName = ref("");
 const file = ref(null);
 const fileInput = ref(null);
 const osmdContainer = ref(null);
+const midiPlayer = ref(null);
+
+let osmd = null;
 
 onMounted(() => {
-  // const response = await apiClient.get("/transcriber/download?path=temp_files/a93dd3af-0e0d-4d1b-a6d4-8415a69f359a_piano.mxl", {
-  //           responseType: 'blob', // 파일을 Blob으로 받음
-  //       });
+  osmd = new OpenSheetMusicDisplay(osmdContainer.value);
 
-  //       console.log(response);
-
-  //       const blob = new Blob([response.data], { type: response.data.type });
-  //       const link = document.createElement('a');
-  //       link.href = window.URL.createObjectURL(blob);
-  //       link.download = "test.mxl";
-
-  //       // 링크를 클릭하여 다운로드 실행
-  //       link.click();
-
-  //       // 메모리 해제
-  //       window.URL.revokeObjectURL(link.href);
-
-
-
-  // let osmd = new OpenSheetMusicDisplay(osmdContainer.value);
-  // osmd.setOptions({
-  //   backend: "svg",
-  //   drawingParameters: "compacttight" // don't display title, composer etc., smaller margins
-  // });
-
-  // const response = await apiClient.get("/transcriber/download?path=temp_files/a93dd3af-0e0d-4d1b-a6d4-8415a69f359a_piano.mxl", {
-  //           responseType: 'blob', // 파일을 Blob으로 받음
-  //       });
-  // console.log(response)
-  // const blob = new Blob([response.data]);
-  // console.log(blob);
-  // const url = URL.createObjectURL(blob);
-  // console.log(url);
-
-  // osmd
-  //   .load(
-  //     url
-  //   )
-  //   .then(function () {
-  //     osmd.render();
-  //   });
+  osmd.setOptions({
+    backend: "svg",
+    drawingParameters: "compacttight" // don't display title, composer etc., smaller margins
+  });
 });
 
 const triggerFileInput = () => {
@@ -124,26 +96,32 @@ const uploadFile = async () => {
 
   alert("업로드 완료");
   
-  const filePath = uploadResp.data["piano_mxl"];
+  const pianoXmlPath = uploadResp.data["piano_mxl"];
+  const allMidiPath = uploadResp.data["all_midi"];
+  const pianoMidiPath = uploadResp.data["piano_midi"];
+  const otherMidiPath = uploadResp.data["other_inst_midi"];
 
-  const downloadResp = await downloadFile(filePath);
-
-  const blob = new Blob([downloadResp.data]);
-  
-  const url = URL.createObjectURL(blob);
-
-  const osmd = new OpenSheetMusicDisplay(osmdContainer.value);
-
-  osmd.setOptions({
-    backend: "svg",
-    drawingParameters: "compacttight" // don't display title, composer etc., smaller margins
-  });
-
-  osmd
-    .load(url)
-    .then(function () {
-      osmd.render();
+  downloadFile(pianoXmlPath)
+    .then(res => JSZip.loadAsync(res.data))
+    .then(zip => {
+      const musicXmlFile = Object.keys(zip.files).find((filename) => {
+        return filename.endsWith(".xml") || filename.endsWith(".musicxml");
+      });
+      if (musicXmlFile) {
+        return zip.files[musicXmlFile].async("text");
+      } else {
+        throw new Error("No MusicXML file found in MXL archive.");
+      }
+    })
+    .then(content => {
+      osmd.load(content).then(() => osmd.render());
+    })
+    .catch(error => {
+      console.log("Error loading MXL file: ", error);
     });
+
+  downloadFile(allMidiPath)
+    .then(res => console.log(res));
 };
 </script>
 

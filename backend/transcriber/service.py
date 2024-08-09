@@ -1,8 +1,5 @@
-# utils.py
+# service.py
 
-import os
-import zipfile
-import shutil
 import note_seq
 from inference_model import InferenceModel
 from note_seq.protobuf import music_pb2
@@ -15,7 +12,7 @@ def load_audio(audio_path, sample_rate=SAMPLE_RATE):
         audio_file = f.read()
     return note_seq.audio_io.wav_data_to_samples_librosa(audio_file, sample_rate=sample_rate)
 
-def predict(audio_path, checkpoint_path, model_type='mt3'):
+def _predict(audio_path, checkpoint_path, model_type='mt3'):
     audio = load_audio(audio_path)
     inference_model = InferenceModel(checkpoint_path, model_type)
     est_ns = inference_model(audio)
@@ -81,47 +78,5 @@ def midi_to_mxl(midi_path, mxl_output_path):
         midi_path (str): 입력 MIDI 파일 경로.
         mxl_output_path (str): 출력 MXL 파일 경로.
     """
-    # MIDI 파일을 읽어서 Music21 스트림으로 변환
     midi = music21.converter.parse(midi_path)
-    
-    # MXL 파일로 저장
-    midi.write('mxl', fp=mxl_output_path)
-    
-    # MXL 파일을 압축 해제할 임시 디렉토리 생성
-    temp_dir = os.path.join(os.path.dirname(mxl_output_path), 'temp_mxl')
-    os.makedirs(temp_dir, exist_ok=True)
-
-    # MXL 파일 압축 해제
-    with zipfile.ZipFile(mxl_output_path, 'r') as zip_ref:
-        zip_ref.extractall(temp_dir)
-
-    # MusicXML 파일 찾기 (보통 .xml 확장자)
-    xml_file_path = None
-    for root, dirs, files in os.walk(temp_dir):
-        for file in files:
-            if file.endswith('.xml'):
-                xml_file_path = os.path.join(root, file)
-                break
-
-    # XML 파일의 첫 번째 줄 수정
-    if xml_file_path:
-        with open(xml_file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
-
-        # 첫 줄이 "<?xml version="1.0" encoding="utf-8"?>"라면 수정
-        if lines[0].strip() == '<?xml version="1.0" encoding="utf-8"?>':
-            lines[0] = '<?xml version="1.0" encoding="UTF-8"?>\n'
-
-        # 수정된 내용을 다시 저장
-        with open(xml_file_path, 'w', encoding='utf-8') as file:
-            file.writelines(lines)
-
-    # 수정된 XML 파일을 포함하여 MXL 파일로 다시 압축
-    with zipfile.ZipFile(mxl_output_path, 'w', zipfile.ZIP_DEFLATED) as zip_ref:
-        for foldername, subfolders, filenames in os.walk(temp_dir):
-            for filename in filenames:
-                file_path = os.path.join(foldername, filename)
-                zip_ref.write(file_path, os.path.relpath(file_path, temp_dir))
-
-    # 임시 디렉토리 삭제
-    shutil.rmtree(temp_dir)
+    midi.write("mxl", mxl_output_path)

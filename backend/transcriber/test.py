@@ -1,27 +1,42 @@
 # test.py
 
-import warnings
-warnings.filterwarnings("ignore")
+import os
+import music21
 
-from service import predict, split_piano_other_ns, ns_to_pretty_midi, save_pretty_midi
-from service import midi_to_mxl
+from service import load_audio, ns_to_pretty_midi, predict, save_pretty_midi, split_piano_other_ns
 
-def test():
-    audio_path = './temp_files/Sparkle (Instrumental Only).wav'
-    checkpoint_path = 'checkpoints/mt3/'
-    est_ns = predict(audio_path, checkpoint_path)
-    piano_ns, other_ns = split_piano_other_ns(est_ns)
+AUDIO_PATH = "temp_files/Chopsticks.wav"
+CP_PATH = "checkpoints/mt3/"
+MIDI_PATH = "temp_files/Chopsticks.mid"
 
-    all_midi = ns_to_pretty_midi(est_ns)
-    piano_midi = ns_to_pretty_midi(piano_ns)
-    other_midi = ns_to_pretty_midi(other_ns)
+def midi_to_musicxml_small_utf(midi_path, out_path):
+    midi = music21.converter.parse(midi_path)
+    midi.write("musicxml", out_path)
 
-    save_pretty_midi(all_midi, 'temp_files/all.mid')
-    save_pretty_midi(piano_midi, 'temp_files/piano.mid')
-    save_pretty_midi(other_midi, 'temp_files/other.mid')
-    midi_to_mxl('temp_files/all.mid', 'temp_files/all.musicxml')
-    midi_to_mxl('temp_files/piano.mid', 'temp_files/piano.musicxml')
-    midi_to_mxl('temp_files/other.mid', 'temp_files/other.musicxml')
+def midi_to_musicxml_capital_utf(midi_path, out_path):
+    midi = music21.converter.parse(midi_path)
+    midi.write("musicxml", out_path)
+
+    with open(out_path, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+    
+    lines[0] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+
+    with open(out_path, "w", encoding="utf-8") as file:
+        file.writelines(lines)
+
+def midi_to_mxl_music21(midi_path, out_path):
+    midi = music21.converter.parse(midi_path)
+    midi.write("mxl", out_path)
 
 if __name__ == "__main__":
-    test()
+    if not os.path.isfile(MIDI_PATH):
+        ns = predict(AUDIO_PATH, CP_PATH)
+        pinao_ns, _ = split_piano_other_ns(ns)
+        piano_midi = ns_to_pretty_midi(pinao_ns)
+        save_pretty_midi(piano_midi, MIDI_PATH)
+
+    midi_to_musicxml_small_utf(MIDI_PATH, "temp_files/small_utf.musicxml")
+    midi_to_musicxml_capital_utf(MIDI_PATH, "temp_files/capital_utf.musicxml")
+    midi_to_mxl_music21(MIDI_PATH, "temp_files/music21_mxl.mxl")
+

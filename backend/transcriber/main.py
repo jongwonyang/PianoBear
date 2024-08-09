@@ -1,15 +1,32 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from contextlib import asynccontextmanager
 import os
-import shutil
-from service import predict, ns_to_pretty_midi, save_pretty_midi, split_piano_other_ns, midi_to_mxl
-from tempfile import NamedTemporaryFile
-from fastapi.middleware.cors import CORSMiddleware
-import uuid
-import threading
 import time
+import uuid
+import shutil
+import mimetypes
+import threading
 
-app = FastAPI()
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from inference_model_manager import InferenceModelManager
+from service import ns_to_pretty_midi, save_pretty_midi, split_piano_other_ns, midi_to_mxl
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 서버 시작 시
+    inference_model_manager = InferenceModelManager(checkpoint_path="checkpoints/mt3/")
+    inference_model_manager.load_model()
+
+    # 앱에 모델을 추가
+    app.state.inference_model_manager = inference_model_manager
+
+    yield
+
+    # 서버 종료 시 (리소스 해제 등)
+    del app.state.inference_model_manager
+
+app = FastAPI(lifespan=lifespan)
 
 # CORS 설정
 app.add_middleware(
@@ -49,8 +66,7 @@ async def upload_audio(file: UploadFile = File(...)):
         with open(temp_audio_file, "wb") as f:
             shutil.copyfileobj(file.file, f)
         
-        checkpoint_path = 'checkpoints/mt3/'  # 체크포인트 경로 설정
-        original_ns = predict(temp_audio_file, checkpoint_path)
+        original_ns = app.state.inference_model_manager.predict(temp_audio_file)
 
         # 원본 MIDI 파일 저장
         all_midi_path = os.path.join(UPLOAD_DIR, unique_filename + "_all.mid")
@@ -85,4 +101,13 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.get("/download/")
 async def download_file(file_path: str):
-    return FileResponse(file_path, media_type='application/octet-stream', filename=file_path.split("/")[-1])
+    # 파일이 존재하는지 확인
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # 확장자에 따른 media_type 추론
+    media_type, _ = mimetypes.guess_type(file_path)
+    if media_type is None:
+        media_type = 'application/octet-stream'  # 기본값: 알 수 없는 파일 형식에 대한 일반적인 타입
+
+    return FileResponse(file_path, media_type=media_type, filename=os.path.basename(file_path))
