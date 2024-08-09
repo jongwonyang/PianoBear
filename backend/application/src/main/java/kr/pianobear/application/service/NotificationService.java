@@ -74,8 +74,6 @@ public class NotificationService {
         return emitter;
     }
 
-
-
     private void sendNotificationToClients(NotificationDTO notification) {
         List<SseEmitter> deadEmitters = new ArrayList<>();
         for (SseEmitter emitter : emitters) {
