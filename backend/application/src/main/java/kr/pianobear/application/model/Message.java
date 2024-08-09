@@ -22,6 +22,10 @@ public class Message {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
+    @ManyToOne
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
+
     private String content;
     private LocalDateTime timestamp;
 
