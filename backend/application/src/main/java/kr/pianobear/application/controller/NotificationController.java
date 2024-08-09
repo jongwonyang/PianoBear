@@ -29,14 +29,23 @@ public class NotificationController {
     @Operation(summary = "알림 받는 설정", description = "subscribe를 통해 알림을 받을 수 있게 된다")
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
-        SseEmitter emitter = notificationService.addEmitter(connectionTimeOut);
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        Member receiver = new Member(currentUserId);
+        SseEmitter emitter = notificationService.addEmitter(receiver, connectionTimeOut);
+
+        // 연결 시점에 밀린 알림을 전송합니다.
+        List<NotificationDTO> notifications = notificationService.getNotifications(receiver);
         try {
+            for (NotificationDTO notification : notifications) {
+                emitter.send(SseEmitter.event().name("notification").data(notification));
+            }
             emitter.send(SseEmitter.event()
                     .name("connect")
                     .data("connected!"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return emitter;
     }
 

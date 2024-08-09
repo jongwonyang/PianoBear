@@ -47,12 +47,24 @@ public class NotificationService {
         notificationRepository.deleteAll(notifications);
     }
 
-    public SseEmitter addEmitter(int connectionTimeOut) {
+    public SseEmitter addEmitter(Member receiver, int connectionTimeOut) {
         SseEmitter emitter = new SseEmitter(connectionTimeOut * 1000L);
         emitters.add(emitter);
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
         emitter.onError((e) -> emitters.remove(emitter));
+
+        // 클라이언트가 연결될 때 밀린 알림 전송
+        List<NotificationDTO> missedNotifications = getNotifications(receiver);
+        for (NotificationDTO notification : missedNotifications) {
+            try {
+                emitter.send(SseEmitter.event().name("notification").data(notification));
+            } catch (IOException e) {
+                // 전송 실패 시 해당 emitter 제거
+                emitters.remove(emitter);
+            }
+        }
+
         return emitter;
     }
 
