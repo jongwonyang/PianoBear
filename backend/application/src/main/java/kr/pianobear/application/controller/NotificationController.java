@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.NotificationDTO;
 import kr.pianobear.application.model.Member;
+import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.service.NotificationService;
 import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,18 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private MemberRepository memberRepository;
+
     @Value("${jwt.access-expiration-time}")
     private int connectionTimeOut;
 
-    @Operation(summary = "알림 받는 설정", description = "subscribe를 통해 알림을 받을 수 있게 된다")
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
         String currentUserId = SecurityUtil.getCurrentUserId();
-        Member receiver = new Member(currentUserId);
+        Member receiver = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Member not found")); // 데이터베이스에서 Member를 조회
+
         SseEmitter emitter = notificationService.addEmitter(receiver, connectionTimeOut);
 
         // 연결 시점에 밀린 알림을 전송합니다.
@@ -48,6 +53,7 @@ public class NotificationController {
 
         return emitter;
     }
+
 
     @Operation(summary = "알림 불러오기", description = "받는 사용자의 알림 목록을 불러온다")
     @GetMapping("/")
