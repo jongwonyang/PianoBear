@@ -6,6 +6,7 @@ const DEFAULT_OUTPUT = "local";
 const PLAYER_PLAYING = 1;
 const notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
 const LOCALSTORAGE_KEY = "musicxml-player";
+const challenge = ref(false);
 export const num = ref([]);
 
 const g_state = {
@@ -21,10 +22,10 @@ const g_state = {
   timingObject: null,
 };
 
-export async function createPlayer() {
+export async function createPlayer(muteCheck) {
   // Destroy previous player.
   g_state.player?.destroy();
-
+  g_state.options.mute = muteCheck ? true : false;
   // Set the player parameters.
   const options = g_state.options;
 
@@ -135,7 +136,7 @@ function createOutput(output) {
 }
 
 function handlePlayPauseKey(e) {
-  if (e.key === " " && g_state.player) {
+  if (!challenge.value && e.key === " " && g_state.player) {
     e.preventDefault();
     if (g_state.player.state === PLAYER_PLAYING) {
       g_state.timingObject?.update({ velocity: 0 });
@@ -187,20 +188,6 @@ export async function pageLoad() {
   }
   g_state.params["output"] = DEFAULT_OUTPUT; // Too complicated to wait for MIDI output
 
-  // Build the UI.
-  document.getElementById("play").addEventListener("click", async () => {
-    g_state.timingObject?.update({
-      velocity: Number(document.getElementById("velocity").value),
-    });
-  });
-  document.getElementById("pause").addEventListener("click", async () => {
-    g_state.timingObject?.update({ velocity: 0 });
-    // g_state.player._output._player.queueWaveTable(60, 3);
-    console.log(g_state.player._output._player);
-  });
-  document.getElementById("rewind").addEventListener("click", async () => {
-    g_state.timingObject?.update({ position: 0, velocity: 0 });
-  });
   document.querySelectorAll(".velo").forEach((e) => {
     e.addEventListener("click", handleVelocityChange);
   });
@@ -269,6 +256,24 @@ export const osmd = async function (container, musicXml) {
   await k.load(container, musicXml, options);
 };
 
+export const chaingingChallenge = function (state) {
+  challenge.value = state;
+};
+
+export const stateChange = function (state) {
+  if (state === "play") {
+    g_state.timingObject?.update({
+      velocity: Number(document.getElementById("velocity").value),
+    });
+  } else if (state === "pause") {
+    g_state.timingObject?.update({ velocity: 0 });
+    // g_state.player._output._player.queueWaveTable(60, 3);
+    console.log(g_state.player);
+  } else if (state === "rewind") {
+    g_state.timingObject?.update({ position: 0, velocity: 0 });
+  }
+};
+
 export default {
   pageLoad,
   sheetSelect,
@@ -276,4 +281,6 @@ export default {
   num,
   reset,
   osmd,
+  chaingingChallenge,
+  stateChange,
 };
