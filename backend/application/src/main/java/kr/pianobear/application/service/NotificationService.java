@@ -5,10 +5,12 @@ import kr.pianobear.application.model.Member;
 import kr.pianobear.application.model.Notification;
 import kr.pianobear.application.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
@@ -20,12 +22,14 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>(); // 사용자 ID와 SseEmitter 매핑
+//
+private final List<SseEmitter> emitters = new ArrayList<>();
 
     public void createNotification(Member receiver, String type, String content) {
         Notification notification = new Notification(receiver, type, content);
         notificationRepository.save(notification);
-        sendNotificationToClient(receiver.getId(), NotificationDTO.fromNotification(notification));
+//        sendNotificationToClient(receiver.getId(), NotificationDTO.fromNotification(notification));
+        sendNotificationToClients(NotificationDTO.fromNotification(notification));
     }
 
     public List<NotificationDTO> getNotifications(Member receiver) {
@@ -50,7 +54,8 @@ public class NotificationService {
 
     public SseEmitter addEmitter(Member receiver, int connectionTimeOut) {
         SseEmitter emitter = new SseEmitter(connectionTimeOut * 1000L);
-        emitters.put(receiver.getId(), emitter);
+//        emitters.put(receiver.getId(), emitter);
+        emitters.add(emitter);
 
         emitter.onCompletion(() -> {
             emitters.remove(receiver.getId());
@@ -82,31 +87,44 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendNotificationToClient(String userId, NotificationDTO notification) {
-        SseEmitter emitter = emitters.get(userId);
-
-        if (emitter != null) {
+    @Async
+    public void sendNotificationToClients(NotificationDTO notification) {
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+        for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event().name("notification").data(notification));
-                System.out.println("Notification sent to user: " + userId);
             } catch (IOException e) {
-                emitters.remove(userId);
-                System.err.println("Failed to send notification to user: " + userId + ". Connection might be closed.");
+                deadEmitters.add(emitter);
             }
-        } else {
-            System.out.println("No active connection found for user: " + userId);
         }
+        emitters.removeAll(deadEmitters);
     }
+//    public void sendNotificationToClient(String userId, NotificationDTO notification) {
+////        SseEmitter emitter = emitters.get(userId);
+//        List<SseEmitter> deadEmitters = new ArrayList<>();
+//        if (emitter != null) {
+//            try {
+//                emitter.send(SseEmitter.event().name("notification").data(notification));
+//                System.out.println("Notification sent to user: " + userId);
+//            } catch (IOException e) {
+//                emitters.remove(userId);
+//                System.err.println("Failed to send notification to user: " + userId + ". Connection might be closed.");
+//            }
+//        } else {
+//            System.out.println("No active connection found for user: " + userId);
+//        }
+//    }
 
 
     public void sendNotificationCountUpdate(long count) {
-        for (Map.Entry<String, SseEmitter> entry : emitters.entrySet()) {
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+        for (SseEmitter emitter : emitters) {
             try {
-                entry.getValue().send(SseEmitter.event().name("notificationCount").data(count));
+                emitter.send(SseEmitter.event().name("notificationCount").data(count));
             } catch (IOException e) {
-                emitters.remove(entry.getKey());
-                System.err.println("Failed to send notification count update to user: " + entry.getKey());
+                deadEmitters.add(emitter);
             }
         }
+        emitters.removeAll(deadEmitters);
     }
 }

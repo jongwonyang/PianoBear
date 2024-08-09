@@ -12,6 +12,7 @@ import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -58,8 +59,8 @@ public class NotificationController {
 //        return emitter;
 //    }
 
-
     @Operation(summary = "알림 받는 설정", description = "subscribe를 통해 알림을 받을 수 있게 된다")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
         // 현재 사용자 ID를 가져옴
