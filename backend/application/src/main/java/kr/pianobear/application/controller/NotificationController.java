@@ -2,8 +2,8 @@ package kr.pianobear.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.pianobear.application.dto.NotificationDTO;
 import kr.pianobear.application.model.Member;
-import kr.pianobear.application.model.Notification;
 import kr.pianobear.application.service.NotificationService;
 import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,37 +23,26 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
-    private final List<SseEmitter> emitters = new ArrayList<>();
-
     @Value("${jwt.access-expiration-time}")
     private int connectionTimeOut;
 
-    @Operation(summary = "알림 받는 설정", description = "suscribe를 통해 알림을 받을 수 있게 된다")
-    @GetMapping(value="/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE )
-    public SseEmitter subscribe() throws Exception {
-        SseEmitter emitter = new SseEmitter(connectionTimeOut*1000L);
-        emitters.add(emitter);
-
+    @Operation(summary = "알림 받는 설정", description = "subscribe를 통해 알림을 받을 수 있게 된다")
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe() {
+        SseEmitter emitter = notificationService.addEmitter(connectionTimeOut);
         try {
-                emitter.send(SseEmitter.event()
-                        .name("connect")
-                        .data("connected!"));
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("connected!"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError((e) -> emitters.remove(emitter));
-
-
-
         return emitter;
     }
 
     @Operation(summary = "알림 불러오기", description = "받는 사용자의 알림 목록을 불러온다")
     @GetMapping("/")
-    public List<Notification> getNotifications() {
+    public List<NotificationDTO> getNotifications() {
         String currentUserId = SecurityUtil.getCurrentUserId();
         Member receiver = new Member(currentUserId);
         return notificationService.getNotifications(receiver);
@@ -80,18 +68,5 @@ public class NotificationController {
         String currentUserId = SecurityUtil.getCurrentUserId();
         Member receiver = new Member(currentUserId);
         notificationService.clearNotifications(receiver);
-    }
-
-    @Operation(summary = "알림을 보낸다", description = "service에서 사용")
-    public void sendNotificationToClients(String message) {
-        List<SseEmitter> deadEmitters = new ArrayList<>();
-        for (SseEmitter emitter : emitters) {
-            try {
-                emitter.send(SseEmitter.event().name("notification").data(message));
-            } catch (IOException e) {
-                deadEmitters.add(emitter);
-            }
-        }
-        emitters.removeAll(deadEmitters);
     }
 }

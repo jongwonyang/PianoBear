@@ -16,6 +16,8 @@ services:
       ENV_JWT_SECRET: ${JWT_SECRET}
       ENV_APP_SERVICE_URL: ${APP_SERVICE_URL}
       ENV_APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS}
+      ENV_OPENVIDU_URL: ${OPENVIDU_URL}
+      ENV_OPENVIDU_SECRET: ${OPENVIDU_SECRET}
     depends_on:
       - postgres-server
       - redis-server
@@ -43,8 +45,8 @@ services:
   postgres-server:
     image: postgres:latest
     environment:
-      POSTGRES_USER: ${ENV_SPRING_DB_USERNAME}
-      POSTGRES_PASSWORD: ${ENV_SPRING_DB_PASSWORD}
+      POSTGRES_USER: ${SPRING_DB_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DB_PASSWORD}
       POSTGRES_DB: pianobear
     ports:
       - "5432:5432"
