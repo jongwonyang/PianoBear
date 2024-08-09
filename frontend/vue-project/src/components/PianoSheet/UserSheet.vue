@@ -17,7 +17,7 @@
             >
               <div class="book">
                 <img src="@/assets/images/blur.png" alt="Book Image" />
-                <!-- <img :src="{{ store.userSheetList.value.musicImg }}" alt="" /> -->
+                <!-- <img :src="imageUrl" alt="Music" v-if="imageUrl" /> -->
               </div>
             </router-link>
           </div>
@@ -44,13 +44,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
 const bookCount = ref<number>(0);
 const pageCount = ref<number>(0);
 const currentSortOption = ref<number>(0);
+const imageUrl = store.thumbnailImg;
 
 const maxCount = computed<number>(() => Math.floor((store.userSheetList.length - 1) / 10));
 const canGoBack = computed<boolean>(() => bookCount.value > 0);
@@ -69,6 +71,17 @@ const upCount = (): void => {
     pageCount.value += 1;
   }
 };
+
+// const fileteredList = computed(() => {
+//   if (store.serachText.value) {
+//     // 만약 검색창의 값이 비어있지 않다면 리턴을 해라
+//     return store.userSheetList.value.filter((sheet) => {
+//       return sheet.subject.includes(store.serachText.value);
+//     });
+//   } else {
+//     return store.userSheetList.value;
+//   }
+// });
 
 const userFavoriteList = computed(() => store.userFavoriteList);
 const userPracticeList = computed(() => store.userPracticeList);
@@ -94,6 +107,16 @@ watch(
   (newSortOption) => {
     currentSortOption.value = newSortOption;
   }
+);
+
+watch(
+  currentList,
+  (newList) => {
+    if (newList.length > 0) {
+      store.thumbnail(newList[0].id);
+    }
+  },
+  { immediate: true }
 );
 </script>
 

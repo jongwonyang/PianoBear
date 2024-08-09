@@ -1,11 +1,19 @@
 <template>
-    <h2>{{ route.params.id }}번째 악보 도전</h2>
-
-    
-
+  <div>
+    <button @click="openModal">모달 열기</button>
+    <ResultModal v-if="store.isResultModalOpen" />
+  </div>
 </template>
-<script setup>
-import { useRoute } from 'vue-router';
 
-const route = useRoute();
+<script setup lang="ts">
+import { ref } from "vue";
+import { usePianoSheetStore } from "@/stores/pianosheet";
+import ResultModal from "@/components/PianoSheet/ResultModal.vue";
+
+const store = usePianoSheetStore();
+
+const openModal = () => {
+  store.isResultModalOpen = true;
+  console.log(store.isResultModalOpen);
+};
 </script>
