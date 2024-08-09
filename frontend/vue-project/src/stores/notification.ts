@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import { useUserStore } from "./user";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
+import EventSourcePolyFill from "event-source-polyfill";
 import { useRouter } from "vue-router";
 
 const REST_NOTIFICATION_API =
@@ -59,12 +60,15 @@ export const useNotificationStore = defineStore("notification", () => {
   };
 
   const SubscribeToNotifications = () => {
-    const eventSource = new EventSource(REST_NOTIFICATION_API + "subscribe", {
-      header: {
-        Authorization: `Bearer ${accessToken.value}`,
-      },
-      withCredentials: true,
-    });
+    const eventSource = new EventSourcePolyFill(
+      REST_NOTIFICATION_API + "subscribe",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        withCredentials: true,
+      }
+    );
 
     eventSource.onopen = () => {
       console.log("SSE connection opened");
