@@ -2,6 +2,7 @@
 
 import os
 import zipfile
+import shutil
 import note_seq
 from inference_model import InferenceModel
 from note_seq.protobuf import music_pb2
@@ -72,37 +73,55 @@ def save_pretty_midi(pretty_midi_obj, output_path):
     """
     pretty_midi_obj.write(output_path)
 
-def midi_to_mxl(midi_path, musicxml_output_path):
+def midi_to_mxl(midi_path, mxl_output_path):
     """
     MIDI 파일을 압축된 MusicXML (.mxl) 형식으로 변환하여 저장합니다.
-
+    
     Args:
         midi_path (str): 입력 MIDI 파일 경로.
-        musicxml_output_path (str): 출력 MXL 파일 경로.
+        mxl_output_path (str): 출력 MXL 파일 경로.
     """
     # MIDI 파일을 읽어서 Music21 스트림으로 변환
     midi = music21.converter.parse(midi_path)
     
-    # MusicXML로 변환하여 임시 .xml 파일로 저장
-    temp_xml_path = musicxml_output_path.replace('.mxl', '.xml')
-    midi.write('musicxml', fp=temp_xml_path)
+    # MXL 파일로 저장
+    midi.write('mxl', fp=mxl_output_path)
     
-    # XML 파일을 읽어 DTD 선언 제거
-    with open(temp_xml_path, 'r', encoding='utf-8') as file:
-        xml_content = file.read()
-    
-    # TODO: XML 파서에서 DOCTYPE 선언부 오류 발생 (일단 삭제처리)
-    xml_content = xml_content.replace(
-        '<!DOCTYPE score-partwise  PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">',
-        ''
-    )
-    
-    with open(temp_xml_path, 'w', encoding='utf-8') as file:
-        file.write(xml_content)
-    
-    # .xml 파일을 .mxl로 압축
-    with zipfile.ZipFile(musicxml_output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        zf.write(temp_xml_path, os.path.basename(temp_xml_path))
-    
-    # 임시 .xml 파일 삭제
-    os.remove(temp_xml_path)
+    # MXL 파일을 압축 해제할 임시 디렉토리 생성
+    temp_dir = os.path.join(os.path.dirname(mxl_output_path), 'temp_mxl')
+    os.makedirs(temp_dir, exist_ok=True)
+
+    # MXL 파일 압축 해제
+    with zipfile.ZipFile(mxl_output_path, 'r') as zip_ref:
+        zip_ref.extractall(temp_dir)
+
+    # MusicXML 파일 찾기 (보통 .xml 확장자)
+    xml_file_path = None
+    for root, dirs, files in os.walk(temp_dir):
+        for file in files:
+            if file.endswith('.xml'):
+                xml_file_path = os.path.join(root, file)
+                break
+
+    # XML 파일의 첫 번째 줄 수정
+    if xml_file_path:
+        with open(xml_file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        # 첫 줄이 "<?xml version="1.0" encoding="utf-8"?>"라면 수정
+        if lines[0].strip() == '<?xml version="1.0" encoding="utf-8"?>':
+            lines[0] = '<?xml version="1.0" encoding="UTF-8"?>\n'
+
+        # 수정된 내용을 다시 저장
+        with open(xml_file_path, 'w', encoding='utf-8') as file:
+            file.writelines(lines)
+
+    # 수정된 XML 파일을 포함하여 MXL 파일로 다시 압축
+    with zipfile.ZipFile(mxl_output_path, 'w', zipfile.ZIP_DEFLATED) as zip_ref:
+        for foldername, subfolders, filenames in os.walk(temp_dir):
+            for filename in filenames:
+                file_path = os.path.join(foldername, filename)
+                zip_ref.write(file_path, os.path.relpath(file_path, temp_dir))
+
+    # 임시 디렉토리 삭제
+    shutil.rmtree(temp_dir)

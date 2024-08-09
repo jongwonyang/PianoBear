@@ -85,4 +85,4 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.get("/download/")
 async def download_file(file_path: str):
-    return FileResponse(file_path)
+    return FileResponse(file_path, media_type='application/octet-stream', filename=file_path.split("/")[-1])
