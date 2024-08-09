@@ -70,6 +70,10 @@ export const useNotificationStore = defineStore("notification", () => {
       console.log("New notification:", newNotification);
     };
 
+    eventSource.close = () => {
+      console.log("SSE connection closed");
+    };
+
     eventSource.addEventListener("connected", (event) => {
       const { data: receivedConnectData } = event;
       console.log("Connected to SSE server:", receivedConnectData);
