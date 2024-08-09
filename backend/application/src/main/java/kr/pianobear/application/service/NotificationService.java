@@ -98,6 +98,7 @@ public class NotificationService {
         }
     }
 
+
     public void sendNotificationCountUpdate(long count) {
         for (Map.Entry<String, SseEmitter> entry : emitters.entrySet()) {
             try {
