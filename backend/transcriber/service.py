@@ -91,6 +91,7 @@ def midi_to_mxl(midi_path, musicxml_output_path):
     with open(temp_xml_path, 'r', encoding='utf-8') as file:
         xml_content = file.read()
     
+    # TODO: XML 파서에서 DOCTYPE 선언부 오류 발생 (일단 삭제처리)
     xml_content = xml_content.replace(
         '<!DOCTYPE score-partwise  PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">',
         ''
