@@ -5,6 +5,7 @@ import kr.pianobear.application.model.Member;
 import kr.pianobear.application.model.Notification;
 import kr.pianobear.application.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -12,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class NotificationService {
@@ -19,11 +22,13 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    private final List<SseEmitter> emitters = new ArrayList<>();
+//
+private final List<SseEmitter> emitters = new ArrayList<>();
 
     public void createNotification(Member receiver, String type, String content) {
         Notification notification = new Notification(receiver, type, content);
         notificationRepository.save(notification);
+//        sendNotificationToClient(receiver.getId(), NotificationDTO.fromNotification(notification));
         sendNotificationToClients(NotificationDTO.fromNotification(notification));
     }
 
@@ -49,13 +54,22 @@ public class NotificationService {
 
     public SseEmitter addEmitter(Member receiver, int connectionTimeOut) {
         SseEmitter emitter = new SseEmitter(connectionTimeOut * 1000L);
+//        emitters.put(receiver.getId(), emitter);
         emitters.add(emitter);
 
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
+        emitter.onCompletion(() -> {
+            emitters.remove(receiver.getId());
+            System.out.println("Emitter completed for user: " + receiver.getId());
+        });
+
+        emitter.onTimeout(() -> {
+            emitters.remove(receiver.getId());
+            System.out.println("Emitter timed out for user: " + receiver.getId());
+        });
+
         emitter.onError((e) -> {
             System.err.println("SSE connection error: " + e.getMessage());
-            emitters.remove(emitter);
+            emitters.remove(receiver.getId());
         });
 
         // 클라이언트가 연결될 때 밀린 알림 전송
@@ -64,9 +78,8 @@ public class NotificationService {
             try {
                 emitter.send(SseEmitter.event().name("notification").data(notification));
             } catch (IOException e) {
-                // 전송 실패 시 해당 emitter 제거 및 로그 기록
                 System.err.println("Failed to send missed notification: " + e.getMessage());
-                emitters.remove(emitter);
+                emitters.remove(receiver.getId());
                 break;
             }
         }
@@ -74,7 +87,8 @@ public class NotificationService {
         return emitter;
     }
 
-    private void sendNotificationToClients(NotificationDTO notification) {
+    @Async
+    public void sendNotificationToClients(NotificationDTO notification) {
         List<SseEmitter> deadEmitters = new ArrayList<>();
         for (SseEmitter emitter : emitters) {
             try {
@@ -85,6 +99,22 @@ public class NotificationService {
         }
         emitters.removeAll(deadEmitters);
     }
+//    public void sendNotificationToClient(String userId, NotificationDTO notification) {
+////        SseEmitter emitter = emitters.get(userId);
+//        List<SseEmitter> deadEmitters = new ArrayList<>();
+//        if (emitter != null) {
+//            try {
+//                emitter.send(SseEmitter.event().name("notification").data(notification));
+//                System.out.println("Notification sent to user: " + userId);
+//            } catch (IOException e) {
+//                emitters.remove(userId);
+//                System.err.println("Failed to send notification to user: " + userId + ". Connection might be closed.");
+//            }
+//        } else {
+//            System.out.println("No active connection found for user: " + userId);
+//        }
+//    }
+
 
     public void sendNotificationCountUpdate(long count) {
         List<SseEmitter> deadEmitters = new ArrayList<>();
