@@ -166,10 +166,21 @@ public class MusicXmlModifierService {
 
             // <note> 요소 출력 및 수정
             NodeList noteList = doc.getElementsByTagName("note");
+            Element lyric = null;
+            boolean isChord = false;
+
             for (int i = 0; i < noteList.getLength(); i++) {
                 Node note = noteList.item(i);
                 if (note.getNodeType() == Node.ELEMENT_NODE) {
                     Element noteElement = (Element) note;
+
+                    // Check if the note is part of a chord
+                    NodeList chordList = noteElement.getElementsByTagName("chord");
+                    if (chordList.getLength() > 0) {
+                        isChord = true;
+                    } else {
+                        isChord = false;
+                    }
 
                     NodeList pitchList = noteElement.getElementsByTagName("pitch");
                     if (pitchList.getLength() > 0) {
@@ -178,22 +189,47 @@ public class MusicXmlModifierService {
                         String syllable = noteToSyllable.get(step);
 
                         if (syllable != null) {
-                            Element lyric = doc.createElement("lyric");
+                            if (isChord) {
+                                if (lyric == null) {
+                                    // 새로운 lyric 요소 생성
+                                    lyric = doc.createElement("lyric");
+                                    Element syllabic = doc.createElement("syllabic");
+                                    syllabic.setTextContent("single");
+                                    lyric.appendChild(syllabic);
 
-                            Element syllabic = doc.createElement("syllabic");
-                            syllabic.setTextContent("single");
-                            lyric.appendChild(syllabic);
+                                    Element text = doc.createElement("text");
+                                    text.setTextContent(syllable);
+                                    lyric.appendChild(text);
 
-                            Element text = doc.createElement("text");
-                            text.setTextContent(syllable);
-                            lyric.appendChild(text);
+                                    // 필요한 속성 추가
+                                    lyric.setAttribute("default-y", "-73");  // y 위치 조정
+                                    lyric.setAttribute("name", "verse");
+                                    lyric.setAttribute("number", "1");
 
-                            // 필요한 속성 추가
-                            lyric.setAttribute("default-y", "-73");  // y 위치 조정
-                            lyric.setAttribute("name", "verse");
-                            lyric.setAttribute("number", "1");
+                                    noteElement.appendChild(lyric);
+                                } else {
+                                    // 기존 lyric 요소에 텍스트를 추가
+                                    Node textNode = lyric.getElementsByTagName("text").item(0);
+                                    textNode.setTextContent(textNode.getTextContent() + syllable);
+                                }
+                            } else {
+                                // 새로운 note에 대해 lyric 요소를 생성 (기존 lyric은 폐기)
+                                lyric = doc.createElement("lyric");
+                                Element syllabic = doc.createElement("syllabic");
+                                syllabic.setTextContent("single");
+                                lyric.appendChild(syllabic);
 
-                            noteElement.appendChild(lyric);
+                                Element text = doc.createElement("text");
+                                text.setTextContent(syllable);
+                                lyric.appendChild(text);
+
+                                // 필요한 속성 추가
+                                lyric.setAttribute("default-y", "-73");  // y 위치 조정
+                                lyric.setAttribute("name", "verse");
+                                lyric.setAttribute("number", "1");
+
+                                noteElement.appendChild(lyric);
+                            }
                         }
                     }
                 }
@@ -213,6 +249,9 @@ public class MusicXmlModifierService {
             StreamResult result = new StreamResult(new File(newFilePath));
             transformer.transform(new DOMSource(doc), result);
 
+            // 원본 XML 파일 삭제
+            Files.delete(Paths.get(xmlFilePath));
+
             // 저장된 파일을 다시 읽어서 로그로 출력하여 수정이 제대로 되었는지 확인
             String resultContent = new String(Files.readAllBytes(Paths.get(newFilePath)), StandardCharsets.UTF_8);
         } catch (Exception e) {
@@ -220,6 +259,8 @@ public class MusicXmlModifierService {
             throw new IOException("Failed to modify XML file", e);
         }
     }
+
+
 
     private void deleteDirectory(File file) throws IOException {
         if (file.isDirectory()) {
