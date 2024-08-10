@@ -15,7 +15,7 @@
         <div>점수(화려하게)</div>
       </div>
       <div class="buttons">
-        <button>공유하기</button>
+        <button @click="share">공유하기</button>
         <button @click="closeModal">닫기</button>
       </div>
     </div>
@@ -25,12 +25,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
+import { useRoute, useRouter } from "vue-router";
 
 const store = usePianoSheetStore();
+const route = useRoute();
 
 const closeModal = () => {
   store.isResultModalOpen = false;
 };
+
+const share = () => {
+  
+}
 </script>
 
 <style scoped>
