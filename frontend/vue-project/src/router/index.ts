@@ -18,7 +18,6 @@ import PianoSheetDetail from "@/views/Main/PianoSheet/PianoSheetDetail.vue";
 import PianoSheetUpload from "@/views/Main/PianoSheet/PianoSheetUpload.vue";
 import PianoPractice from "@/views/Main/PianoSheet/PianoPractice.vue";
 import PianoChallenge from "@/views/Main/PianoSheet/PianoChallenge.vue";
-import PianoChallengeResult from "@/views/Main/PianoSheet/PianoChallengeResult.vue";
 
 import Community from "@/views/Main/Community/Community.vue";
 import Communiting from "@/views/Main/Community/Communiting.vue";

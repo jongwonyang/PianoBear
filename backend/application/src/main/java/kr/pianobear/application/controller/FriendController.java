@@ -38,11 +38,25 @@ public class FriendController {
         return friendService.getFriendById(userId);
     }
 
-    @GetMapping("/requests")
-    @Operation(summary = "로그인한 계정의 친구 요청 목록 반환")
-    public List<FriendRequest> getPendingFriendRequests() {
+    @GetMapping("/requests/received")
+    @Operation(summary = "로그인한 계정에게 친구 요청한 계정 반환")
+    public List<FriendDTO> getReceivedFriendRequest() {
         String currentUserId = SecurityUtil.getCurrentUserId();
-        return friendService.getPendingFriendRequests(currentUserId);
+        return friendService.getReceivedFriendRequests(currentUserId);
+    }
+
+    @GetMapping("/requests/sent")
+    @Operation(summary = "로그인한 계정에서 친구 요청한 상대방 계정 목록 반환")
+    public List<FriendDTO> getSentFriendRequest() {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        return friendService.getSentFriendRequests(currentUserId);
+    }
+
+    @GetMapping("/requests/is-sent/{receiverId}")
+    @Operation(summary = "로그인한 계정이 대상 사용자에게 요청했는지 여부 반환")
+    public boolean getPendingFriendRequests(@PathVariable String receiverId) {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        return friendService.isExistPendingFriendRequests(currentUserId, receiverId);
     }
 
     @PostMapping("/requests/send/{receiverId}")
@@ -52,16 +66,18 @@ public class FriendController {
         friendService.sendFriendRequest(currentUserId, receiverId);
     }
 
-    @PostMapping("/requests/{requestId}/accept")
+    @PostMapping("/requests/received/{senderId}/accept")
     @Operation(summary = "지정한 친구 요청 수락")
-    public void acceptFriendRequest(@PathVariable Long requestId) {
-        friendService.acceptFriendRequest(requestId);
+    public void acceptFriendRequest(@PathVariable String senderId) {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        friendService.acceptFriendRequest(senderId, currentUserId);
     }
 
-    @PostMapping("/requests/{requestId}/reject")
+    @PostMapping("/requests/received/{senderId}/reject")
     @Operation(summary = "지정한 친구 요청 거절")
-    public void rejectFriendRequest(@PathVariable Long requestId) {
-        friendService.rejectFriendRequest(requestId);
+    public void rejectFriendRequest(@PathVariable String senderId) {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        friendService.rejectFriendRequest(senderId, currentUserId);
     }
 
 }

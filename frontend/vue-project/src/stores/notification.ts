@@ -39,7 +39,7 @@ export const useNotificationStore = defineStore("notification", () => {
     } catch (error) {
       console.error("Error fetching notification count:", error);
     }
-  };
+//   };
 
   const DeleteNotification = async (id) => {
     try {

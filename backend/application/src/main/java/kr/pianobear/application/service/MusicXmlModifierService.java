@@ -181,7 +181,8 @@ public class MusicXmlModifierService {
             String resultContent = new String(Files.readAllBytes(Paths.get(xmlFilePath)), StandardCharsets.UTF_8);
             System.out.println("Saved XML Content: " + resultContent);
         } catch (Exception e) {
-            throw new IOException("Failed to modify XML file", e);
+            e.printStackTrace();
+            throw new IOException("Failed to modify XML file");
         }
     }
 

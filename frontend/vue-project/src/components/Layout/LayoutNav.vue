@@ -100,12 +100,12 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import { useNotificationStore } from '@/stores/notification';
+// import { useNotificationStore } from '@/stores/notification';
 import { useFriendStore } from '@/stores/friend';
 
 const router = useRouter();
 const userStore = useUserStore();
-const notificationStore = useNotificationStore();
+// const notificationStore = useNotificationStore();
 const friendStore = useFriendStore();
 
 const userInfo = ref({

@@ -91,9 +91,9 @@ public class MusicTestService {
         return tests.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    public List<MusicTestDTO> getResultById(int id){
-        List<MusicTest> result = musicTestRepository.findResultById(id);
-        return result.stream().map(this::mapToDTO).collect(Collectors.toList());
+    public MusicTestDTO getResultById(int id){
+        MusicTest result = musicTestRepository.findResultById(id);
+        return mapToDTO(result);
     }
 
     private MusicTestDTO mapToDTO(MusicTest musicTest) {
