@@ -2,9 +2,123 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>상장 만들기</title>
+    <title>상장</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: "Arial", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #fffff9;
+            width: 70vw;
+            height: 80vh;
+            margin: 6vh auto;
+            padding: 3vh;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        .first {
+            border: 5px solid #c69c67;
+            height: 76vh;
+            padding: 1vh;
+            border-radius: 10px;
+        }
+
+        .second {
+            border: 5px solid #c69c67;
+            height: 70.5vh;
+            padding: 2vh;
+            border-radius: 10px;
+            background-color: #fffef4;
+        }
+
+        .title {
+            font-size: 4em;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            margin: 2vh 0;
+            color: #444;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 4vh;
+        }
+
+        .medal {
+            background-color: blue;
+            width: 18vw;
+            height: 35vh;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-right: 7vw;
+        }
+
+        .score {
+            font-size: 6em;
+            font-weight: bold;
+            color: #c69c67;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .bottom {
+            margin-top: 3vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pianobear {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #444;
+            margin-right: 2vw;
+        }
+
+        .date {
+            font-size: 1.8em;
+            color: #444;
+        }
+
+        .bear {
+            background-color: blue;
+            width: 8vw;
+            height: 15vh;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-
+<div class="container">
+    <div class="first">
+        <div class="second">
+            <div class="title">Let it go</div>
+            <div class="content">
+                <div class="medal"><img src="/medal.jpg" alt="Medal"></div>
+                <div class="right">
+                    <div class="score">90점</div>
+                    <div class="date">2024.08.10</div>
+                </div>
+            </div>
+            <div class="bottom">
+                <div class="pianobear">피아노베어</div>
+                <div class="bear"><img src="/토니머리.png" alt="bear"></div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

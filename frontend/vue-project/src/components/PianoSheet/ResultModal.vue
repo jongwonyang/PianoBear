@@ -66,7 +66,7 @@ const closeModal = () => {
 }
 
 .score {
-  background-color: #e8c8a0;
+  background-color: #947650;
   height: 30vh;
   width: 25vw;
   margin-top: -6.5vh;
