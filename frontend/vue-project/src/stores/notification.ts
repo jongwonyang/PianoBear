@@ -4,6 +4,9 @@ import { useUserStore } from "./user";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import EventSourcePolyFill from "event-source-polyfill";
 import { useRouter } from "vue-router";
+import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+
+const EventSource = NativeEventSource || EventSourcePolyfill;
 
 const REST_NOTIFICATION_API =
   import.meta.env.VITE_API_BASE_URL + "/notifications/";
@@ -12,8 +15,6 @@ export const useNotificationStore = defineStore("notification", () => {
   const notifications = ref([]);
   const notificationCount = ref(0);
   const userStore = useUserStore();
-
-  const eventSource = EventSourcePolyFill;
 
   const accessToken = ref(userStore.GetAccessToken());
   console.log("accessToken", accessToken.value);
