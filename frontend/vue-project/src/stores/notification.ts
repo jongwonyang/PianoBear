@@ -13,7 +13,10 @@ export const useNotificationStore = defineStore("notification", () => {
   const notificationCount = ref(0);
   const userStore = useUserStore();
 
-  const accessToken = ref(userStore.accessToken);
+  const eventSource = EventSourcePolyFill;
+
+  const accessToken = ref(userStore.GetAccessToken());
+  console.log("accessToken", accessToken.value);
 
   const GetNotificationList = async () => {
     try {
@@ -60,21 +63,28 @@ export const useNotificationStore = defineStore("notification", () => {
   };
 
   const SubscribeToNotifications = () => {
-    const eventSource = new EventSourcePolyFill(
-      REST_NOTIFICATION_API + "subscribe",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        withCredentials: true,
-      }
-    );
+    const source = new EventSource(REST_NOTIFICATION_API + "subscribe", {
+      headers: {
+        Authorization: accessToken.value,
+      },
+      withCredentials: true,
+    });
 
-    eventSource.onopen = () => {
+    // const eventSource = new EventSourcePolyFill(
+    //   REST_NOTIFICATION_API + "subscribe",
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${accessToken.value}`,
+    //     },
+    //     withCredentials: true,
+    //   }
+    // );
+
+    source.onopen = () => {
       console.log("SSE connection opened");
     };
 
-    eventSource.addEventListener("notification", (event) => {
+    source.addEventListener("notification", (event) => {
       console.log("event.data", event.data);
       const newNotification = JSON.parse(event.data);
       newNotification.content = JSON.parse(newNotification.content);
@@ -83,9 +93,9 @@ export const useNotificationStore = defineStore("notification", () => {
       console.log("New notification:", newNotification);
     });
 
-    eventSource.onerror = (error) => {
+    source.onerror = (error) => {
       console.error("SSE connection error:", error);
-      eventSource.close();
+      source.close();
     };
   };
 
