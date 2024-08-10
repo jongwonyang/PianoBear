@@ -85,12 +85,12 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import { useNotificationStore } from '@/stores/notification';
+// import { useNotificationStore } from '@/stores/notification';
 import { useFriendStore } from '@/stores/friend';
 
 const router = useRouter();
 const userStore = useUserStore();
-const notificationStore = useNotificationStore();
+// const notificationStore = useNotificationStore();
 const friendStore = useFriendStore();
 
 const userInfo = ref({
@@ -102,8 +102,8 @@ const userInfo = ref({
 const showDialog = ref(false);
 const showConfirmDeleteDialog = ref(false);
 
-const notifications = ref([]);
-const notificationCount = ref(0);
+// const notifications = ref([]);
+// const notificationCount = ref(0);
 
 onMounted(() => {
   userStore.GetUserInfo()
@@ -117,71 +117,71 @@ onMounted(() => {
     });
 
   // 알림 목록과 개수 가져오기
-  notificationStore.GetNotificationList().then(() => {
-    notifications.value = notificationStore.notifications;
-    console.log(notifications.value);
-  });
+  //   notificationStore.GetNotificationList().then(() => {
+  //     notifications.value = notificationStore.notifications;
+  //     console.log(notifications.value);
+  //   });
 
-  notificationStore.GetNotificationCount().then(() => {
-    notificationCount.value = notificationStore.notificationCount;
-    console.log(notificationCount.value);
-  });
+  //   notificationStore.GetNotificationCount().then(() => {
+  //     notificationCount.value = notificationStore.notificationCount;
+  //     console.log(notificationCount.value);
+  //   });
 
-  // SSE 연결 설정
-  notificationStore.SubscribeToNotifications();
+  //   // SSE 연결 설정
+  //   notificationStore.SubscribeToNotifications();
 });
 
-const clearAllNotifications = () => {
-  notificationStore.ClearNotifications();
-};
+// const clearAllNotifications = () => {
+//   notificationStore.ClearNotifications();
+// };
 
-const confirmDeleteAllNotifications = () => {
-  clearAllNotifications();
-  showConfirmDeleteDialog.value = false;
-};
+// const confirmDeleteAllNotifications = () => {
+//   clearAllNotifications();
+//   showConfirmDeleteDialog.value = false;
+// };
 
-const acceptFriendRequest = (index) => {
-  console.log("친구 추가 요청 수락:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const acceptFriendRequest = (index) => {
+//   console.log("친구 추가 요청 수락:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 
-const declineFriendRequest = (index) => {
-  console.log("친구 추가 요청 거절:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const declineFriendRequest = (index) => {
+//   console.log("친구 추가 요청 거절:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 
-const acceptMeetingInvite = (index) => {
-  console.log("회의실 초대 수락:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const acceptMeetingInvite = (index) => {
+//   console.log("회의실 초대 수락:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 
-const declineMeetingInvite = (index) => {
-  console.log("회의실 초대 거절:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const declineMeetingInvite = (index) => {
+//   console.log("회의실 초대 거절:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 
-const goToChat = (index) => {
-  console.log("채팅으로 이동:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const goToChat = (index) => {
+//   console.log("채팅으로 이동:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 
-const deleteChatMessage = (index) => {
-  console.log("채팅 메시지 삭제:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const deleteChatMessage = (index) => {
+//   console.log("채팅 메시지 삭제:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 
-const goToSheet = (index) => {
-  router.push({ name: 'pianoUpload', params: { sheetId: 1 } });
-  console.log("악보로 이동:", notifications.value[index].message);
-  // 특정 알림 삭제
-  notificationStore.DeleteNotification(notifications.value[index].id);
-};
+// const goToSheet = (index) => {
+//   router.push({ name: 'pianoUpload', params: { sheetId: 1 } });
+//   console.log("악보로 이동:", notifications.value[index].message);
+//   // 특정 알림 삭제
+//   notificationStore.DeleteNotification(notifications.value[index].id);
+// };
 </script>
 
 <style scoped>
