@@ -13,7 +13,7 @@ export default defineConfig({
       template: {
         compilerOptions: { isCustomElement: (tag) => {
           if (tag.startsWith("md-")) return true;
-          if (["v-list-item-content", "midi-player"].includes(tag)) return true;
+          if (["v-list-item-content", "midi-player", "midi-visualizer"].includes(tag)) return true;
           return false;
         }},
       },

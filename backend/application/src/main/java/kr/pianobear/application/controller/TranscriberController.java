@@ -49,8 +49,8 @@ public class TranscriberController {
     @GetMapping("/add-to-me")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @Operation(summary = "내 보관함에 악보 추가")
-    public ResponseEntity<MusicDTO> addMxlToMe(@RequestParam String mxlPath) {
-        Optional<MusicDTO> musicDTO = transcriberService.addMxlToMe(mxlPath);
+    public ResponseEntity<MusicDTO> addMxlToMe(@RequestParam String mxlPath, @RequestParam String title) {
+        Optional<MusicDTO> musicDTO = transcriberService.addMxlToMe(mxlPath, title);
 
         if (musicDTO.isEmpty())
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

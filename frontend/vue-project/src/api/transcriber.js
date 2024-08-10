@@ -11,5 +11,9 @@ export const uploadAudio = (formData) => {
 export const downloadFile = (path) => {
   return apiClient.get(`/transcriber/download?path=${path}`, {
     responseType: "blob",
-  })
+  });
+};
+
+export const addToMe = (path, title) => {
+  return apiClient.get(`/transcriber/add-to-me?mxlPath=${path}&title=${title}`);
 }

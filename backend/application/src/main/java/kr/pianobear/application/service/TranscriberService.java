@@ -135,7 +135,7 @@ public class TranscriberService {
         return Optional.empty();
     }
 
-    public Optional<MusicDTO> addMxlToMe(String mxlPath) {
+    public Optional<MusicDTO> addMxlToMe(String mxlPath, String title) {
         try {
             Optional<FileData> fileData = saveMxlFromGpuServer(mxlPath);
 
@@ -143,6 +143,7 @@ public class TranscriberService {
                 return Optional.empty();
 
             MusicDTO musicDTO = musicService.fileDataToMusicDTO(fileData.get());
+            musicDTO.setTitle(title);
             MusicDTO savedMusicDTO = musicService.saveMusic(musicDTO);
             return Optional.of(savedMusicDTO);
         } catch (IOException e) {
