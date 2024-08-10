@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,8 @@ public class MusicTestController {
     public ResponseEntity<MusicTestDTO> addDummyMusicTest(@RequestParam int musicId,
                                                           @RequestParam String userId,
                                                           @RequestParam int grade) {
-        MusicTestDTO createdTest = musicTestService.addDummyMusicTest(musicId, userId, grade);
+        LocalDate testDate = LocalDate.now();
+        MusicTestDTO createdTest = musicTestService.addDummyMusicTest(musicId, userId, grade, testDate);
         return ResponseEntity.ok(createdTest);
     }
 
@@ -47,5 +49,13 @@ public class MusicTestController {
     public ResponseEntity<List<MusicTestDTO>> getTestsByUserAndMusic(@PathVariable int id, @PathVariable String userId) {
         List<MusicTestDTO> tests = musicTestService.getTestsByUserAndMusic(id, userId);
         return ResponseEntity.ok(tests);
+    }
+
+    @Operation(summary = "도전 id에 대한 도전 결과", description = "도전 정보")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    @GetMapping("/{id}")
+    public ResponseEntity<List<MusicTestDTO>> getResultById(@PathVariable int id){
+        List<MusicTestDTO> result = musicTestService.getResultById(id);
+        return ResponseEntity.ok(result);
     }
 }
