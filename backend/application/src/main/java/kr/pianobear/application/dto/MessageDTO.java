@@ -10,5 +10,5 @@ public class MessageDTO {
     private Long chatRoomId;
     private String content;
     private String timestamp;
-    private String attachedFileUrl;
+//    private String attachedFileUrl;
 }

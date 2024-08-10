@@ -30,8 +30,8 @@ public class Message {
     private LocalDateTime timestamp;
 
     // 파일 첨부 기능
-    @OneToOne(targetEntity = FileData.class)
-    @Nullable
-    private FileData attachedFile;
+//    @OneToOne(targetEntity = FileData.class)
+//    @Nullable
+//    private FileData attachedFile;
 }
 
