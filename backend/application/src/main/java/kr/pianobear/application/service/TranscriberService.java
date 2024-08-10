@@ -36,7 +36,7 @@ public class TranscriberService {
     private final MusicService musicService;
 
     @Autowired
-    public TranscriberService(@Value("${application.fastapi-url}") String fastapiUrl,
+    public TranscriberService(@Value("${application.gpu-server-url}") String fastapiUrl,
                               RestTemplate restTemplate, ObjectMapper objectMapper, FileDataService fileDataService, MusicService musicService) {
         FASTAPI_URL = fastapiUrl;
         this.restTemplate = restTemplate;
