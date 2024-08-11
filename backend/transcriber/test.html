@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSMD MusicXML Viewer</title>
+</head>
+<body>
+    <h1>Upload your MusicXML file</h1>
+    <input type="file" id="fileInput" accept=".xml,.mxl,.musicxml">
+    <div id="osmdContainer" style="width:100%; height:600px;"></div>
+
+    <!-- OSMD Library CDN -->
+    <script src="https://unpkg.com/opensheetmusicdisplay@0.8.3/build/opensheetmusicdisplay.min.js"></script>
+    <!-- JSZip Library CDN for unzipping MXL files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <script>
+        var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdContainer");
+        osmd.setOptions({
+            backend: "svg",
+            drawTitle: true,
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+
+            console.log("Reading: " + file.name);
+
+            if (file) {
+                var reader = new FileReader();
+
+                if (file.name.endsWith('.mxl')) {
+                    reader.onload = function(e) {
+                        JSZip.loadAsync(e.target.result).then(function(zip) {
+                            var musicXMLFile = Object.keys(zip.files).find(function(filename) {
+                                return filename.endsWith('.xml') || filename.endsWith('.musicxml');
+                            });
+                            if (musicXMLFile) {
+                                zip.files[musicXMLFile].async("text").then(function(content) {
+                                    osmd.load(content).then(function() {
+                                        osmd.render();
+                                    });
+                                });
+                            } else {
+                                alert("No MusicXML file found in the MXL archive.");
+                            }
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.onload = function(e) {
+                        var content = e.target.result;
+                        osmd.load(content).then(function() {
+                            osmd.render();
+                        });
+                    };
+                    reader.readAsText(file);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

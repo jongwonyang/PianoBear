@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.service.MusicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -35,14 +36,6 @@ public class MusicController {
         this.musicService = musicService;
     }
 
-
-//    @Operation(summary = "PDF 업로드 및 변환", description = "PDF 파일을 업로드하고 MusicXML로 변환합니다.")
-//    @PostMapping(value = "/convert", consumes = "multipart/form-data")
-//    public ResponseEntity<MusicDTO> uploadPdf(@RequestPart("file") MultipartFile file) throws IOException, InterruptedException {
-//        MusicDTO createdMusic = musicService.convertPdf(file);
-//        return ResponseEntity.ok(createdMusic);
-//    }
-
     @Operation(summary = "PDF 변환", description = "PDF 파일을 업로드하고 변환을 요청합니다.")
     @PostMapping(value="/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MusicDTO> processPdfUpload(@RequestPart (name = "file") MultipartFile file) throws IOException, InterruptedException {
@@ -56,7 +49,6 @@ public class MusicController {
         MusicDTO savedMusic = musicService.saveMusic(musicDTO);
         return ResponseEntity.ok(savedMusic);
     }
-
 
     @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보를 불러옵니다.")
     @GetMapping
@@ -137,16 +129,15 @@ public class MusicController {
         return ResponseEntity.ok(musicImgPath);
     }
 
-    @Operation(summary = "MusicXML 경로 불러오기", description = "악보의 MusicXML 경로를 불러옵니다.")
-    @GetMapping("/{id}/music-xml-route")
-    public ResponseEntity<Resource> getMusicXmlRoute(@PathVariable int id) {
+
+    @GetMapping("/api/v1/music/{id}/download-music-xml")
+    public ResponseEntity<Resource> downloadMusicXml(@PathVariable int id) {
         String musicXmlRoute = musicService.getMusicXmlRoute(id);
         return getFileResponse(musicXmlRoute);
     }
 
-    @Operation(summary = "수정된 MusicXML 경로 불러오기", description = "악보의 수정된 MusicXML 경로를 불러옵니다.")
-    @GetMapping("/{id}/modified-music-xml-route")
-    public ResponseEntity<Resource> getModifiedMusicXmlRoute(@PathVariable int id) {
+    @GetMapping("/api/v1/music/{id}/download-modified-music-xml")
+    public ResponseEntity<Resource> downloadModifiedMusicXml(@PathVariable int id) {
         String modifiedMusicXmlRoute = musicService.getModifiedMusicXmlRoute(id);
         return getFileResponse(modifiedMusicXmlRoute);
     }
@@ -154,7 +145,7 @@ public class MusicController {
     private ResponseEntity<Resource> getFileResponse(String filePath) {
         try {
             Path path = Paths.get(filePath);
-            Resource resource = new UrlResource(path.toUri());
+            Resource resource = new FileSystemResource(path.toFile());
 
             if (!resource.exists() || !resource.isReadable()) {
                 throw new RuntimeException("Could not read file: " + filePath);
@@ -162,8 +153,9 @@ public class MusicController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM) // MIME 타입 설정
                     .body(resource);
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }

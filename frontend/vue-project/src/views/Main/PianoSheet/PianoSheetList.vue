@@ -13,10 +13,16 @@
         </div>
       </div>
     </div>
-    <div class="upload">
-      <router-link to="/main/piano-sheet/upload">
-        <v-btn variant="tonal" height="7vh" color="#81C784" size="x-large"> 악보 업로드 </v-btn>
-      </router-link>
+    <div>
+      <div class="upload">
+        <router-link to="/main/piano-sheet/upload">
+          <button>악보업로드</button>
+          <!-- <v-btn variant="tonal" height="7vh" color="#81C784" size="x-large"> 악보 업로드 </v-btn> -->
+        </router-link>
+      </div>
+      <div>
+        <img src="@/assets/characters/토니/토니응원.png" alt="" class="bottom">
+      </div>
     </div>
   </div>
   <!-- <PianoSheetDetail v-else /> -->
@@ -32,20 +38,9 @@ import Tabs from "@/components/PianoSheet/Tabs.vue";
 // import PianoSheetDetail from "./PianoSheetDetail.vue";
 
 const store = usePianoSheetStore();
-const tab = ref<number>(1);
 const currentTab = ref<string>("UserSheet");
 const currentSortOption = ref<number>(0);
-// const check = ref<boolean>(true);
 
-// 페이지 로드 시 localStorage에서 정렬 기준을 불러옵니다.
-onMounted(() => {
-  const savedSortOption = store.sortOption;
-  if (savedSortOption) {
-    currentSortOption.value = savedSortOption;
-  }
-});
-
-// 사용자가 정렬 기준을 변경하면 localStorage에 저장합니다.
 const updateSort = (index: number) => {
   currentSortOption.value = index;
   store.sortOption = index;
@@ -59,6 +54,14 @@ const currentTabComponent = computed(() => {
   return currentTab.value === "UserSheet" ? UserSheet : BasicSheet;
 });
 
+// 페이지 로드 시 localStorage에서 정렬 기준을 불러옵니다.
+onMounted(() => {
+  const savedSortOption = store.sortOption;
+  if (savedSortOption) {
+    currentSortOption.value = savedSortOption;
+  }
+});
+
 onMounted(async () => {
   await store.userSheetListfun();
   // await store.basicSheetListfun();
@@ -66,31 +69,28 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-img {
-  width: 80px;
-  height: 80px;
-  margin-top: 30px;
-}
-
-.v-tab.active img {
-  margin-top: 5px;
-  width: 80px;
-  height: 80px;
-}
-
-.upload {
+.upload button {
   float: right;
+  background-color: #d9f6d9;
+  color: #73796e;
+  height: 8vh;
+  width: 12vw;
+  font-size: large;
+  font-weight: bold;
+  border-radius: 10%;
+  box-shadow: 0.2vw 0.3vh 0.6vh gray;
+  margin-top: 1.5vh;
 }
 
-a {
+/* a {
   text-decoration: none;
   color: #d2b48c;
-}
+} */
 
 .searchbar {
-  width: 300px;
+  width: 20vw;
   margin-left: auto;
-  margin-bottom: -20px;
+  margin-bottom: -5vh;
 }
 
 .container {
@@ -100,6 +100,10 @@ a {
 }
 
 .tabs {
-  margin-left: 70px;
+  margin-left: 8vw;
+}
+
+.bottom{
+  width: 5vw;
 }
 </style>
