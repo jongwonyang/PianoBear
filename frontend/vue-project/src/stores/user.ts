@@ -80,6 +80,18 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const PasswordReset = async (id: string, name: string, email: string) => {
+    try {
+      await apiClient.post(REST_AUTH_API + "password-reset", {
+        id: id,
+        name: name,
+        email: email,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const SetAccessToken = (token: string) => {
     accessToken.value = token;
     localStorage.setItem("accessToken", token);
@@ -113,6 +125,7 @@ export const useUserStore = defineStore("user", () => {
     CheckUserId,
     CheckUserEmail,
     LoginUser,
+    PasswordReset,
     SetAccessToken,
     SetRefreshToken,
     GetAccessToken,

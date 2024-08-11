@@ -7,19 +7,56 @@
             </div>
             <div class="reset-text">비밀번호 재설정</div>
             <div class="input-box">
-                <md-outlined-text-field label="아이디" type="text" class="reset-input id"></md-outlined-text-field>
-                <md-outlined-text-field label="이름" type="text" class="reset-input name"></md-outlined-text-field>
-                <md-outlined-text-field label="이메일" type="email" class="reset-input email"></md-outlined-text-field>
+                <md-outlined-text-field label="아이디" type="text" class="reset-input id" :value="userId"
+                    @input="setUserId"></md-outlined-text-field>
+                <md-outlined-text-field label="이름" type="text" class="reset-input name" :value="userName"
+                    @input="setUserName"></md-outlined-text-field>
+                <md-outlined-text-field label="이메일" type="email" class="reset-input email" :value="userEmail"
+                    @input="setUserEmail"></md-outlined-text-field>
             </div>
-            <v-btn class="reset-button">임시 비밀번호 발급</v-btn>
+            <v-btn class="reset-button" @click="passwordReset" :loading="isLoading" :disabled="isLoading">임시 비밀번호
+                발급</v-btn>
         </div>
     </div>
 </template>
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+const userStore = useUserStore();
+
+const userId = ref('');
+const userName = ref('');
+const userEmail = ref('');
+const isLoading = ref(false);
+
+const setUserId = (e) => {
+    userId.value = e.target.value;
+};
+
+const setUserName = (e) => {
+    userName.value = e.target.value;
+};
+
+const setUserEmail = (e) => {
+    userEmail.value = e.target.value;
+};
+
+const passwordReset = async () => {
+    isLoading.value = true;
+    try {
+        await userStore.PasswordReset(userId.value, userName.value, userEmail.value);
+        alert('임시 비밀번호가 발급되었습니다.');
+        router.push({ name: 'login' });
+    } catch (error) {
+        alert('비밀번호 재설정에 실패했습니다.');
+    } finally {
+        isLoading.value = false;
+    }
+};
+
 
 </script>
 

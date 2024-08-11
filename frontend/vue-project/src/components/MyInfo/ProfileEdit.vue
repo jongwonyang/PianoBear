@@ -11,12 +11,10 @@
                 </v-btn>
             </div>
             <div class="edit-buttons">
-                <v-btn class="edit-button" @click="changeEmail">
-                    이메일 변경
-                </v-btn>
                 <v-btn class="edit-button" @click="changeName">
                     이름 변경
                 </v-btn>
+                <v-divider></v-divider>
                 <v-btn class="edit-button" @click="changePassword">
                     비밀번호 변경
                 </v-btn>
