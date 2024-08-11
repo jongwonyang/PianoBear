@@ -67,7 +67,7 @@ async function Login() {
 
             userStore.isLoggedIn = true;
             localStorage.setItem("accessToken", res.data.accessToken);
-            sessionStorage.setItem("refreshToken", res.data.refreshToken);
+            localStorage.setItem("refreshToken", res.data.refreshToken);
             userStore.SetAccessToken(res.data.accessToken);
             userStore.SetRefreshToken(res.data.refreshToken);
             userStore.GetUserInfo()

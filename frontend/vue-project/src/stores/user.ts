@@ -23,7 +23,7 @@ export const useUserStore = defineStore("user", () => {
 
   const isLoggedIn = ref(false);
   const accessToken = ref(localStorage.getItem("accessToken") || "");
-  const refreshToken = ref(sessionStorage.getItem("refreshToken") || "");
+  const refreshToken = ref(localStorage.getItem("refreshToken") || ""); // 로컬 스토리지에서 리프레시 토큰을 가져옴
 
   const router = useRouter();
 
@@ -99,7 +99,7 @@ export const useUserStore = defineStore("user", () => {
 
   const SetRefreshToken = (token: string) => {
     refreshToken.value = token;
-    sessionStorage.setItem("refreshToken", token);
+    localStorage.setItem("refreshToken", token); // 로컬 스토리지에 리프레시 토큰을 저장
   };
 
   const GetAccessToken = () => {
@@ -107,14 +107,14 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const GetRefreshToken = () => {
-    return refreshToken.value || sessionStorage.getItem("refreshToken");
+    return refreshToken.value || localStorage.getItem("refreshToken"); // 로컬 스토리지에서 리프레시 토큰을 가져옴
   };
 
   const RemoveToken = () => {
     accessToken.value = "";
     refreshToken.value = "";
     localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("refreshToken");
+    localStorage.removeItem("refreshToken"); // 로컬 스토리지에서 리프레시 토큰 삭제
   };
 
   return {

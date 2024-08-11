@@ -78,7 +78,8 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn text @click="removeFriend(friendInfo.id)" color="red">삭제</v-btn>
+                    <v-btn text @click="removeFriend(friendInfo.id)" color="red">친구 삭제</v-btn>
+                    <v-btn text>대화하기</v-btn>
                     <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
                 </v-card-actions>
             </v-card>
