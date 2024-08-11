@@ -2,18 +2,20 @@ package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.dto.MusicPracticeDTO;
-import kr.pianobear.application.model.*;
+import kr.pianobear.application.model.FileData;
+import kr.pianobear.application.model.Member;
+import kr.pianobear.application.model.Music;
 import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.*;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,9 +34,10 @@ public class MusicService {
     private final MusicPracticeRepository musicPracticeRepository;
     private final PdfToMusicXmlService pdfToMusicXmlService;
     private final MusicXmlModifierService musicXmlModifierService;
+    private final OpenAiService openAiService;
 
     @Autowired
-    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService) {
+    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService, OpenAiService openAiService) {
         this.musicRepository = musicRepository;
         this.musicPracticeService = musicPracticeService;
         this.fileDataService = fileDataService;
@@ -42,6 +45,7 @@ public class MusicService {
         this.musicPracticeRepository = musicPracticeRepository;
         this.pdfToMusicXmlService = pdfToMusicXmlService;
         this.musicXmlModifierService = musicXmlModifierService;
+        this.openAiService = openAiService;
     }
 
     @Transactional
@@ -69,9 +73,32 @@ public class MusicService {
         String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
         music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
 
-        // Music 엔티티 저장
-        Music savedMusic = musicRepository.save(music);
-        return mapMusicToDTO(savedMusic);
+        // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환
+        return mapMusicToDTO(music);
+    }
+
+    public MusicDTO fileDataToMusicDTO(FileData fileData) throws IOException {
+        // 새로운 Music 엔티티 생성 및 초기화
+        Music music = new Music();
+        music.setTitle(fileData.getOriginalName().substring(0, fileData.getOriginalName().lastIndexOf(".")));
+        music.setFavorite(false);
+        music.setUploadDate(LocalDate.now());
+
+        // 현재 사용자 정보 설정
+        String currentUserId = getCurrentUserId();
+        Member user = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
+        music.setUser(user);
+
+        // PDF to MusicXML 변환
+        music.setMusicXmlRoute(fileData.getPath());
+
+        // MusicXML 수정
+        String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(fileData.getPath());
+        music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
+
+        // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환
+        return mapMusicToDTO(music);
     }
 
     public String getModifiedMusicXmlRoute(int musicId) {
@@ -84,8 +111,9 @@ public class MusicService {
         }
     }
 
+
     @Transactional
-    public MusicDTO saveMusic(MusicDTO musicDTO) {
+    public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
         Music music = new Music();
         music.setTitle(musicDTO.getTitle());
         music.setArtist(musicDTO.getArtist());
@@ -100,6 +128,10 @@ public class MusicService {
         music.setMusicXmlRoute(musicDTO.getMusicXmlRoute());
         music.setModifiedMusicXmlRoute(musicDTO.getModifiedMusicXmlRoute());
         music.setMusicImg(createMusicImg(musicDTO.getTitle()));
+
+        // OpenAI API를 통해 이미지 생성 후 설정
+//        String imageUrl = openAiService.generateImage(musicDTO.getTitle());
+//        music.setMusicImg(imageUrl);
 
         Music savedMusic = musicRepository.save(music);
 
@@ -124,9 +156,16 @@ public class MusicService {
     }
 
     private String createMusicImg(String title) {
-        // 이미지 생성 로직
-        return "/path/to/generated/image.png";
+//        try {
+//            // OpenAI API를 사용하여 이미지 생성
+//            return openAiService.generateImage(title);
+//        } catch (IOException e) {
+//            // 오류 처리
+//            e.printStackTrace();
+            return "/path/to/default/image.png"; // 에러 발생 시 기본 이미지를 반환할 수 있음
+//        }
     }
+
 
     private MusicDTO mapMusicToDTO(Music music) {
         MusicDTO musicDTO = new MusicDTO();

@@ -119,7 +119,20 @@ const routes = [
   },
   {
     path: "/",
-    redirect: (to: any) => {
+    redirect: () => {
+      const userStore = useUserStore();
+      const isAuthenticated = !!userStore.GetAccessToken();
+
+      if (isAuthenticated) {
+        return "/main";
+      } else {
+        return "/login";
+      }
+    },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: () => {
       const userStore = useUserStore();
       const isAuthenticated = !!userStore.GetAccessToken();
 
