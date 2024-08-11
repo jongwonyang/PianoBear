@@ -4,7 +4,7 @@
       <v-tabs-window-item :value="1">
         <div>
           <div class="text">PDF로 악보 만들기</div>
-          <div class="container">
+          <div class="_container">
             <div class="component">
               <PDFtoMXL />
             </div>
@@ -19,6 +19,8 @@
       </v-tabs-window-item>
 
       <v-tabs-window-item :value="2">
+        <AITranscriber />
+        <!--
         <div>
           <div class="text">
             <div class="text">AI로 악보 만들기</div>
@@ -35,6 +37,7 @@
             </div>
           </div>
         </div>
+        -->
       </v-tabs-window-item>
     </v-tabs-window>
 
@@ -63,6 +66,7 @@ import ConvertedFile from "@/components/PianoSheet/ConvertedFile.vue";
 import ConvertAI from "@/components/PianoSheet/ConvertAI.vue";
 import ConvertPDF from "@/components/PianoSheet/ConvertPDF.vue";
 import SaveSheetModal from "@/components/PianoSheet/SaveSheetModal.vue";
+import AITranscriber from "@/components/PianoSheet/AITranscriber.vue";
 
 const tab = ref(1);
 const currentTab = ref("UserSheet");
@@ -90,7 +94,7 @@ watch(
 </script>
 
 <style scoped>
-.container {
+._container {
   display: flex; /* Flexbox 활성화 */
   justify-content: space-between; /* 컴포넌트 사이의 간격을 자동으로 조절 */
   align-items: flex-start; /* 세로 방향으로 상단 정렬 */

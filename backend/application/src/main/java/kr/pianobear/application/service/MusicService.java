@@ -2,18 +2,20 @@ package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.dto.MusicPracticeDTO;
-import kr.pianobear.application.model.*;
+import kr.pianobear.application.model.FileData;
+import kr.pianobear.application.model.Member;
+import kr.pianobear.application.model.Music;
 import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.*;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,6 +69,30 @@ public class MusicService {
 
         // MusicXML 수정
         String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
+        music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
+
+        // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환
+        return mapMusicToDTO(music);
+    }
+
+    public MusicDTO fileDataToMusicDTO(FileData fileData) throws IOException {
+        // 새로운 Music 엔티티 생성 및 초기화
+        Music music = new Music();
+        music.setTitle(fileData.getOriginalName().substring(0, fileData.getOriginalName().lastIndexOf(".")));
+        music.setFavorite(false);
+        music.setUploadDate(LocalDate.now());
+
+        // 현재 사용자 정보 설정
+        String currentUserId = getCurrentUserId();
+        Member user = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
+        music.setUser(user);
+
+        // PDF to MusicXML 변환
+        music.setMusicXmlRoute(fileData.getPath());
+
+        // MusicXML 수정
+        String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(fileData.getPath());
         music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
 
         // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환

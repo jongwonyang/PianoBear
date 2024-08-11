@@ -9,17 +9,17 @@
             <form action=""></form>
             <div class="input-box">
                 <md-outlined-text-field label="아이디" type="text" placeholder="영문+숫자 4~20자" class="regist-input id"
-                    :value="userId" @change="checkDuplicateId" :error="idError"
+                    :value="userId" @input="setUserId" @change="checkDuplicateId" :error="idError"
                     :error-text="idErrorMessage"></md-outlined-text-field>
                 <md-outlined-text-field label="이메일" type="email" placeholder="abc@example.com"
-                    class="regist-input email" :value="userEmail" @change="checkDuplicateEmail" :error="emailError"
-                    :error-text="emailErrorMessage"></md-outlined-text-field>
+                    class="regist-input email" :value="userEmail" @input="setUserEmail" @change="checkDuplicateEmail"
+                    :error="emailError" :error-text="emailErrorMessage"></md-outlined-text-field>
                 <md-outlined-text-field label="이름" type="text" class="regist-input name" :value="userName"
                     @input="setUserName"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호" type="password" placeholder="영문+숫자 8~20자" class="regist-input pw"
                     :value="userPassword" @input="setUserPassword"></md-outlined-text-field>
                 <md-outlined-text-field label="비밀번호 확인" type="password" class="regist-input pwCheck"
-                    :value="PasswordCheck" @change="checkPassword" :error="passwordError"
+                    :value="PasswordCheck" @input="checkPassword" :error="passwordError"
                     :error-text="passwordErrorMessage"></md-outlined-text-field>
                 <md-outlined-select label="성별" class="select-box" :value="userGender" @input="setUserGender">
                     <md-select-option value="M">
@@ -37,11 +37,9 @@
             <v-btn class="regist-button" @click="RegistUser" :loading="isLoading" :disabled="isLoading">
                 회원가입
             </v-btn>
-
         </div>
     </div>
 </template>
-
 
 <script setup>
 import { useUserStore } from '@/stores/user';
@@ -68,39 +66,73 @@ const PasswordCheck = ref('');
 
 const isLoading = ref(false); // 로딩 상태 변수
 
-const checkDuplicateId = (e) => {
+const setUserId = (e) => {
     userId.value = e.target.value;
-    userStore.CheckUserId(userId.value).then((res) => {
-        console.log(res);
-        if (res.data.exists === true) {
-            console.log('중복된 아이디');
-            idError.value = true;
-            idErrorMessage.value = '중복된 아이디입니다.';
-        } else {
-            console.log('사용 가능한 아이디');
-            idError.value = false;
-            idErrorMessage.value = '';
-        }
-    });
+    // 유효성 검사: 영문+숫자 4~20자
+    const idPattern = /^[a-zA-Z0-9]{4,20}$/;
+    if (!idPattern.test(userId.value)) {
+        idError.value = true;
+        idErrorMessage.value = '아이디는 영문+숫자 4~20자여야 합니다.';
+    } else {
+        idError.value = false;
+        idErrorMessage.value = '';
+    }
+};
+
+const checkDuplicateId = (e) => {
+    setUserId(e);
+    if (!idError.value) {
+        userStore.CheckUserId(userId.value).then((res) => {
+            if (res.data.exists === true) {
+                idError.value = true;
+                idErrorMessage.value = '중복된 아이디입니다.';
+            } else {
+                idError.value = false;
+                idErrorMessage.value = '';
+            }
+        });
+    }
+};
+
+const setUserEmail = (e) => {
+    userEmail.value = e.target.value;
+    // 유효성 검사: 이메일 형식
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(userEmail.value)) {
+        emailError.value = true;
+        emailErrorMessage.value = '유효한 이메일 주소를 입력하세요.';
+    } else {
+        emailError.value = false;
+        emailErrorMessage.value = '';
+    }
 };
 
 const checkDuplicateEmail = (e) => {
-    userEmail.value = e.target.value;
-    userStore.CheckUserEmail(userEmail.value).then((res) => {
-        if (res.data.exists === true) {
-            console.log('중복된 이메일');
-            emailError.value = true;
-            emailErrorMessage.value = '중복된 이메일입니다.';
-        } else {
-            console.log('사용 가능한 이메일');
-            emailError.value = false;
-            emailErrorMessage.value = '';
-        }
-    });
+    setUserEmail(e);
+    if (!emailError.value) {
+        userStore.CheckUserEmail(userEmail.value).then((res) => {
+            if (res.data.exists === true) {
+                emailError.value = true;
+                emailErrorMessage.value = '중복된 이메일입니다.';
+            } else {
+                emailError.value = false;
+                emailErrorMessage.value = '';
+            }
+        });
+    }
 };
 
 const setUserPassword = (e) => {
     userPassword.value = e.target.value;
+    // 유효성 검사: 영문+숫자 8~20자
+    const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d).{8,20}$/;
+    if (!passwordPattern.test(userPassword.value)) {
+        passwordError.value = true;
+        passwordErrorMessage.value = '비밀번호는 영문+숫자 8~20자여야 합니다.';
+    } else {
+        passwordError.value = false;
+        passwordErrorMessage.value = '';
+    }
     userStore.user.password = userPassword.value;
 };
 
@@ -116,6 +148,15 @@ const setUserGender = (e) => {
 
 const setUserBirth = (e) => {
     userBirth.value = e.target.value;
+    // 유효성 검사: YYYY-MM-DD 형식
+    const birthPattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!birthPattern.test(userBirth.value)) {
+        emailError.value = true;
+        emailErrorMessage.value = '생년월일은 YYYY-MM-DD 형식이어야 합니다.';
+    } else {
+        emailError.value = false;
+        emailErrorMessage.value = '';
+    }
     userStore.user.birthday = userBirth.value;
 };
 
