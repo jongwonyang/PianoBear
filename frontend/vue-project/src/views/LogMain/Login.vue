@@ -99,12 +99,23 @@ async function Login() {
 
 
 <style scoped>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
     width: 100%;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .login-box {

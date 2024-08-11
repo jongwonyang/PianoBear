@@ -52,7 +52,7 @@ public class MusicPracticeService {
 
         LocalDate today = LocalDate.from(LocalDate.now().atStartOfDay());
 
-        Optional<MusicPractice> optionalMusicPractice = musicPracticeRepository.findByMusicAndMemberIdAndPracticeDate(music, userId, today.atStartOfDay());
+        Optional<MusicPractice> optionalMusicPractice = musicPracticeRepository.findByMusicAndMemberIdAndPracticeDate(music, userId, today);
         MusicPractice musicPractice;
         if (optionalMusicPractice.isPresent()) {
             musicPractice = optionalMusicPractice.get();
@@ -117,8 +117,8 @@ public class MusicPracticeService {
 
     public List<MusicPracticeDTO> getMonthlyPracticeRecords(String userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime endDate = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.plusMonths(1).atDay(1).minusDays(1);
 
         return musicPracticeRepository
                 .findAllByMemberIdAndPracticeDateBetween(userId, startDate, endDate)
@@ -129,11 +129,9 @@ public class MusicPracticeService {
 
     public List<MusicPracticeDTO> getDailyPracticeRecords(String userId, int year, int month, int day) {
         LocalDate date = LocalDate.of(year, month, day);
-        LocalDateTime startOfDay = LocalDateTime.of(date, LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.of(date, LocalTime.MAX);
 
         return musicPracticeRepository
-                .findAllByMemberIdAndPracticeDateBetween(userId, startOfDay, endOfDay)
+                .findAllByMemberIdAndPracticeDateBetween(userId, date, date)
                 .stream()
                 .map(MusicPracticeDTO::fromMusicPractice)
                 .toList();

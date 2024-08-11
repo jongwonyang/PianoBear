@@ -7,13 +7,14 @@
     variant="outlined"
     @click:prepend-inner="toggleMenu"
     @click:append-inner="onClickAppend"
+    v-model="searchText"
   >
     <template v-slot:prepend-inner>
       <v-menu v-model:menu="menu" location="start">
         <template v-slot:activator="{ props }">
           <v-icon v-bind="props">mdi-menu</v-icon>
         </template>
-        <v-list class="list" style="background-color: #fff9e0" elevation="2">
+        <v-list class="list" style="background-color: #fff9e0" elevation="2" font-weight="bold">
           <v-list-item
             v-for="(item, index) in displayedItems"
             :key="index"
@@ -29,6 +30,7 @@
 
 <script lang="ts" setup>
 import { defineEmits, ref, computed } from "vue";
+import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const emit = defineEmits<{
   (event: "update:sortOption", sortOption: number): void;
@@ -38,9 +40,12 @@ const props = defineProps<{
   currentTab: string;
 }>();
 
+const store = usePianoSheetStore();
 const menu = ref(false);
 const loading = ref(false);
 const loaded = ref(false);
+const searchText = ref("");
+store.searchText = searchText.value;
 
 const userSheetItems = [{ title: "즐겨찾기 순" }, { title: "연습량 순" }, { title: "등록 순" }];
 

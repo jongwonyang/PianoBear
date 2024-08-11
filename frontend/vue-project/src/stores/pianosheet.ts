@@ -21,16 +21,29 @@ interface BasicSheet {
 export interface UserSheet {
   id: number;
   title: string;
-  // originalFileRoute: string;
-  // changedFileRoute: string;
+  originalFileRoute: string;
+  changedFileRoute: string;
   practiceCount: number;
-  // recentPractice: string;
+  recentPractice: string;
   userId: string;
   musicImg: string;
   favorite: boolean;
   uploadDate: string;
-  // artist: string;
-  // highestScore: number;
+  artist: string;
+  highestScore: number;
+}
+
+// 변환된 악보
+interface ConvertedSheet {
+  id: number;
+  title: string | null;
+  musicXmlRoute: string;
+  modifiedMusicXmlRoute: string;
+  userId: string;
+  artist: string | null;
+  favorite: boolean;
+  musicImg: string | null;
+  uploadDate: [number, number, number]; // [year, month, day]
 }
 
 // 연습 기록의 형태를 나타내는 인터페이스 정의
@@ -72,13 +85,22 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const selectedFile = ref<File | null>(null);
 
   // 변환된 악보
-  const convertedFile = ref<UserSheet | null>(null);
+  const convertedFile = ref<ConvertedSheet | null>(null);
 
   // PDFtoMXL.vue에서 사용할 메서드
   // selectedFile에 file 저장
   const setSelectedFile = (file: File | null) => {
     selectedFile.value = file;
   };
+
+  // 수정된 악보 정보
+  const modifySheetForm = ref({
+    title: "",
+    artist: "",
+  });
+
+  // 악보 제목, 작곡가 수정을 위한 모달 열기 위한 변수
+  const isOpen = ref<boolean>(false);
 
   // pdf 파일 변환 시작 요청
   const convertFilefun = async (file: File): Promise<void> => {
@@ -91,44 +113,34 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     formData.append("file", file); // key, value 형태고 key의 변수명을 백엔드랑 맞춰야 함
 
     try {
+      console.log("변환시작");
       const response = await apiClient.post(`${REST_PIANOSHEET_API}/process`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+
+      convertedFile.value = response.data;
+      modifySheetForm.value.title = convertedFile.value?.title ?? "";
+      modifySheetForm.value.artist = convertedFile.value?.artist ?? "";
       console.log("악보 백엔드 전송 성공!", response.data);
+      isOpen.value = true;
     } catch (error) {
       console.error("악보 백엔드 전송 실패!", error);
     }
   };
 
-  // PDF에서 MXL로 변환 완료된 악보 가져오기
-  const convertedFilefun = async (): Promise<void> => {
-    try {
-      const response = await apiClient.get(REST_PIANOSHEET_API);
-      if (response.status >= 200 && response.status < 300) {
-        // 상태 코드가 200번대인 경우
-        console.log("악보 변환 성공!");
-        convertedFile.value = response.data;
-      } else {
-        // 상태 코드가 200번대가 아닌 경우
-        console.error("악보 변환 실패! 상태 코드:", response.status);
-      }
-    } catch (error) {
-      console.error("Error fetching sheet data", error);
-    }
-  };
-
-  // 변환된 악보 제목 수정
-  const editTitle = () => {
-    // 파라미터로 악보 id를 받아야 하나?
-    console.log("악보제목 수정 요청!");
-  };
-
   // 변환된 악보 저장
   const saveSheet = async (): Promise<void> => {
+    if (!convertedFile.value) {
+      alert("변환된 악보가 없습니다.");
+      return;
+    }
+
     try {
-      const response = await apiClient.post(REST_PIANOSHEET_API);
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/save`, convertedFile.value);
+      console.log("변환된 악보", convertedFile.value);
+      console.log("저장된 정보", response.data);
     } catch (error) {
       console.error("악보 저장 실패ㅠ", error);
     }
@@ -147,6 +159,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
+  // 즐겨찾기 요청
   const handleFavorite = async (id: number, favorite: boolean): Promise<void> => {
     try {
       const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/favorite`, null, {
@@ -166,11 +179,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 상세 - 삭제
   const handleDelete = async (id: number) => {
-    console.log("삭제 요청 보냄~~");
     try {
       const response = await apiClient.delete(`${REST_PIANOSHEET_API}/${id}`);
       if (response.status >= 200 && response.status < 300) {
-        console.log("삭제 성공!");
       } else {
         console.error("악보 삭제 실패! 상태 코드:", response.status);
       }
@@ -199,7 +210,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       }
 
       // console.log(practiceData.value);
-      console.log(practiceCountSum.value);
+      // console.log(practiceCountSum.value);
     } catch (error) {
       console.error("기록 불러오기 실패", error);
     }
@@ -256,7 +267,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 상세 - 특정 악보 불러오기
   const detailSheetfun = async (id: number): Promise<void> => {
     try {
-      console.log("악보상세");
+      // console.log("악보상세");
       const response = await apiClient.get<UserSheet>(`${REST_PIANOSHEET_API}/${id}`);
       detailSheet.value = response.data;
       console.log(detailSheet.value);
@@ -264,6 +275,28 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       console.error("불러오기 실패", error);
     }
   };
+
+  // 썸네일 불러오기
+  const thumbnailImg = ref<string>();
+
+  const thumbnail = async (id: number): Promise<void> => {
+    try {
+      const response = await apiClient.get<string>(`${REST_PIANOSHEET_API}/${id}/music-img`);
+      thumbnailImg.value = response.data;
+      console.log(thumbnailImg.value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 정렬기준
+  const sortOption = ref<number>();
+
+  // 검색어
+  const searchText = ref("");
+
+  // 결과 모달창
+  const isResultModalOpen = ref(false);
 
   return {
     basicSheetList,
@@ -283,12 +316,17 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     handleFavorite,
     handleDelete,
     convertFilefun,
-    convertedFilefun,
-    editTitle,
+    modifySheetForm,
+    isOpen,
     saveSheet,
     practiceData,
     practiceDatafun,
     detailSheet,
     detailSheetfun,
+    sortOption,
+    thumbnailImg,
+    thumbnail,
+    searchText,
+    isResultModalOpen,
   };
 });

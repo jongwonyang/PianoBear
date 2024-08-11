@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class MusicTestService {
     }
 
     @Transactional
-    public MusicTestDTO addDummyMusicTest(int musicId, String userId, int grade) {
+    public MusicTestDTO addDummyMusicTest(int musicId, String userId, int grade, LocalDate testDate) {
         Music music = musicRepository.findById(musicId)
                 .orElseThrow(() -> new RuntimeException("Music not found with id " + musicId));
         Member member = memberRepository.findById(userId)
@@ -44,6 +45,7 @@ public class MusicTestService {
         musicTest.setMusic(music);
         musicTest.setMember(member);
         musicTest.setGrade(grade);
+        musicTest.setTestDate(testDate);
 
         MusicTest savedTest = musicTestRepository.save(musicTest);
         return mapToDTO(savedTest);
@@ -89,10 +91,16 @@ public class MusicTestService {
         return tests.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
+    public MusicTestDTO getResultById(int id){
+        MusicTest result = musicTestRepository.findResultById(id);
+        return mapToDTO(result);
+    }
+
     private MusicTestDTO mapToDTO(MusicTest musicTest) {
         MusicTestDTO dto = new MusicTestDTO();
         dto.setId(musicTest.getId());
         dto.setGrade(musicTest.getGrade());
+        dto.setTestDate(musicTest.getTestDate());
         dto.setUserId(musicTest.getMember().getId());
         dto.setMusicId(musicTest.getMusic().getId());
         return dto;

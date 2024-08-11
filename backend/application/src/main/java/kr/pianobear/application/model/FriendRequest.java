@@ -28,7 +28,8 @@ public class FriendRequest {
     private Member receiver;
 
     // Constructors, getters, and setters
-    public FriendRequest() {}
+    public FriendRequest() {
+    }
 
     public FriendRequest(Member sender, Member receiver) {
         this.sender = sender;
