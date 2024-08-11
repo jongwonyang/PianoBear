@@ -23,6 +23,7 @@
   border: 2px solid #f5e5d1;
   padding-top: 8vh;
   position: relative;
+  background-color: white;
 }
 #osmd-sheet::-webkit-scrollbar {
   display: none;

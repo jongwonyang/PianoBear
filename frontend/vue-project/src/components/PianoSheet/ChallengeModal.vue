@@ -41,7 +41,6 @@ const props = defineProps({
 const emits = defineEmits([
     'changeDialog',
     'startRecord',
-    'changeChallenge'
 ])
 
 const countdown = ref(false);
@@ -66,7 +65,6 @@ const start = async function () {
         emits('startRecord');
         cardCheck.value = true;
         countdown.value = false;
-        emits('changeChallenge');
     }, 4000)
 }
 

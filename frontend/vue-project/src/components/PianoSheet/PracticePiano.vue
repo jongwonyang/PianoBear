@@ -36,7 +36,7 @@
                 <v-btn v-show="!isRecording" prepend-icon="mdi-play" :width="125" :height="32" class="player" id="play"
                     variant="text">도전하기</v-btn>
             </v-sheet>
-            <div v-if="status" class="practiceLoading">
+            <div v-if="!props.challenge && status" class="practiceLoading">
                 <v-progress-linear v-model="knowledge" height="15" color="#D9F6D9">
                     <strong>연습량 {{ Math.ceil(knowledge) }}%</strong>
                 </v-progress-linear>
@@ -51,8 +51,7 @@
             <Piano :curr-pitch="num" style="position: relative; margin: auto; margin-top: 2vh;" />
         </div>
         <ChallengeModal v-if="props.challenge" :play-challenge="playChallenge" :dialog="dialog"
-            @change-dialog="changeDialog" @start-record="startRecording" @change-challenge="changeChallenge"
-            :text="text" :audio-con="audioCon" />
+            @change-dialog="changeDialog" @start-record="startRecording" :text="text" :audio-con="audioCon" />
     </div>
 </template>
 
@@ -93,7 +92,9 @@ const dialog = ref(true);
 // 모달 변수
 const text = ref("* 도전하기를 위해 마이크 권한을 허용해주세요.");
 const audioCon = ref(false);
-const isChallenge = ref(false);
+const afterChallenge = ref(false);
+const interval1 = ref();
+const interval2 = ref();
 
 
 // space-bar 로 재생, 일시정지 설정
@@ -115,6 +116,13 @@ const loadMxl = async function (id) {
 
 // 녹음 재생
 async function startRecording() {
+    interval2.value = setInterval(() => {
+        if (isMidiStop()) {
+            stopRecording(true);
+            afterChallenge.value = true;
+        }
+        console.log(isMidiStop());
+    }, 500)
     stateChange('play')
     stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
     recorder.value = new MediaRecorder(stream.value);
@@ -123,10 +131,21 @@ async function startRecording() {
     };
     recorder.value.start();
     isRecording.value = true;
+
+    //test
+    setTimeout(() => {
+        stopRecording(true);
+    }, 2000)
+
 }
 
 // 녹음 중지
 async function stopRecording(isSuccess) {
+
+    // 도전 완료정보 초기화
+    clearInterval(interval2.value);
+
+    // 도전을 완료하기 전 수행.
     if (!isSuccess) {
         dialog.value = true;
         stream.value.getTracks().forEach((track) => {
@@ -139,17 +158,19 @@ async function stopRecording(isSuccess) {
         stateChange('rewind')
         isRecording.value = false;
         audioChunks.value = [];
-        isChallenge.value = false
         return;
+
+        // 도전이 완료되면 수행
     } else if (recorder.value) {
         recorder.value.stop();
-        recorder.value.onstop = () => {
+        recorder.value.onstop = async () => {
             const audioBlob = new Blob(audioChunks.value, { type: 'audio/wav' });
-            console.log(audioBlob)
             wavBlobUrl.value = URL.createObjectURL(audioBlob);
-            stateChange('rewind')
+            // await stateChange('rewind')
+            reset();
             isRecording.value = false;
             audioChunks.value = [];
+            store.challengefun(nowSheet.value, audioBlob);
         };
     }
 }
@@ -158,9 +179,6 @@ const changeDialog = function () {
     dialog.value = !dialog.value;
 }
 
-const changeChallenge = function () {
-    isChallenge.value = true;
-}
 
 // 악보 불러오기
 onMounted(async () => {
@@ -169,8 +187,12 @@ onMounted(async () => {
     await sheetSelect(musicXml.value);
     await createPlayer(props.challenge);
     status.value = true;
+
+    // 도전모드일때 실행되는 메서드
     if (props.challenge) {
         playChallenge.value = true;
+
+        // 도전모드 모달 변경
         chaingingChallenge(true);
         try {
             stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -180,22 +202,21 @@ onMounted(async () => {
             audioCon.value = false;
             text.value = "* 마이크 기능 없이 도전할 수 없어요.\n * 주소창 오른쪽의 마이크 모양을 누르세요.\n * 권한을 허용 해주세요.\n * 새로고침 F5 를 눌러주세요."
         }
-        setInterval(() => {
-            if (isChallenge.value && isMidiStop()) {
-                stopRecording(true);
-            }
-            console.log(isChallenge.value);
-        }, 500)
+        // 연습모드일때 실행되는 메서드
     } else {
+
+        // 도전모드 모달 변경
         chaingingChallenge(false);
         playChallenge.value = false;
         audioCon.value = false;
-        const interval = setInterval(() => {
+
+        // 1분이 지나면 연습추가
+        interval1.value = setInterval(() => {
             if (knowledge.value < 100) {
                 knowledge.value += 1;
             } else if (knowledge.value === 100) {
-                // store.practicePostfun(nowSheet.value);
-                clearInterval(interval);
+                store.practicePostfun(nowSheet.value);
+                clearInterval(interval1.value);
             }
         }, 60)
     }
@@ -205,9 +226,16 @@ onMounted(async () => {
 router.beforeEach((to, from) => {
     if (from.name === 'pianoPractice' || from.name === 'pianoChallenge') {
         reset();
-        stopRecording(true);
+        stopRecording(false);
     }
 });
+
+onUnmounted(() => {
+    reset();
+    stopRecording(false);
+    clearInterval(interval1.value);
+})
+
 </script>
 
 <style scoped>

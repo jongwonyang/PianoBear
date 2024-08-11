@@ -5,6 +5,20 @@ import { ref } from "vue";
 const DEFAULT_OUTPUT = "local";
 const PLAYER_PLAYING = 1;
 const notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+const notes2 = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
 const LOCALSTORAGE_KEY = "musicxml-player";
 const challenge = ref(false);
 export const num = ref([]);
@@ -267,8 +281,6 @@ export const stateChange = function (state) {
     });
   } else if (state === "pause") {
     g_state.timingObject?.update({ velocity: 0 });
-    // g_state.player._output._player.queueWaveTable(60, 3);
-    console.log(g_state.player._midiPlayer._state);
   } else if (state === "rewind") {
     g_state.timingObject?.update({ position: 0, velocity: 0 });
   }
@@ -282,6 +294,24 @@ export const isMidiStop = function () {
   }
 };
 
+export const playingPiano = function (pitch, oct) {
+  let k = 60;
+  notes2.forEach((e, i) => {
+    if (e === pitch) {
+      k = i + (oct + 1) * 12;
+    }
+  });
+
+  g_state.player._output._player.queueWaveTable(
+    g_state.player._output._audioContext,
+    g_state.player._output._audioContext._destination,
+    window[g_state.player._output._instruments[0].instrumentInfo.variable],
+    0,
+    k,
+    1
+  );
+};
+
 export default {
   pageLoad,
   sheetSelect,
@@ -292,4 +322,5 @@ export default {
   chaingingChallenge,
   stateChange,
   isMidiStop,
+  playingPiano,
 };
