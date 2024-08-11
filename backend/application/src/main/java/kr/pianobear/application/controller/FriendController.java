@@ -3,6 +3,7 @@ package kr.pianobear.application.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,13 @@ public class FriendController {
     public List<FriendDTO> getFriends() {
         String currentUserId = SecurityUtil.getCurrentUserId();
         return friendService.getFriends(currentUserId);
+    }
+
+    @DeleteMapping("/{userId}")
+    @Operation(summary = "사용자 ID로 친구 삭제")
+    public void deleteFriendById(@PathVariable String userId) {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        friendService.deleteFriendById(currentUserId, userId);
     }
 
     @GetMapping("/search/{userId}")

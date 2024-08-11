@@ -190,4 +190,18 @@ public class FriendService {
             throw new RuntimeException("Member not found");
         }
     }
+
+    public void deleteFriendById(String currentUserId, String targetId) {
+
+        Optional<Member> currentUserOpt = memberRepository.findById(currentUserId);
+        Optional<Member> targetOpt = memberRepository.findById(targetId);
+
+        if (currentUserOpt.isPresent() && targetOpt.isPresent()) {
+            Member currentUser = currentUserOpt.get();
+            Member target = targetOpt.get();
+
+            currentUser.removeFriend(target);
+            memberRepository.save(currentUser);
+        }
+    }
 }
