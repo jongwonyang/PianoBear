@@ -53,6 +53,23 @@ public class FileDataService {
         return fileData;
     }
 
+    public FileData uploadFile(byte[] file, String originalName, String contentType) throws IOException {
+        String savedName = UUID.randomUUID().toString();
+        String path = SAVE_PATH + savedName;
+
+        Path writePath = Paths.get(path);
+        Files.write(writePath, file);
+
+        FileData fileData = new FileData();
+        fileData.setOriginalName(originalName);
+        fileData.setSavedName(savedName);
+        fileData.setPath(path);
+        fileData.setType(contentType);
+        fileData = fileDataRepository.save(fileData);
+
+        return fileData;
+    }
+
     public FileData uploadImage(MultipartFile imageFile, int width, int height) throws IOException {
         String savedName = UUID.randomUUID().toString();
         String path = SAVE_PATH + savedName;

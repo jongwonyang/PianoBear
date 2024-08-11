@@ -11,7 +11,11 @@ export default defineConfig({
   plugins: [
     vue({
       template: {
-        compilerOptions: { isCustomElement: (tag) => tag.startsWith("md-") },
+        compilerOptions: { isCustomElement: (tag) => {
+          if (tag.startsWith("md-")) return true;
+          if (["v-list-item-content", "midi-player", "midi-visualizer"].includes(tag)) return true;
+          return false;
+        }},
       },
     }),
     VueDevTools(),

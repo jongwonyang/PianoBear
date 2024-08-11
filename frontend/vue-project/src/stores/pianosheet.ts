@@ -276,8 +276,27 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
+  // 썸네일 불러오기
+  const thumbnailImg = ref<string>();
+
+  const thumbnail = async (id: number): Promise<void> => {
+    try {
+      const response = await apiClient.get<string>(`${REST_PIANOSHEET_API}/${id}/music-img`);
+      thumbnailImg.value = response.data;
+      console.log(thumbnailImg.value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // 정렬기준
   const sortOption = ref<number>();
+
+  // 검색어
+  const searchText = ref("");
+
+  // 결과 모달창
+  const isResultModalOpen = ref(false);
 
   return {
     basicSheetList,
@@ -305,5 +324,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     detailSheet,
     detailSheetfun,
     sortOption,
+    thumbnailImg,
+    thumbnail,
+    searchText,
+    isResultModalOpen,
   };
 });
