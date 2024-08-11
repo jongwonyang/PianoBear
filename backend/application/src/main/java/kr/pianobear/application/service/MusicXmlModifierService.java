@@ -248,6 +248,7 @@ public class MusicXmlModifierService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new IOException("Failed to modify XML file", e);
+
         }
     }
 

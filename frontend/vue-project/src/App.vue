@@ -82,5 +82,9 @@ body {
   --md-sys-color-primary: #947650;
   --md-elevation-level: 5;
   --md-sys-color-shadow: #d2b659;
+
+  background-image: url('@/assets/images/bg10.webp');
+  background-size: cover;
+  z-index: -1;
 }
 </style>

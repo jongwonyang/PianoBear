@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="text"><h3>연습기록</h3></div>
+    <div class="text">연습기록</div>
     <div class="container">
       <div class="record-list">
         <div v-for="record in store.practiceData" :key="record.id" class="record-item">
@@ -50,11 +50,15 @@ onMounted(() => {
   justify-content: center; /* 수평 가운데 정렬 */
   align-items: center; /* 수직 가운데 정렬 */
   height: 50px; /* 부모 요소의 높이를 100vh로 설정하여 화면 중앙에 위치시킴 */
+  font-size: large;
+  font-weight: bold;
+  margin-top: 1vh;
 }
 
 .page {
   border: 2px solid #f5e5d1;
   border-radius: 5px;
+  background-color: #fffff8;
 }
 
 .container {
