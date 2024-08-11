@@ -154,6 +154,7 @@ const confirmDeleteAllNotifications = () => {
 
 const acceptFriendRequest = (index) => {
   // 친구 요청 수락 API 호출
+  friendStore.AcceptFriendRequest(notifications.value[index].content.senderId);
 
   console.log("친구 추가 요청 수락:", notifications.value[index].message);
   // 특정 알림 삭제

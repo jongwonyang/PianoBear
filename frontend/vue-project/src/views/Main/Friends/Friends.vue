@@ -101,9 +101,11 @@
                                 <md-elevation></md-elevation>
                                 {{ searchResult.statusMessage }}
                             </div>
-                            <v-btn v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.id"
+                            <v-btn
+                                v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.id && !searchResultSentRequest"
                                 class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
                             <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
+                            <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
                             <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
                         </div>
                     </div>
@@ -144,6 +146,7 @@ const showDialog = ref(false); // 친구 검색 다이얼로그 상태 추가
 const friendInfoDialog = ref(false); // 친구 정보 다이얼로그 상태 추가
 const searchQuery = ref(''); // 검색어를 저장할 상태
 const searchResult = ref(null); // 검색 결과를 저장할 상태
+const searchResultSentRequest = ref(false); // 검색 결과에 대한 친구 요청 상태
 const friendInfo = ref(null); // 친구 정보를 저장할 상태
 
 onMounted(() => {
@@ -169,9 +172,19 @@ const searchFriend = () => {
         .then((res) => {
             searchResult.value = res.data;
             console.log(res);
+            // 검색 결과에 대해 친구 요청을 보냈는지 확인
+            friendStore.IsSentRequest(searchResult.value.id)
+                .then((requestRes) => {
+                    searchResultSentRequest.value = requestRes.data;
+                })
+                .catch((err) => {
+                    console.log(err);
+                    searchResultSentRequest.value = false;
+                });
         })
         .catch((err) => {
             searchResult.value = null;
+            searchResultSentRequest.value = false;
             console.log(err);
         });
 };
