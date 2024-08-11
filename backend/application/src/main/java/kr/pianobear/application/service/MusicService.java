@@ -127,10 +127,11 @@ public class MusicService {
 
         music.setMusicXmlRoute(musicDTO.getMusicXmlRoute());
         music.setModifiedMusicXmlRoute(musicDTO.getModifiedMusicXmlRoute());
+        music.setMusicImg(createMusicImg(musicDTO.getTitle()));
 
         // OpenAI API를 통해 이미지 생성 후 설정
-        String imageUrl = openAiService.generateImage(musicDTO.getTitle());
-        music.setMusicImg(imageUrl);
+//        String imageUrl = openAiService.generateImage(musicDTO.getTitle());
+//        music.setMusicImg(imageUrl);
 
         Music savedMusic = musicRepository.save(music);
 
@@ -155,14 +156,14 @@ public class MusicService {
     }
 
     private String createMusicImg(String title) {
-        try {
-            // OpenAI API를 사용하여 이미지 생성
-            return openAiService.generateImage(title);
-        } catch (IOException e) {
-            // 오류 처리
-            e.printStackTrace();
+//        try {
+//            // OpenAI API를 사용하여 이미지 생성
+//            return openAiService.generateImage(title);
+//        } catch (IOException e) {
+//            // 오류 처리
+//            e.printStackTrace();
             return "/path/to/default/image.png"; // 에러 발생 시 기본 이미지를 반환할 수 있음
-        }
+//        }
     }
 
 
