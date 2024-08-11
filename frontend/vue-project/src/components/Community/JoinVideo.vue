@@ -1,26 +1,25 @@
 <template>
   <div :class="props.videos">
-    <v-sheet :class="surface" :elevation="3" rounded="lg">
-      <UserVideo :stream-manager="publisher" v-if="publisher"></UserVideo>
-    </v-sheet>
-
-    <v-sheet
+    <UserVideo
+      :stream-manager="publisher"
+      v-if="publisher"
       :class="surface"
+      :surface="surface"
+    ></UserVideo>
+
+    <SubVideo
+      :class="surface"
+      :surface="surface"
       v-for="sub in subscribers"
       :key="sub.stream.connection.connectionId"
-      :elevation="3"
-      rounded="lg"
-    >
-      <SubVideo :stream-manager="sub" :class="surface" v-if="sub"></SubVideo>
-    </v-sheet>
+      :stream-manager="sub"
+    ></SubVideo>
   </div>
 </template>
 <script lang="ts" setup>
 import Bear from "@/components/Community/Bear.vue";
 import { ref, defineProps } from "vue";
-import Menu from "./Menu.vue";
 import { useOpenviduStore } from "@/stores/community";
-import OvVideo from "./OvVideo.vue";
 import UserVideo from "./UserVideo.vue";
 import SubVideo from "./SubVideo.vue";
 import { storeToRefs } from "pinia";
@@ -50,6 +49,7 @@ const props = defineProps({
   width: 960px;
   margin: 10px 10px 0px 80px;
   justify-content: center;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
 }
 .surface2 {
   position: relative;
@@ -62,6 +62,7 @@ const props = defineProps({
   background-color: #fff8d8;
   border-radius: 20px;
   width: 60%;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
 }
 
 .menus {

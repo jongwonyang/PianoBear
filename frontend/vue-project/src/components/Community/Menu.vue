@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-menu location="end">
-      <template v-slot:activator="{ props }">
+      <template v-slot:activator="{ props }" >
         <v-btn
           v-bind="props"
           icon="mdi-dots-horizontal"
@@ -11,8 +11,9 @@
         </v-btn>
       </template>
       <v-list lines="one">
-        <v-list-item v-for="(item, index) in items" :key="index">
-          <v-list-item-title>{{ item }}</v-list-item-title>
+        <v-list-item>
+          <v-btn v-if="!muted" @click="toggleAudio()"> 음소거 </v-btn>
+          <v-btn v-else @click="toggleAudio()"> 음소거 해제 </v-btn>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -22,10 +23,14 @@
 import { ref, defineProps } from "vue";
 
 const props = defineProps({
-  next: String,
+  muted: Boolean,
 });
 
-const items = ref(["음량조절", "음소거", "친구추가"]);
+const emit = defineEmits(["toggle-audio"]);
+
+function toggleAudio() {
+  emit("toggle-audio");
+}
 </script>
 
 <style scoped></style>

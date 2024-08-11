@@ -1,15 +1,15 @@
 <template>
   <div class="chat" :class="props.chat">
-    <h2>채팅창</h2>
-    <div class="chat-history pb-4">
+    <div><h2>채팅창</h2></div>
+    <div class="chat-history pb-4 mb-2">
       <div
         v-for="(msg, idx) in openviduStore.chatHistory.slice().reverse()"
         :key="idx"
       >
-        <div class="px-2">
+        <div class="px-3">
           <b>{{ msg.sender }}</b>
         </div>
-        <div class="chat-message-content mx-1 my-2 px-2 py-1">
+        <div class="chat-message-content mx-3 my-2 px-2 py-1">
           {{ msg.content }}
         </div>
       </div>
@@ -34,7 +34,7 @@
 </template>
 <script lang="ts" setup>
 import { useOpenviduStore } from "@/stores/community";
-import { useUserStore } from "@/stores/user";
+import { useUserStore, type User } from "@/stores/user";
 import { defineProps, ref } from "vue";
 
 const message = ref("");
@@ -43,8 +43,10 @@ const openviduStore = useOpenviduStore();
 const userStore = useUserStore();
 
 function sendMessage() {
-  openviduStore.sendMessage(userStore.user.name, message.value);
-  message.value = "";
+  if (message.value != "") {
+    openviduStore.sendMessage(message.value);
+    message.value = "";
+  }
 }
 
 const setMessage = (e: any) => {
@@ -58,9 +60,11 @@ const props = defineProps({
 <style scoped>
 .chat {
   display: grid;
-  grid-template-rows: 10% auto 10%;
+  grid-template-rows: 10% auto 56px;
   padding: 10px;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
 }
+
 .chat1 {
   width: 350px;
   height: 630px;
@@ -101,8 +105,11 @@ const props = defineProps({
 
 .chat-history {
   overflow-y: auto;
+  scrollbar-width: none;
   display: flex;
   flex-direction: column-reverse;
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
 }
 
 .chat-message-content {

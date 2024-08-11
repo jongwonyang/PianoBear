@@ -5,11 +5,12 @@ import axios from "axios";
 import { OpenVidu, Publisher, Session, StreamManager } from "openvidu-browser";
 import apiClient from "@/loginController/verification";
 import { shallowRef } from "vue";
-import { useUserStore } from "./user";
+import { useUserStore, type User } from "./user";
+import { useRouter } from "vue-router";
+import { da } from "vuetify/locale";
 
-const APPLICATION_SERVER_URL = "https://test0.sgr.cspark.kr/";
-
-const OPENVIDU_SERVER_URL: String = "https://openvidu.pianobear.kr/openvidu";
+const APPLICATION_SERVER_URL =
+  import.meta.env.VITE_API_BASE_URL + "/community/";
 
 export const useOpenviduStore = defineStore("openvidu", () => {
   let OV: OpenVidu | null = null;
@@ -18,10 +19,16 @@ export const useOpenviduStore = defineStore("openvidu", () => {
   let publisher = shallowRef<Publisher | null>(null);
   let subscribers = ref<any>([]);
   let isInitialized = ref<boolean>(false);
+  let isAudioActive = ref<boolean>(false);
+  let isVideoActive = ref<boolean>(false);
+
+  const router = useRouter();
 
   const chatHistory = ref<{ sender: string; content: string }[]>([]);
 
   const isPlay = ref(true);
+
+  const emoteMap = ref(new Map());
 
   const userStore = useUserStore();
 
@@ -79,9 +86,30 @@ export const useOpenviduStore = defineStore("openvidu", () => {
       // 메시지를 화면에 표시하는 로직을 추가
     });
 
+    // 이모트 수신
+    session.on("signal:emote", (event) => {
+      const message = event.data;
+      console.log("Emote received: ", JSON.parse(message as string));
+      let data = JSON.parse(message as string);
+      if (emoteMap.value.has(data.senderId)) {
+        let expired = emoteMap.value.get(data.senderId);
+        clearTimeout(expired.timeout);
+      }
+      data.timeout = setTimeout(() => {
+        emoteMap.value.delete(data.senderId);
+      }, 1000);
+      console.log(data);
+      emoteMap.value.set(data.senderId, data);
+    });
+
     try {
       const token = await createToken(sessionId);
-      await session.connect(token, { name: userStore.user.name });
+      await session.connect(token, {
+        clientData: {
+          name: (userStore.user as User).name,
+          id: (userStore.user as User).id,
+        },
+      });
 
       console.log(token);
 
@@ -93,6 +121,8 @@ export const useOpenviduStore = defineStore("openvidu", () => {
         error.code,
         error.message
       );
+      alert("방에 입장할 수 없습니다.");
+      router.push({ name: "community" });
     }
   };
 
@@ -102,10 +132,6 @@ export const useOpenviduStore = defineStore("openvidu", () => {
         .getMediaStream()
         .getTracks()
         .forEach((track) => track.stop());
-
-      if (session) {
-        session.unpublish(publisher.value);
-      }
     }
     if (session) {
       session.disconnect();
@@ -126,23 +152,25 @@ export const useOpenviduStore = defineStore("openvidu", () => {
     }
   };
 
-  const createSession = async () => {
-    const response = await apiClient.post(
-      APPLICATION_SERVER_URL + "api/v1/community/sessions"
-    );
+  const createSession = async (roomSetting: RoomSetting) => {
+    const response = await apiClient.post(APPLICATION_SERVER_URL + "sessions", {
+      sessionTitle: roomSetting.sessionTitle,
+      invitationMessage: roomSetting.invitationMessage,
+      description: roomSetting.description,
+    });
     return response.data; // The sessionId
   };
 
   const createToken = async (sessionId: string) => {
     const response = await apiClient.post(
-      `${APPLICATION_SERVER_URL}api/v1/community/sessions/${sessionId}/connections`,
+      `${APPLICATION_SERVER_URL}sessions/${sessionId}/connect`,
       {}
     );
     return response.data; // The token
   };
 
   // 메시지 전송
-  function sendMessage(sender: string, message: string) {
+  function sendMessage(message: string) {
     if (!session) {
       console.log("You are not in session yet.");
     } else {
@@ -150,7 +178,7 @@ export const useOpenviduStore = defineStore("openvidu", () => {
         .signal({
           type: "chat",
           data: JSON.stringify({
-            sender: "sender",
+            sender: (userStore.user as User).name,
             content: message,
           }),
         })
@@ -163,12 +191,56 @@ export const useOpenviduStore = defineStore("openvidu", () => {
     }
   }
 
+  // 메시지 전송
+  function sendEmote(message: string) {
+    if (!session) {
+      console.log("You are not in session yet.");
+    } else {
+      session
+        .signal({
+          type: "emote",
+          data: JSON.stringify({
+            sender: (userStore.user as User).name,
+            senderId: (userStore.user as User).id,
+            content: message,
+          }),
+        })
+        .then(() => {
+          console.log("Emote sent successfully");
+        })
+        .catch((error) => {
+          console.error("There was an error sending the Emote:", error);
+        });
+    }
+  }
+
+  // 친구 초대
+  function inviteFriend(invitee: string) {
+    if (!session) {
+      console.log("You are not in session yet.");
+    } else {
+      apiClient.post(
+        `${APPLICATION_SERVER_URL}sessions/${session.sessionId}/invite/${invitee}`,
+        {}
+      );
+    }
+  }
+
+  const getInvitedFriends = () => {
+    return apiClient.get(
+      `${APPLICATION_SERVER_URL}sessions/${session?.sessionId}/participants`
+    );
+  };
+
   return {
     publisher,
     subscribers,
     isPlay,
     isInitialized,
     chatHistory,
+    isAudioActive,
+    isVideoActive,
+    emoteMap,
     joinSession,
     leaveSession,
     createSession,
@@ -176,5 +248,14 @@ export const useOpenviduStore = defineStore("openvidu", () => {
     initOpenvidu,
     deinitOpenvidu,
     sendMessage,
+    sendEmote,
+    inviteFriend,
+    getInvitedFriends,
   };
 });
+
+export type RoomSetting = {
+  sessionTitle: string;
+  invitationMessage: string;
+  description: string;
+};

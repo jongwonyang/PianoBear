@@ -1,24 +1,20 @@
 <template>
   <div>
-    <div class="screen" v-if="openviduStore.isPlay">
-      <JoinVideo videos="videos1" surface="surface1" />
-      <Chat v-show="chatOn" chat="chat1" />
-    </div>
-    <div class="screen" v-else>
-      <JoinVideo videos="videos2" surface="surface2" bear-check="true" />
-      <Test />
-      <Chat v-show="chatOn" chat="chat2" />
+    <div class="screen">
+      <JoinVideo :videos="videos" :surface="surface" bear-check="true" />
+      <Test v-if="!openviduStore.isPlay" />
+      <Chat v-show="chatOn" :chat="chat" />
     </div>
     <Controller />
   </div>
 </template>
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import Controller from "@/components/Community/Controller.vue";
 import JoinVideo from "@/components/Community/JoinVideo.vue";
 import Chat from "@/components/Community/JoinChat.vue";
 import Test from "@/components/Community/test.vue";
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import { useOpenviduStore } from "@/stores/community";
 
 const openviduStore = useOpenviduStore();
@@ -38,6 +34,34 @@ onBeforeMount(() => {
     });
   }
 });
+
+const videos = computed(() => {
+  if (openviduStore.isPlay) {
+    return "videos1";
+  } else {
+    return "videos2";
+  }
+});
+
+const surface = computed(() => {
+  if (openviduStore.isPlay) {
+    return "surface1";
+  } else {
+    return "surface2";
+  }
+});
+
+const chat = computed(() => {
+  if (openviduStore.isPlay) {
+    return "chat1";
+  } else {
+    return "chat2";
+  }
+});
+
+window.onbeforeunload = () => {
+  openviduStore.leaveSession();
+};
 </script>
 
 <style scoped>

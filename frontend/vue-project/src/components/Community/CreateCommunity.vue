@@ -7,21 +7,22 @@
     <template v-slot:default="{ isActive }">
       <v-card title="방 만들기" color="#FFF9E0">
         <div class="create-input">
-          <md-outlined-text-field label="방 제목" v-model="roomSetting.title">
-          </md-outlined-text-field>
           <md-outlined-text-field
-            label="인원"
-            value="6"
-            readonly="true"
-            v-model="roomSetting.num"
+            label="방 제목"
+            v-model="roomSetting.sessionTitle"
           >
+          </md-outlined-text-field>
+          <md-outlined-text-field label="인원" value="6" readonly="true">
           </md-outlined-text-field>
           <md-outlined-text-field
             label="초대 메시지"
-            v-model="roomSetting.message"
+            v-model="roomSetting.invitationMessage"
           >
           </md-outlined-text-field>
-          <md-outlined-text-field label="설명" v-model="roomSetting.text">
+          <md-outlined-text-field
+            label="설명"
+            v-model="roomSetting.description"
+          >
           </md-outlined-text-field>
         </div>
 
@@ -38,33 +39,29 @@
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
-import { useOpenviduStore } from "@/stores/community";
+import { useOpenviduStore, type RoomSetting } from "@/stores/community";
 
 const router = useRouter();
 const roomtitle = ref<HTMLInputElement>();
-onMounted(() => {
-  roomtitle.value?.setAttribute("v-model", "roomSetting.title");
-});
-
-interface RoomSetting {
-  title: string;
-  num: number;
-  message: string;
-  text: string;
-}
+onMounted(() => {});
 
 const roomSetting = ref<RoomSetting>({
-  title: "",
-  num: 6,
-  message: "",
-  text: "",
+  sessionTitle: "",
+  invitationMessage: "",
+  description: "",
 });
 
 const openviduStore = useOpenviduStore();
 
 const join = function (): void {
   console.log(roomSetting.value);
-  openviduStore.createSession().then((sessionId: string) => {
+
+  if (roomSetting.value.sessionTitle == "") {
+    alert("방 제목은 꼭 입력해야해요.");
+    return;
+  }
+
+  openviduStore.createSession(roomSetting.value).then((sessionId: string) => {
     router.push({
       name: "communiting",
       params: { id: sessionId },
