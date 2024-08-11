@@ -293,7 +293,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const sortOption = ref<number>();
 
   // 검색어
-  const searchText = ref("");
+  const searchText = ref<string>("");
 
   // 결과 모달창
   const isResultModalOpen = ref(false);
@@ -324,12 +324,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     detailSheet,
     detailSheetfun,
     sortOption,
-<<<<<<< HEAD
-=======
     thumbnailImg,
     thumbnail,
     searchText,
     isResultModalOpen,
->>>>>>> 3d9ab2c7f8a6883e596edbe6aa31777d115ea533
   };
 });
