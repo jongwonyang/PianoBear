@@ -132,7 +132,7 @@ onMounted(() => {
     });
 
   // 알림 목록과 개수 가져오기
-  notificationStore.GetNotificationList();
+  // notificationStore.GetNotificationList();
 
   notificationStore.GetNotificationCount();
 

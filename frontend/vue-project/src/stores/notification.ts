@@ -18,18 +18,16 @@ export const useNotificationStore = defineStore("notification", () => {
   const accessToken = ref(userStore.GetAccessToken());
   console.log("accessToken", accessToken.value);
 
-  const GetNotificationList = async () => {
-    try {
-      const response = await apiClient.get(REST_NOTIFICATION_API);
-      for (let i = 0; i < response.data.length; i++) {
-        response.data[i].content = JSON.parse(response.data[i].content);
-      }
-      console.log("response.data", response.data);
-      notifications.value = response.data;
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
+  // const GetNotificationList = async () => {
+  //   try {
+  //     const response = await apiClient.get(REST_NOTIFICATION_API);
+  //     console.log("response.data", response.data);
+  //     notifications.value = response.data;
+  //     console.log("notifications.value", notifications.value);
+  //   } catch (error) {
+  //     console.error("Error fetching notifications:", error);
+  //   }
+  // };
 
   const GetNotificationCount = async () => {
     try {
@@ -91,6 +89,7 @@ export const useNotificationStore = defineStore("notification", () => {
       notifications.value.push(newNotification);
       notificationCount.value += 1;
       console.log("New notification:", newNotification);
+      console.log("notificationCount.value", notificationCount.value);
     });
 
     source.onerror = (error) => {
@@ -102,7 +101,7 @@ export const useNotificationStore = defineStore("notification", () => {
   return {
     notifications,
     notificationCount,
-    GetNotificationList,
+    // GetNotificationList,
     GetNotificationCount,
     DeleteNotification,
     ClearNotifications,
