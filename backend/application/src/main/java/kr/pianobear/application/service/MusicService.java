@@ -34,9 +34,10 @@ public class MusicService {
     private final MusicPracticeRepository musicPracticeRepository;
     private final PdfToMusicXmlService pdfToMusicXmlService;
     private final MusicXmlModifierService musicXmlModifierService;
+    private final OpenAiService openAiService;
 
     @Autowired
-    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService) {
+    public MusicService(MusicRepository musicRepository, MusicPracticeService musicPracticeService, FileDataService fileDataService, MemberRepository memberRepository, MusicPracticeRepository musicPracticeRepository, PdfToMusicXmlService pdfToMusicXmlService, MusicXmlModifierService musicXmlModifierService, OpenAiService openAiService) {
         this.musicRepository = musicRepository;
         this.musicPracticeService = musicPracticeService;
         this.fileDataService = fileDataService;
@@ -44,6 +45,7 @@ public class MusicService {
         this.musicPracticeRepository = musicPracticeRepository;
         this.pdfToMusicXmlService = pdfToMusicXmlService;
         this.musicXmlModifierService = musicXmlModifierService;
+        this.openAiService = openAiService;
     }
 
     @Transactional
@@ -109,8 +111,9 @@ public class MusicService {
         }
     }
 
+
     @Transactional
-    public MusicDTO saveMusic(MusicDTO musicDTO) {
+    public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
         Music music = new Music();
         music.setTitle(musicDTO.getTitle());
         music.setArtist(musicDTO.getArtist());
@@ -125,6 +128,10 @@ public class MusicService {
         music.setMusicXmlRoute(musicDTO.getMusicXmlRoute());
         music.setModifiedMusicXmlRoute(musicDTO.getModifiedMusicXmlRoute());
         music.setMusicImg(createMusicImg(musicDTO.getTitle()));
+
+        // OpenAI API를 통해 이미지 생성 후 설정
+//        String imageUrl = openAiService.generateImage(musicDTO.getTitle());
+//        music.setMusicImg(imageUrl);
 
         Music savedMusic = musicRepository.save(music);
 
@@ -149,9 +156,16 @@ public class MusicService {
     }
 
     private String createMusicImg(String title) {
-        // 이미지 생성 로직
-        return "/path/to/generated/image.png";
+//        try {
+//            // OpenAI API를 사용하여 이미지 생성
+//            return openAiService.generateImage(title);
+//        } catch (IOException e) {
+//            // 오류 처리
+//            e.printStackTrace();
+            return "/path/to/default/image.png"; // 에러 발생 시 기본 이미지를 반환할 수 있음
+//        }
     }
+
 
     private MusicDTO mapMusicToDTO(Music music) {
         MusicDTO musicDTO = new MusicDTO();
