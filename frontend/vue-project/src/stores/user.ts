@@ -92,6 +92,16 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const UpdateStatusMessage = async (statusMessage: string) => {
+    try {
+      await apiClient.put(REST_USER_API + "status-message", {
+        statusMessage: statusMessage,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const SetAccessToken = (token: string) => {
     accessToken.value = token;
     localStorage.setItem("accessToken", token);
@@ -126,6 +136,7 @@ export const useUserStore = defineStore("user", () => {
     CheckUserEmail,
     LoginUser,
     PasswordReset,
+    UpdateStatusMessage,
     SetAccessToken,
     SetRefreshToken,
     GetAccessToken,
