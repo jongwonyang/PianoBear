@@ -1,5 +1,6 @@
 package kr.pianobear.application.service;
 
+import jakarta.transaction.Transactional;
 import kr.pianobear.application.dto.FriendDTO;
 import kr.pianobear.application.dto.MyInfoDTO;
 import kr.pianobear.application.model.Member;
@@ -54,6 +55,7 @@ public class UserService {
         return Optional.of(myInfoDTO);
     }
 
+    @Transactional
     public Optional<List<FriendDTO>> getOnlineFriends(String userId) {
         Optional<Member> member = memberRepository.findById(userId);
 
