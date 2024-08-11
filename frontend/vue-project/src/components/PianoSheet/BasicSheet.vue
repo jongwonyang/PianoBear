@@ -83,6 +83,7 @@ const currentList = computed(() => {
   }
 });
 
+// props로 전달받은 sortOption
 const props = defineProps<{ sortOption: number }>();
 
 watch(

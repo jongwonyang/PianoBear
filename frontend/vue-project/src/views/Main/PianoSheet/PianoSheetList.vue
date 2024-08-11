@@ -1,7 +1,11 @@
 <template>
   <div>
     <div class="searchbar">
-      <SearchBar :currentTab="currentTab" @update:sortOption="updateSort" />
+      <SearchBar
+        :currentTab="currentTab"
+        @update:sortOption="updateSort"
+        @update:searchText="updateSort"
+      />
     </div>
     <div class="container">
       <div class="card">
@@ -21,14 +25,14 @@
         </router-link>
       </div>
       <div>
-        <img src="@/assets/characters/토니/토니응원.png" alt="" class="bottom">
+        <img src="@/assets/characters/토니/토니응원.png" alt="" class="bottom" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 import UserSheet from "@/components/PianoSheet/UserSheet.vue";
 import BasicSheet from "@/components/PianoSheet/BasicSheet.vue";
@@ -39,7 +43,6 @@ const store = usePianoSheetStore();
 const currentTab = ref<string>("UserSheet");
 const currentSortOption = ref<number>(0);
 
-// 사용자가 정렬 기준을 변경하면 localStorage에 저장합니다.
 const updateSort = (index: number) => {
   currentSortOption.value = index;
   store.sortOption = index;
@@ -53,7 +56,6 @@ const currentTabComponent = computed(() => {
   return currentTab.value === "UserSheet" ? UserSheet : BasicSheet;
 });
 
-// 페이지 로드 시 localStorage에서 정렬 기준을 불러옵니다.
 onMounted(() => {
   const savedSortOption = store.sortOption;
   if (savedSortOption) {
@@ -63,7 +65,7 @@ onMounted(() => {
 
 onMounted(async () => {
   await store.userSheetListfun();
-  // await store.basicSheetListfun();
+  await store.basicSheetListfun();
 });
 </script>
 
@@ -81,11 +83,6 @@ onMounted(async () => {
   margin-top: 1.5vh;
 }
 
-/* a {
-  text-decoration: none;
-  color: #d2b48c;
-} */
-
 .searchbar {
   width: 20vw;
   margin-left: auto;
@@ -102,7 +99,7 @@ onMounted(async () => {
   margin-left: 8vw;
 }
 
-.bottom{
+.bottom {
   width: 5vw;
 }
 </style>

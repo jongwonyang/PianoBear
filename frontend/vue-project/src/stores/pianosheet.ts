@@ -293,7 +293,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const sortOption = ref<number>();
 
   // 검색어
-  const searchText = ref("");
+  const searchText = ref<string>("");
 
   // 결과 모달창
   const isResultModalOpen = ref(false);
