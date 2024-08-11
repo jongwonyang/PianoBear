@@ -1,13 +1,10 @@
 <template>
   <v-text-field
-    :loading="loading"
-    append-inner-icon="mdi-magnify"
     density="compact"
     label="악보를 검색해봐요!"
     variant="outlined"
     @click:prepend-inner="toggleMenu"
-    @click:append-inner="onClickAppend"
-    v-model="searchText"
+    v-model="store.searchText"
   >
     <template v-slot:prepend-inner>
       <v-menu v-model:menu="menu" location="start">
@@ -42,8 +39,6 @@ const props = defineProps<{
 
 const store = usePianoSheetStore();
 const menu = ref(false);
-const loading = ref(false);
-const loaded = ref(false);
 const searchText = ref("");
 store.searchText = searchText.value;
 
@@ -59,16 +54,7 @@ const toggleMenu = () => {
   menu.value = !menu.value;
 };
 
-const onClickAppend = () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-    loaded.value = true;
-  }, 2000);
-};
-
 const changeSort = (index: number) => {
-  console.log("Child Component: changeSort index:", index);
   emit("update:sortOption", index);
 };
 </script>
