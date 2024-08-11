@@ -57,7 +57,7 @@ public class MusicXmlModifierService {
                             bos.write(bytesIn, 0, read);
                         }
                     }
-                    if (filePath.endsWith(".xml")) {
+                    if (filePath.endsWith(".xml") || filePath.endsWith(".musicxml")) {
                         xmlFilePath = filePath;
                     }
                 } else {
