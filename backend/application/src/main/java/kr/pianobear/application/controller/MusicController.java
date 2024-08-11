@@ -42,10 +42,16 @@ public class MusicController {
         MusicDTO createdMusic = musicService.processPdfUpload(file);
         return ResponseEntity.ok(createdMusic);
     }
-
+//
+//    @Operation(summary = "Music 저장", description = "Music 데이터를 저장합니다.")
+//    @PostMapping("/save")
+//    public ResponseEntity<MusicDTO> saveMusic(@RequestBody MusicDTO musicDTO) {
+//        MusicDTO savedMusic = musicService.saveMusic(musicDTO);
+//        return ResponseEntity.ok(savedMusic);
+//    }
     @Operation(summary = "Music 저장", description = "Music 데이터를 저장합니다.")
     @PostMapping("/save")
-    public ResponseEntity<MusicDTO> saveMusic(@RequestBody MusicDTO musicDTO) {
+    public ResponseEntity<MusicDTO> saveMusic(@RequestBody MusicDTO musicDTO) throws IOException {
         MusicDTO savedMusic = musicService.saveMusic(musicDTO);
         return ResponseEntity.ok(savedMusic);
     }
