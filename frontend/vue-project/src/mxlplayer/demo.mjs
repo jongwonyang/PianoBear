@@ -268,9 +268,17 @@ export const stateChange = function (state) {
   } else if (state === "pause") {
     g_state.timingObject?.update({ velocity: 0 });
     // g_state.player._output._player.queueWaveTable(60, 3);
-    console.log(g_state.player);
+    console.log(g_state.player._midiPlayer._state);
   } else if (state === "rewind") {
     g_state.timingObject?.update({ position: 0, velocity: 0 });
+  }
+};
+
+export const isMidiStop = function () {
+  if (!g_state.player._midiPlayer._state) {
+    return true;
+  } else {
+    return false;
   }
 };
 
@@ -283,4 +291,5 @@ export default {
   osmd,
   chaingingChallenge,
   stateChange,
+  isMidiStop,
 };

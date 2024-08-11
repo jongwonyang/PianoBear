@@ -297,6 +297,17 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
+  // 연습완료
+  const practicePostfun = async (id: number): Promise<void> => {
+    try {
+      await apiClient.post<void>(`${REST_PIANOSHEET_API}/practice/${id}`);
+      alert("연습 완료");
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   // 정렬기준
   const sortOption = ref<number>();
 
@@ -327,5 +338,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     detailSheetfun,
     sortOption,
     mxlLoadfun,
+    practicePostfun,
   };
 });

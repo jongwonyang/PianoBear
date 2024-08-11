@@ -5,12 +5,12 @@
                 <v-card max-width="400" v-show="props.playChallenge && cardCheck" color="#FFF9E0">
                     <v-card-title class="text" prepend-icon="mdi-update">도전하기!</v-card-title>
                     <v-divider :thickness="2" class="border-opacity-25" color="#947650"></v-divider>
-                    <v-card-text class="text">* 도전하기를 눌러 시작하세요!
-                        <br /> * 노래가 끝나면 점수가 나와요!
-                        <br /> * '녹음중'을 누르면 다시 시작해요!
+                    <v-card-text class="text" :style="{ whiteSpace: 'pre-line' }">
+                        {{ props.text }}
                     </v-card-text>
                     <template v-slot:actions>
-                        <v-btn class="text" text="도전하기" @click="start()" variant="tonal" color="#947650"></v-btn>
+                        <v-btn v-if="props.audioCon" class="text" text="도전하기" @click="start()" variant="tonal"
+                            color="#947650"></v-btn>
                         <v-btn class="text" text="취소"
                             @click="router.push({ name: 'pianoDetail', params: { id: route.params['id'] as string } })"
                             variant="tonal" color="#947650"></v-btn>
@@ -34,11 +34,14 @@ const route = useRoute();
 const router = useRouter();
 const props = defineProps({
     playChallenge: Boolean,
-    dialog: Boolean
+    audioCon: Boolean,
+    dialog: Boolean,
+    text: String,
 })
 const emits = defineEmits([
     'changeDialog',
-    'startRecord'
+    'startRecord',
+    'changeChallenge'
 ])
 
 const countdown = ref(false);
@@ -63,6 +66,7 @@ const start = async function () {
         emits('startRecord');
         cardCheck.value = true;
         countdown.value = false;
+        emits('changeChallenge');
     }, 4000)
 }
 
@@ -89,6 +93,10 @@ const start = async function () {
     position: absolute;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    background: linear-gradient(to right, white, white);
+    color: transparent;
+    -webkit-background-clip: text;
+    /*#FFF9E0, #947650, #FFF9E0 */
 }
 
 #number-3.show {

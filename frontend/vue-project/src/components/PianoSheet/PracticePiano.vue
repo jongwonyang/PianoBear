@@ -31,11 +31,16 @@
                 </v-btn-toggle>
             </v-sheet>
             <v-sheet v-if="props.challenge" id="player" :elevation="1" color="#D9F6D9" :height="40" :width="140">
-                <v-btn v-show="isRecording" prepend-icon="mdi-reload" :width="125" :height="32" class="player"
+                <v-btn v-show="isRecording" prepend-icon="mdi-circle" :width="125" :height="32" class="player record"
                     id="rewind" variant="text" @click="stopRecording(false)">녹음중..</v-btn>
                 <v-btn v-show="!isRecording" prepend-icon="mdi-play" :width="125" :height="32" class="player" id="play"
                     variant="text">도전하기</v-btn>
             </v-sheet>
+            <div v-if="status" class="practiceLoading">
+                <v-progress-linear v-model="knowledge" height="15" color="#D9F6D9">
+                    <strong>연습량 {{ Math.ceil(knowledge) }}%</strong>
+                </v-progress-linear>
+            </div>
             <div v-show="status" id="sheet-container" :value="status"></div>
             <div v-if="!status" class="loading">
                 <img src="@/assets/characters/토니/토니악보변환.png" width="270px" />
@@ -46,14 +51,15 @@
             <Piano :curr-pitch="num" style="position: relative; margin: auto; margin-top: 2vh;" />
         </div>
         <ChallengeModal v-if="props.challenge" :play-challenge="playChallenge" :dialog="dialog"
-            @change-dialog="changeDialog" @start-record="startRecording" />
+            @change-dialog="changeDialog" @start-record="startRecording" @change-challenge="changeChallenge"
+            :text="text" :audio-con="audioCon" />
     </div>
 </template>
 
 <script setup>
 import { onMounted, ref, onUnmounted, defineProps } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange } from '@/mxlplayer/demo.mjs';
+import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange, isMidiStop } from '@/mxlplayer/demo.mjs';
 import { usePianoSheetStore } from '@/stores/pianosheet';
 import ChallengeModal from '@/components/PianoSheet/ChallengeModal.vue';
 import Piano from './Piano.vue';
@@ -68,12 +74,13 @@ const props = defineProps({
 });
 
 // mxl-player 변수
+const knowledge = ref(0);
 const velo = ref(1);
 const status = ref(false);
 const toggle_one = ref(1);
 const musicXml = ref();
 const nowSheet = ref(route.params['id']);
-const playChallenge = ref(false);
+const playChallenge = ref();
 
 // record 변수
 const isRecording = ref(false);
@@ -83,8 +90,15 @@ const wavBlobUrl = ref();
 const stream = ref();
 const dialog = ref(true);
 
+// 모달 변수
+const text = ref("* 도전하기를 위해 마이크 권한을 허용해주세요.");
+const audioCon = ref(false);
+const isChallenge = ref(false);
+
+
 // space-bar 로 재생, 일시정지 설정
 window.addEventListener("keydown", (e) => {
+    if (!status.value) return;
     if (e.key === " " && !props.challenge) {
         if (toggle_one.value == 2) {
             toggle_one.value = 1;
@@ -102,6 +116,7 @@ const loadMxl = async function (id) {
 // 녹음 재생
 async function startRecording() {
     stateChange('play')
+    stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
     recorder.value = new MediaRecorder(stream.value);
     recorder.value.ondataavailable = (e) => {
         audioChunks.value.push(e.data);
@@ -111,13 +126,20 @@ async function startRecording() {
 }
 
 // 녹음 중지
-function stopRecording(isSuccess) {
+async function stopRecording(isSuccess) {
     if (!isSuccess) {
         dialog.value = true;
+        stream.value.getTracks().forEach((track) => {
+            track.stop();
+            stream.value.removeTrack(track);
+        })
+        recorder.value.stop();
+        recorder.value = null;
+        stream.value = null;
         stateChange('rewind')
         isRecording.value = false;
-        recorder.value.reset();
         audioChunks.value = [];
+        isChallenge.value = false
         return;
     } else if (recorder.value) {
         recorder.value.stop();
@@ -125,6 +147,7 @@ function stopRecording(isSuccess) {
             const audioBlob = new Blob(audioChunks.value, { type: 'audio/wav' });
             console.log(audioBlob)
             wavBlobUrl.value = URL.createObjectURL(audioBlob);
+            stateChange('rewind')
             isRecording.value = false;
             audioChunks.value = [];
         };
@@ -135,6 +158,9 @@ const changeDialog = function () {
     dialog.value = !dialog.value;
 }
 
+const changeChallenge = function () {
+    isChallenge.value = true;
+}
 
 // 악보 불러오기
 onMounted(async () => {
@@ -142,15 +168,36 @@ onMounted(async () => {
     await loadMxl(nowSheet.value);
     await sheetSelect(musicXml.value);
     await createPlayer(props.challenge);
+    status.value = true;
     if (props.challenge) {
         playChallenge.value = true;
         chaingingChallenge(true);
+        try {
+            stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioCon.value = true;
+            text.value = "* 도전하기를 눌러 시작하세요!\n * 노래가 끝나면 점수가 나와요!\n * '녹음중'을 누르면 다시 시작해요!";
+        } catch {
+            audioCon.value = false;
+            text.value = "* 마이크 기능 없이 도전할 수 없어요.\n * 주소창 오른쪽의 마이크 모양을 누르세요.\n * 권한을 허용 해주세요.\n * 새로고침 F5 를 눌러주세요."
+        }
+        setInterval(() => {
+            if (isChallenge.value && isMidiStop()) {
+                stopRecording(true);
+            }
+            console.log(isChallenge.value);
+        }, 500)
     } else {
         chaingingChallenge(false);
-    }
-    status.value = true;
-    if (props.challenge && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
+        playChallenge.value = false;
+        audioCon.value = false;
+        const interval = setInterval(() => {
+            if (knowledge.value < 100) {
+                knowledge.value += 1;
+            } else if (knowledge.value === 100) {
+                // store.practicePostfun(nowSheet.value);
+                clearInterval(interval);
+            }
+        }, 60)
     }
 });
 
@@ -250,5 +297,32 @@ h1 {
     top: 3vh;
     width: 40vh;
     text-align: center;
+}
+
+.record {
+    animation: showNumber 1s forwards;
+    animation-iteration-count: infinite;
+}
+
+.practiceLoading {
+    position: absolute;
+    left: 2vw;
+    top: 15vh;
+    background-color: #fffed28d;
+    width: 200px;
+}
+
+@keyframes showNumber {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 </style>
