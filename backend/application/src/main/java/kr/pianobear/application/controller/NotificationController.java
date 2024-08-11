@@ -113,6 +113,7 @@ public class NotificationController {
         return notificationService.getNotificationCount(receiver);
     }
 
+    // 알림에 연결된 친구 요청도 삭제해야함
     @Operation(summary = "특정 알림 삭제", description = "거절함으로서 알림 삭제 가능")
     @DeleteMapping("/{id}")
     public void deleteNotification(@PathVariable Long id) {
