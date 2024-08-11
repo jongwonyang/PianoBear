@@ -6,7 +6,7 @@ import apiClient from "@/loginController/verification";
 const REST_PIANOSHEET_API = `${import.meta.env.VITE_API_BASE_URL}/music`;
 
 // 기본제공 악보
-interface BasicSheet {
+export interface BasicSheet {
   id: number;
   title: string;
   practiceCountP: number;
@@ -293,7 +293,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const sortOption = ref<number>();
 
   // 검색어
-  const searchText = ref("");
+  const searchText = ref<string>("");
 
   // 결과 모달창
   const isResultModalOpen = ref(false);

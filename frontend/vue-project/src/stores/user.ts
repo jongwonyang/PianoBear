@@ -6,8 +6,20 @@ import { useRouter } from "vue-router";
 const REST_USER_API = import.meta.env.VITE_API_BASE_URL + "/users/";
 const REST_AUTH_API = import.meta.env.VITE_API_BASE_URL + "/auth/";
 
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  gender: string;
+  birthday: string;
+  profilePic: string;
+  statusMessage: string;
+  authEmail: string;
+  role: string;
+};
+
 export const useUserStore = defineStore("user", () => {
-  const user = ref({});
+  const user = ref<User | {}>({});
 
   const isLoggedIn = ref(false);
   const accessToken = ref(localStorage.getItem("accessToken") || "");

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <div class="button-container">
-      <button class="prev" @click="downCount" :class="{ hidden: !canGoBack }"></button>
+    <div>
+      <button class="prev" @click="downCount" v-if="canGoBack"></button>
     </div>
     <div class="page">
       <div v-for="pageIndex in 2" :key="pageIndex" class="line">
@@ -17,6 +17,7 @@
             >
               <div class="book">
                 <img src="@/assets/images/blur.png" alt="Book Image" />
+                <!-- <img :src="imageUrl" alt="Music" v-if="imageUrl" /> -->
               </div>
             </router-link>
           </div>
@@ -36,15 +37,15 @@
         </div>
       </div>
     </div>
-    <div class="button-container">
-      <button class="next" @click="upCount" :class="{ hidden: !canGoForward }"></button>
+    <div>
+      <button class="next" @click="upCount" v-if="canGoForward"></button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { usePianoSheetStore } from "@/stores/pianosheet";
+import { usePianoSheetStore, type BasicSheet } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
 const bookCount = ref<number>(0);
@@ -73,16 +74,28 @@ const basicFavoriteList = computed(() => store.basicFavoriteList);
 const basicPracticeList = computed(() => store.basicPracticeList);
 
 const currentList = computed(() => {
+  let list: BasicSheet[] = [];
+
   switch (currentSortOption.value) {
     case 0:
-      return basicFavoriteList.value;
+      list = basicFavoriteList.value;
+      break;
     case 1:
-      return basicPracticeList.value;
+      list = basicPracticeList.value;
+      break;
     default:
-      return [];
+      list = [];
   }
+
+  // 검색어가 입력된 경우 해당 검색어를 포함하는 아이템만 필터링
+  if (store.searchText) {
+    return list.filter((item) => item.title.includes(store.searchText));
+  }
+
+  return list;
 });
 
+// props로 전달받은 sortOption
 const props = defineProps<{ sortOption: number }>();
 
 watch(
@@ -94,20 +107,12 @@ watch(
 </script>
 
 <style scoped>
-.page {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 수직 중앙 배치 */
-  height: 68vh; /* 전체 화면 높이 */
-}
-
 .bookshelf1 {
   flex-direction: column;
   width: 70vw;
   height: 27vh;
   background-color: #d2b48c;
   padding: 5vh;
-  /* padding-bottom: 0vh; */
 }
 
 .bookshelf2 {
@@ -116,7 +121,6 @@ watch(
   height: 27vh;
   background-color: #e8c8a0;
   padding: 5vh;
-  /* padding-bottom: 0vh; */
 }
 
 .shelf {
@@ -181,12 +185,6 @@ watch(
   height: 23vh;
 }
 
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* 각 요소 사이의 공간을 균등하게 배분 */
-}
-
 .line {
   margin-bottom: 4vh;
   box-shadow: 0.1vw 0.4vh 0.8vh gray;
@@ -206,10 +204,5 @@ watch(
   border-left: 2vw solid #a48253;
   border-right: 2vw solid transparent;
   margin-left: 3vw;
-}
-
-.hidden {
-  opacity: 0; /* 버튼을 시각적으로 숨깁니다 */
-  pointer-events: none; /* 버튼 클릭 방지 */
 }
 </style>
