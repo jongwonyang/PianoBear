@@ -4,9 +4,7 @@ import { useUserStore } from "./user";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
 import EventSourcePolyFill from "event-source-polyfill";
 import { useRouter } from "vue-router";
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
-
-const EventSource = NativeEventSource || EventSourcePolyfill;
+import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
 
 const REST_NOTIFICATION_API =
   import.meta.env.VITE_API_BASE_URL + "/notifications/";
@@ -16,6 +14,7 @@ export const useNotificationStore = defineStore("notification", () => {
   const notificationCount = ref(0);
   const userStore = useUserStore();
 
+  const EventSource = EventSourcePolyfill;
   const accessToken = ref(userStore.GetAccessToken());
   console.log("accessToken", accessToken.value);
 
@@ -39,7 +38,7 @@ export const useNotificationStore = defineStore("notification", () => {
     } catch (error) {
       console.error("Error fetching notification count:", error);
     }
-//   };
+  };
 
   const DeleteNotification = async (id) => {
     try {
@@ -66,7 +65,7 @@ export const useNotificationStore = defineStore("notification", () => {
   const SubscribeToNotifications = () => {
     const source = new EventSource(REST_NOTIFICATION_API + "subscribe", {
       headers: {
-        Authorization: accessToken.value,
+        Authorization: `Bearer ${accessToken.value}`,
       },
       withCredentials: true,
     });
