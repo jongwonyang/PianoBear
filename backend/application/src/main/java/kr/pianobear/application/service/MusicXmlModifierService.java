@@ -176,11 +176,7 @@ public class MusicXmlModifierService {
 
                     // Check if the note is part of a chord
                     NodeList chordList = noteElement.getElementsByTagName("chord");
-                    if (chordList.getLength() > 0) {
-                        isChord = true;
-                    } else {
-                        isChord = false;
-                    }
+                    isChord = chordList.getLength() > 0;
 
                     NodeList pitchList = noteElement.getElementsByTagName("pitch");
                     if (pitchList.getLength() > 0) {
@@ -189,31 +185,12 @@ public class MusicXmlModifierService {
                         String syllable = noteToSyllable.get(step);
 
                         if (syllable != null) {
-                            if (isChord) {
-                                if (lyric == null) {
-                                    // 새로운 lyric 요소 생성
-                                    lyric = doc.createElement("lyric");
-                                    Element syllabic = doc.createElement("syllabic");
-                                    syllabic.setTextContent("single");
-                                    lyric.appendChild(syllabic);
-
-                                    Element text = doc.createElement("text");
-                                    text.setTextContent(syllable);
-                                    lyric.appendChild(text);
-
-                                    // 필요한 속성 추가
-                                    lyric.setAttribute("default-y", "-73");  // y 위치 조정
-                                    lyric.setAttribute("name", "verse");
-                                    lyric.setAttribute("number", "1");
-
-                                    noteElement.appendChild(lyric);
-                                } else {
-                                    // 기존 lyric 요소에 텍스트를 추가
-                                    Node textNode = lyric.getElementsByTagName("text").item(0);
-                                    textNode.setTextContent(textNode.getTextContent() + syllable);
-                                }
+                            if (isChord && lyric != null) {
+                                // Append syllable without hyphen if it's part of the same chord
+                                Node textNode = lyric.getElementsByTagName("text").item(0);
+                                textNode.setTextContent(textNode.getTextContent() + syllable);
                             } else {
-                                // 새로운 note에 대해 lyric 요소를 생성 (기존 lyric은 폐기)
+                                // New note or first note in a chord, create new lyric element
                                 lyric = doc.createElement("lyric");
                                 Element syllabic = doc.createElement("syllabic");
                                 syllabic.setTextContent("single");
@@ -223,10 +200,15 @@ public class MusicXmlModifierService {
                                 text.setTextContent(syllable);
                                 lyric.appendChild(text);
 
-                                // 필요한 속성 추가
-                                lyric.setAttribute("default-y", "-73");  // y 위치 조정
-                                lyric.setAttribute("name", "verse");
-                                lyric.setAttribute("number", "1");
+                                // Add necessary attributes
+                                lyric.setAttribute("default-y", "-70");  // Adjust y-position
+
+                                // Set font size, weight, and color
+                                Element font = doc.createElement("font");
+                                font.setAttribute("size", "20"); // Increase font size for visibility
+                                font.setAttribute("weight", "bold"); // Make font bold
+                                font.setAttribute("color", "#00FF00"); // Set font color to green
+                                lyric.appendChild(font);
 
                                 noteElement.appendChild(lyric);
                             }
@@ -235,7 +217,16 @@ public class MusicXmlModifierService {
                 }
             }
 
-            // 수정된 XML 출력
+            // Adjust the spacing between staves to avoid overlap
+            NodeList staffDetailsList = doc.getElementsByTagName("staff-details");
+            for (int i = 0; i < staffDetailsList.getLength(); i++) {
+                Element staffDetails = (Element) staffDetailsList.item(i);
+                Element staffDistance = doc.createElement("staff-distance");
+                staffDistance.setTextContent("150"); // Increase the distance between staves
+                staffDetails.appendChild(staffDistance);
+            }
+
+            // Save the modified XML
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -244,23 +235,21 @@ public class MusicXmlModifierService {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             String modifiedXmlContent = writer.getBuffer().toString();
 
-            // 수정된 내용을 새 파일에 저장
+            // Save the modified content to a new file
             String newFilePath = xmlFilePath.replace(".xml", "_modified.xml");
             StreamResult result = new StreamResult(new File(newFilePath));
             transformer.transform(new DOMSource(doc), result);
 
-            // 원본 XML 파일 삭제
+            // Delete the original XML file
             Files.delete(Paths.get(xmlFilePath));
 
-            // 저장된 파일을 다시 읽어서 로그로 출력하여 수정이 제대로 되었는지 확인
+            // Output the result for debugging
             String resultContent = new String(Files.readAllBytes(Paths.get(newFilePath)), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IOException("Failed to modify XML file", e);
         }
     }
-
-
 
     private void deleteDirectory(File file) throws IOException {
         if (file.isDirectory()) {
