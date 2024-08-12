@@ -33,6 +33,9 @@ public class OpenViduService {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Value("${application.openvidu-url}")
     private String OPENVIDU_URL;
 
@@ -90,11 +93,11 @@ public class OpenViduService {
         String currentUserId = SecurityUtil.getCurrentUserId();
         Optional<Member> currentUserOpt = memberRepository.findById(currentUserId);
         if (currentUserOpt.isEmpty()) {
-            throw new Exception("inviter user does not exists.");
+            throw new Exception("inviter user does not exist.");
         }
         Optional<Member> targetUserOpt = memberRepository.findById(targetUserId);
         if (targetUserOpt.isEmpty()) {
-            throw new Exception("invitee user does not exists.");
+            throw new Exception("invitee user does not exist.");
         }
 
         Member currentUser = currentUserOpt.get();
@@ -104,7 +107,18 @@ public class OpenViduService {
             throw new Exception("invitee is not your friend.");
         }
 
-        sessionDataMap.get(sessionId).getParticipants().add(targetUserId);
+        SessionData sessionData = sessionDataMap.get(sessionId);
+        sessionData.getParticipants().add(targetUserId);
+
+        // 초대된 사용자에게 알림 전송
+        String notificationContent = String.format(
+                "%s님이 %s 세션에 초대했습니다.\n초대 메시지: %s\n놀이터 설명: %s",
+                currentUser.getName(),
+                sessionData.getSessionTitle(),
+                sessionData.getInvitationMessage(),
+                sessionData.getDescription()
+        );
+        notificationService.createNotification(targetUser, "INVITATION", notificationContent);
     }
 
     public Set<String> getParticipants(String sessionId) throws Exception {
