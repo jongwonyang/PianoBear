@@ -33,8 +33,7 @@ public class SwaggerConfig {
                         .name(jwt)
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
-                        .bearerFormat("JWT")
-                );
+                        .bearerFormat("JWT"));
 
         Server server = new Server();
         server.setUrl(serverUrl);
@@ -115,6 +114,21 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("Notification")
                 .pathsToMatch("/api/v1/notifications/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi communityGroup() {
+        return GroupedOpenApi.builder()
+                .group("Openvidu")
+                .pathsToMatch("/api/v1/community/**")
+                .build();
+    }
+
+    public GroupedOpenApi chatGroup() {
+        return GroupedOpenApi.builder()
+                .group("Chat")
+                .pathsToMatch("/api/v1/chat/**")
                 .build();
     }
 }
