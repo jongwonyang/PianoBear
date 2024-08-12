@@ -107,6 +107,9 @@ export const useWebSocketStore = defineStore("websocket", () => {
 
       console.log("메시지 전송:", message);
       console.log("제이슨변환:", JSON.stringify(message));
+      
+      apiClient.(REST_CHAT_API + "message", message);
+
       stompClient.value.publish({
         destination: `/topic/chat/${currentChatRoomId.value}`,
         body: JSON.stringify(message),
