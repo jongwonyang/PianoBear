@@ -222,7 +222,13 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       const response = await apiClient.get<PracticeRecord[]>(
         `${REST_PIANOSHEET_API}/practice/${id}/sorted`
       );
-      practiceData.value = response.data;
+      practiceData.value = [];
+      response.data.forEach((e) => {
+        if (e.practiceCount > 4) {
+          e.practiceCount = 5;
+        }
+        practiceData.value.push(e);
+      });
       practiceCountSum.value = 0; // 초기화
 
       for (var i = 0; i < practiceData.value.length; i++) {
@@ -333,8 +339,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 연습하기
   const practicePostfun = async (id: number): Promise<void> => {
     try {
-      // await apiClient.post<Void>(`${REST_PIANOSHEET_API}/practice/${id}`);
-      alert("연습성공");
+      await apiClient.post<void>(`${REST_PIANOSHEET_API}/practice/${id}`);
     } catch (error) {
       console.error(error);
     }

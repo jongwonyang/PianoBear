@@ -30,7 +30,6 @@ const whites = ref(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
 const blakcs = ref(['C#', 'D#', 'N', 'F#', 'G#', 'A#', 'N']);
 
 const keyPush = function (oct: Number, key: String) {
-    console.log(oct + " 옥타브 " + key);
     playingPiano(key, oct);
 }
 

@@ -36,10 +36,16 @@
                 <v-btn v-show="!isRecording" prepend-icon="mdi-play" :width="125" :height="32" class="player" id="play"
                     variant="text">도전하기</v-btn>
             </v-sheet>
-            <div v-if="!props.challenge && status" class="practiceLoading">
-                <v-progress-linear v-model="knowledge" height="15" color="#D9F6D9">
-                    <strong>연습량 {{ Math.ceil(knowledge) }}%</strong>
-                </v-progress-linear>
+            <div v-if="!props.challenge && status" class="practiceLodingBack">
+                <div class="practiceLoading">
+                    <v-progress-linear v-model="knowledge" height="31" color="#D9F6D9" class="practiceLoading">
+                        <strong>연습량 {{ Math.ceil(knowledge) }}%</strong>
+                    </v-progress-linear>
+                </div>
+                <div v-if="practiceToday" class="strewbery">
+                    <img v-for="n in practiceToday.practiceCount" :key="n" src="@/assets/images/산딸기.png"
+                        alt="Practice Image" class="practice-image" width="25" />
+                </div>
             </div>
             <div v-show="status" id="sheet-container" :value="status"></div>
             <div v-if="!status" class="loading">
@@ -56,7 +62,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onUnmounted, defineProps } from 'vue';
+import { onMounted, ref, onUnmounted, defineProps, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange, isMidiStop } from '@/mxlplayer/demo.mjs';
 import { usePianoSheetStore } from '@/stores/pianosheet';
@@ -80,6 +86,7 @@ const toggle_one = ref(1);
 const musicXml = ref();
 const nowSheet = ref(route.params['id']);
 const playChallenge = ref();
+const practiceSuccess = ref(false);
 
 // record 변수
 const isRecording = ref(false);
@@ -95,6 +102,17 @@ const audioCon = ref(false);
 const afterChallenge = ref(false);
 const interval1 = ref();
 const interval2 = ref();
+const practiceToday = computed(() => {
+    return store.practiceData.filter((e) =>
+        e.practiceDate[0].toString() + e.practiceDate[1].toString() + e.practiceDate[2].toString() === '2024812'
+    )[0]
+})
+
+
+// 연습 변수
+const practiceGet = function () {
+    store.practiceDatafun(nowSheet.value)
+};
 
 
 // space-bar 로 재생, 일시정지 설정
@@ -204,21 +222,32 @@ onMounted(async () => {
         }
         // 연습모드일때 실행되는 메서드
     } else {
+        // 목록 불러오기
+        await store.practiceDatafun(nowSheet.value);
 
         // 도전모드 모달 변경
         chaingingChallenge(false);
         playChallenge.value = false;
         audioCon.value = false;
 
+        // 연습 갯수 불러오기
+        await practiceGet();
+
         // 1분이 지나면 연습추가
-        interval1.value = setInterval(() => {
-            if (knowledge.value < 100) {
-                knowledge.value += 1;
-            } else if (knowledge.value === 100) {
-                store.practicePostfun(nowSheet.value);
-                clearInterval(interval1.value);
-            }
-        }, 60)
+        if (practiceToday.value.practiceCount >= 5) {
+            knowledge.value = 100;
+        } else {
+            interval1.value = setInterval(async () => {
+                if (knowledge.value < 100) {
+                    knowledge.value += 1;
+                } else if (knowledge.value === 100) {
+                    await store.practicePostfun(nowSheet.value);
+                    clearInterval(interval1.value);
+                    practiceGet();
+                    practiceSuccess.value = true;
+                }
+            }, 60)
+        }
     }
 });
 
@@ -333,11 +362,23 @@ h1 {
 }
 
 .practiceLoading {
-    position: absolute;
-    left: 2vw;
-    top: 15vh;
     background-color: #fffed28d;
     width: 200px;
+}
+
+.practiceLodingBack {
+    position: absolute;
+    left: 2vw;
+    top: 7vh;
+    width: 350px;
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.strewbery {
+    display: flex;
+    width: 120px;
 }
 
 @keyframes showNumber {
