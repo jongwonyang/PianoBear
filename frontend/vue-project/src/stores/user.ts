@@ -22,7 +22,7 @@ export const useUserStore = defineStore("user", () => {
   const user = ref<User | {}>({});
 
   const isLoggedIn = ref(false);
-  const accessToken = ref(localStorage.getItem("accessToken") || "");
+  const accessToken = ref(sessionStorage.getItem("accessToken") || "");
   const refreshToken = ref(localStorage.getItem("refreshToken") || ""); // 로컬 스토리지에서 리프레시 토큰을 가져옴
 
   const router = useRouter();
@@ -62,7 +62,9 @@ export const useUserStore = defineStore("user", () => {
 
   const GetUserInfo = async () => {
     try {
-      return apiClient.get(REST_USER_API + "my-info");
+      apiClient.get(REST_USER_API + "my-info").then((response) => {
+        user.value = response.data;
+      });
     } catch (e) {
       console.error(e);
     }
@@ -94,7 +96,7 @@ export const useUserStore = defineStore("user", () => {
 
   const SetAccessToken = (token: string) => {
     accessToken.value = token;
-    localStorage.setItem("accessToken", token);
+    sessionStorage.setItem("accessToken", token);
   };
 
   const SetRefreshToken = (token: string) => {
@@ -103,7 +105,7 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const GetAccessToken = () => {
-    return accessToken.value || localStorage.getItem("accessToken");
+    return accessToken.value || sessionStorage.getItem("accessToken");
   };
 
   const GetRefreshToken = () => {
@@ -113,7 +115,7 @@ export const useUserStore = defineStore("user", () => {
   const RemoveToken = () => {
     accessToken.value = "";
     refreshToken.value = "";
-    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken"); // 로컬 스토리지에서 리프레시 토큰 삭제
   };
 

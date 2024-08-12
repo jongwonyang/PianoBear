@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
 import { ref } from "vue";
+import { defineStore } from "pinia";
 import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
-import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import { useUserStore } from "./user";
 
 const REST_CHAT_API = import.meta.env.VITE_API_BASE_URL + "/ws/";
@@ -16,39 +16,33 @@ export type MessageDTO = {
   timestamp: string;
 };
 
-export const useWebSocketStore = defineStore("websocket", () => {
+export const useChattingStore = defineStore("chatting", () => {
   const stompClient = ref<Client | null>(null);
   const connected = ref(false);
   const currentChatRoomId = ref<number | null>(null);
   const messages = ref<MessageDTO[]>([]);
   const userStore = useUserStore();
 
-  function connectWebSocket() {
-    if (stompClient.value && connected.value) {
-      return;
-    }
+  // WebSocket 연결 설정
+  const connectWebSocket = () => {
+    if (connected.value) return;
 
-    const headers = {
-      Authorization: "Bearer " + localStorage.getItem("accessToken"),
-    };
-
-    const socket = new SockJS(import.meta.env.VITE_API_BASE_URL + "/ws");
-    const client = new Client({
+    const socket = new SockJS(REST_CHAT_API);
+    stompClient.value = new Client({
       webSocketFactory: () => socket,
-      connectHeaders: headers,
       onConnect: () => {
-        stompClient.value = client;
         connected.value = true;
-        console.log("Connected!");
+        console.log("WebSocket 연결 성공");
+
         // 현재 채팅방이 있다면 재연결 시 자동 구독
-        // if (currentChatRoomId.value) {
-        //   subscribeToChatRoom(
-        //     currentChatRoomId.value,
-        //     (message: MessageDTO) => {
-        //       messages.value.push(message);
-        //     }
-        //   );
-        // }
+        if (currentChatRoomId.value) {
+          subscribeToChatRoom(
+            currentChatRoomId.value,
+            (message: MessageDTO) => {
+              messages.value.push(message);
+            }
+          );
+        }
       },
       onStompError: (error) => {
         console.error("WebSocket 연결 오류:", error);
@@ -58,22 +52,19 @@ export const useWebSocketStore = defineStore("websocket", () => {
         connected.value = false;
       },
     });
+    stompClient.value.activate();
+  };
 
-    client.activate();
-  }
-
-  function disconnectWebSocket() {
-    console.log(stompClient.value);
-    if (stompClient.value !== null) {
-      console.log("LETS DISCONNECT!!!!!!!!!!!!!!!!!!!!!!!");
-      stompClient.value.deactivate().then(() => {
-        connected.value = false;
-        stompClient.value = null;
-        console.log("Disconnected");
-      });
+  // WebSocket 연결 해제
+  const disconnectWebSocket = () => {
+    if (stompClient.value && connected.value) {
+      stompClient.value.deactivate();
+      connected.value = false;
+      console.log("WebSocket 연결 해제");
     }
-  }
+  };
 
+  // 채팅방 입장
   const enterChatRoom = async (friendId: string) => {
     try {
       const response = await apiClient.get(REST_CHAT_API + `room/${friendId}`);
@@ -85,9 +76,9 @@ export const useWebSocketStore = defineStore("websocket", () => {
         connectWebSocket();
       }
 
-      // subscribeToChatRoom(currentChatRoomId.value, (message: MessageDTO) => {
-      //   messages.value.push(message);
-      // });
+      subscribeToChatRoom(currentChatRoomId.value, (message: MessageDTO) => {
+        messages.value.push(message);
+      });
 
       return response.data;
     } catch (error) {
@@ -138,12 +129,12 @@ export const useWebSocketStore = defineStore("websocket", () => {
   };
 
   return {
-    stompClient,
-    connected,
     connectWebSocket,
     disconnectWebSocket,
     enterChatRoom,
     sendMessage,
     subscribeToChatRoom,
+    messages,
+    currentChatRoomId,
   };
 });
