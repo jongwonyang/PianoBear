@@ -30,6 +30,7 @@ import java.util.Optional;
 public class MusicController {
 
     private final MusicService musicService;
+    private MusicDTO lastConvertedMusic;
 
     @Autowired
     public MusicController(MusicService musicService) {
@@ -37,10 +38,23 @@ public class MusicController {
     }
 
     @Operation(summary = "PDF 변환", description = "PDF 파일을 업로드하고 변환을 요청합니다.")
-    @PostMapping(value="/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MusicDTO> processPdfUpload(@RequestPart (name = "file") MultipartFile file) throws IOException, InterruptedException {
+    @PostMapping(value = "/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MusicDTO> processPdfUpload(@RequestPart(name = "file") MultipartFile file) throws IOException, InterruptedException {
         MusicDTO createdMusic = musicService.processPdfUpload(file);
+        this.lastConvertedMusic = createdMusic;
         return ResponseEntity.ok(createdMusic);
+    }
+
+    @Operation(summary = "Music 수정", description = "최근 변환된 Music의 제목과 작곡가를 저장합니다.")
+    @PostMapping("/edit")
+    public ResponseEntity<MusicDTO> saveMusic(@RequestParam String title, @RequestParam String artist) throws IOException {
+        if (lastConvertedMusic == null) {
+            return ResponseEntity.badRequest().build(); // 최근 변환된 음악이 없을 경우 에러 처리
+        }
+
+        MusicDTO savedMusic = musicService.editMusic(lastConvertedMusic.getId(), title, artist);
+        lastConvertedMusic = null; // 저장 후, 변환된 음악 정보 초기화
+        return ResponseEntity.ok(savedMusic);
     }
 
     @Operation(summary = "Music 저장", description = "Music 데이터를 저장합니다.")
@@ -140,6 +154,20 @@ public class MusicController {
     public ResponseEntity<Resource> downloadModifiedMusicXml(@PathVariable int id) {
         String modifiedMusicXmlRoute = musicService.getModifiedMusicXmlRoute(id);
         return getFileResponse(modifiedMusicXmlRoute);
+    }
+
+    @Operation(summary = "음악 이미지 다운로드", description = "ID로 음악 이미지를 다운로드합니다.")
+    @GetMapping("/{id}/download-music-img")
+    public ResponseEntity<Resource> downloadMusicImage(@PathVariable int id) {
+        String musicImgPath = musicService.getMusicImgPath(id);
+        return getFileResponse(musicImgPath);
+    }
+
+    @Operation(summary = "악보 이미지 생성", description = "악보의 이미지를 생성하고 저장합니다.")
+    @PostMapping("/{id}/generate-image")
+    public ResponseEntity<MusicDTO> generateMusicImage(@PathVariable int id) throws IOException {
+        MusicDTO musicWithImage = musicService.generateAndSaveImage(id);
+        return ResponseEntity.ok(musicWithImage);
     }
 
     private ResponseEntity<Resource> getFileResponse(String filePath) {
