@@ -24,12 +24,12 @@ public class MusicPracticeController {
     public MusicPracticeController(MusicPracticeService musicPracticeService) {
         this.musicPracticeService = musicPracticeService;
     }
-
+    
     @Operation(summary = "악보 연습", description = "악보 연습함으로서 추가한다")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping("/{id}")
-    public ResponseEntity<MusicPracticeDTO> practiceMusic(@PathVariable int id, @RequestParam String userId) {
-        MusicPracticeDTO practiceDTO = musicPracticeService.practiceMusic(id, userId);
+    public ResponseEntity<MusicPracticeDTO> practiceMusic(@PathVariable int id) {
+        MusicPracticeDTO practiceDTO = musicPracticeService.practiceMusic(id);
         return ResponseEntity.ok(practiceDTO);
     }
 

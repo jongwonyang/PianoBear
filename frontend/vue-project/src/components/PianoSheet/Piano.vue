@@ -19,6 +19,8 @@
 </template>
 <script lang="ts" setup>
 import { ref, defineProps } from 'vue';
+//@ts-ignore
+import { playingPiano } from '@/mxlplayer/demo.mjs';
 
 const props = defineProps({
     currPitch: Array<String>
@@ -28,7 +30,7 @@ const whites = ref(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
 const blakcs = ref(['C#', 'D#', 'N', 'F#', 'G#', 'A#', 'N']);
 
 const keyPush = function (oct: Number, key: String) {
-    console.log(oct + " 옥타브 " + key);
+    playingPiano(key, oct);
 }
 
 </script>

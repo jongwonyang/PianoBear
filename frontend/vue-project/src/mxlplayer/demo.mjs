@@ -5,7 +5,22 @@ import { ref } from "vue";
 const DEFAULT_OUTPUT = "local";
 const PLAYER_PLAYING = 1;
 const notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+const notes2 = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
 const LOCALSTORAGE_KEY = "musicxml-player";
+const challenge = ref(false);
 export const num = ref([]);
 
 const g_state = {
@@ -21,10 +36,10 @@ const g_state = {
   timingObject: null,
 };
 
-export async function createPlayer() {
+export async function createPlayer(muteCheck) {
   // Destroy previous player.
   g_state.player?.destroy();
-
+  g_state.options.mute = muteCheck ? true : false;
   // Set the player parameters.
   const options = g_state.options;
 
@@ -44,7 +59,6 @@ export async function createPlayer() {
         timingsrc: g_state.timingObject,
         mute: options.mute,
       });
-
       // Save the state and player parameters.
       g_state.player = player;
       g_state.options = options;
@@ -136,7 +150,7 @@ function createOutput(output) {
 }
 
 function handlePlayPauseKey(e) {
-  if (e.key === " " && g_state.player) {
+  if (!challenge.value && e.key === " " && g_state.player) {
     e.preventDefault();
     if (g_state.player.state === PLAYER_PLAYING) {
       g_state.timingObject?.update({ velocity: 0 });
@@ -150,11 +164,11 @@ function handlePlayPauseKey(e) {
 
 export async function sheetSelect(input) {
   if (!input) return;
-  const sheet = input;
+  // const sheet = input;
   try {
-    const musicXml = await (await MusicXMLPlayer.fetish(sheet)).arrayBuffer();
-    g_state.musicXml = musicXml;
-    g_state.params.set("sheet", sheet);
+    // const musicXml = await (await MusicXMLPlayer.fetish(sheet)).arrayBuffer();
+    g_state.musicXml = input;
+    g_state.params.set("sheet", "mxl-Player");
   } catch (error) {
     console.error(`Failed to load sheet ${sheet}: ${error}`);
   }
@@ -166,9 +180,11 @@ function handleOptionChange(e) {
 }
 
 function handleVelocityChange(e) {
-  g_state.timingObject?.update({
-    velocity: Number(document.getElementById("velocity").value),
-  });
+  if (g_state.player.state === PLAYER_PLAYING) {
+    g_state.timingObject?.update({
+      velocity: Number(document.getElementById("velocity").value),
+    });
+  }
 }
 
 export async function pageLoad() {
@@ -186,18 +202,6 @@ export async function pageLoad() {
   }
   g_state.params["output"] = DEFAULT_OUTPUT; // Too complicated to wait for MIDI output
 
-  // Build the UI.
-  document.getElementById("play").addEventListener("click", async () => {
-    g_state.timingObject?.update({
-      velocity: Number(document.getElementById("velocity").value),
-    });
-  });
-  document.getElementById("pause").addEventListener("click", async () => {
-    g_state.timingObject?.update({ velocity: 0 });
-  });
-  document.getElementById("rewind").addEventListener("click", async () => {
-    g_state.timingObject?.update({ position: 0, velocity: 0 });
-  });
   document.querySelectorAll(".velo").forEach((e) => {
     e.addEventListener("click", handleVelocityChange);
   });
@@ -247,10 +251,76 @@ export function reset() {
   window.localStorage.removeItem(LOCALSTORAGE_KEY);
 }
 
+export const osmd = async function (container, musicXml) {
+  const k = new MusicXMLPlayer.OpenSheetMusicDisplayRenderer();
+  const options = {
+    backend: "svg",
+    drawFromMeasureNumber: 1,
+    drawUpToMeasureNumber: Number.MAX_SAFE_INTEGER, // draw all measures, up to the end of the sample
+    drawMeasureNumbers: false,
+    newSystemFromXML: false,
+    newPageFromXML: false,
+    followCursor: true,
+    disableCursor: false,
+    autoResize: false,
+    drawMetronomeMarks: false,
+    pageFormat: "Letter P",
+    drawingParameters: "preview",
+  };
+  await k.load(container, musicXml, options);
+};
+
+export const chaingingChallenge = function (state) {
+  challenge.value = state;
+};
+
+export const stateChange = function (state) {
+  if (state === "play") {
+    g_state.timingObject?.update({
+      velocity: Number(document.getElementById("velocity").value),
+    });
+  } else if (state === "pause") {
+    g_state.timingObject?.update({ velocity: 0 });
+  } else if (state === "rewind") {
+    g_state.timingObject?.update({ position: 0, velocity: 0 });
+  }
+};
+
+export const isMidiStop = function () {
+  if (!g_state.player._midiPlayer._state) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export const playingPiano = function (pitch, oct) {
+  let k = 60;
+  notes2.forEach((e, i) => {
+    if (e === pitch) {
+      k = i + (oct + 1) * 12;
+    }
+  });
+
+  g_state.player._output._player.queueWaveTable(
+    g_state.player._output._audioContext,
+    g_state.player._output._audioContext._destination,
+    window[g_state.player._output._instruments[0].instrumentInfo.variable],
+    0,
+    k,
+    1
+  );
+};
+
 export default {
   pageLoad,
   sheetSelect,
   createPlayer,
   num,
   reset,
+  osmd,
+  chaingingChallenge,
+  stateChange,
+  isMidiStop,
+  playingPiano,
 };

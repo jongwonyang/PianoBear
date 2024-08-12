@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex root">
+  <div class="flex root">
     <glass-pane class="w-2/5">
       <div class="flex flex-row mb-8 items-center justify-center">
         <div class="font-bold text-2xl text-black mr-2">
@@ -237,7 +237,7 @@
           class="h-32 overflow-scroll bg-white/50 rounded-lg my-border mb-2"
         />
         <div class="flex flex-row items-center">
-          <midi-player ref="midiPlayer" class="w-100 mr-2" />
+          <midi-player sound-font ref="midiPlayer" class="w-100 mr-2" />
           <button class="rounded-full bg-white/50 !border-2 my-border p-4 hover:bg-white/60" @click="downloadMidi">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -440,8 +440,8 @@ const downloadMidi = () => {
 
 <style scoped>
 .root {
-  width: 1280px;
-  height: 720px;
+  width: 1080px;
+  height: 600px;
 }
 
 .file-input-nofile {
