@@ -73,9 +73,53 @@ public class MusicService {
         String modifiedMxlFilePath = musicXmlModifierService.modifyMusicXml(mxlFilePath);
         music.setModifiedMusicXmlRoute(modifiedMxlFilePath);
 
-        // Music 엔티티를 저장하지 않고 DTO로 변환하여 반환
-        return mapMusicToDTO(music);
+        // Music 엔티티를 데이터베이스에 저장
+        Music savedMusic = musicRepository.save(music);
+
+        // DTO로 변환하여 반환
+        return mapMusicToDTO(savedMusic);
     }
+
+    @Transactional
+    public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
+        // 기존 Music 엔티티를 가져옴
+        Music music = musicRepository.findById(musicDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicDTO.getId()));
+
+        // 제목과 아티스트를 업데이트
+        music.setTitle(musicDTO.getTitle());
+        music.setArtist(musicDTO.getArtist());
+
+        // OpenAI API를 통해 이미지 생성 후 서버에 저장 (필요시 주석 해제)
+//    String imagePath = openAiService.generateImage(musicDTO.getTitle());
+//    music.setMusicImg(imagePath);
+
+        music.setMusicImg(null);
+
+        // 변경 사항을 저장
+        Music savedMusic = musicRepository.save(music);
+
+        // DTO로 변환하여 반환
+        return mapMusicToDTO(savedMusic);
+    }
+
+    @Transactional
+    public MusicDTO editMusic(int musicId, String title, String artist) throws IOException {
+        // 기존 Music 엔티티를 ID로 조회
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicId));
+
+        // 제목과 작곡가를 업데이트
+        music.setTitle(title);
+        music.setArtist(artist);
+
+        // 변경 사항을 저장
+        Music savedMusic = musicRepository.save(music);
+
+        // DTO로 변환하여 반환
+        return mapMusicToDTO(savedMusic);
+    }
+
 
     public MusicDTO fileDataToMusicDTO(FileData fileData) throws IOException {
         // 새로운 Music 엔티티 생성 및 초기화
@@ -111,39 +155,17 @@ public class MusicService {
         }
     }
 
-
-    @Transactional
-    public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
-        Music music = new Music();
-        music.setTitle(musicDTO.getTitle());
-        music.setArtist(musicDTO.getArtist());
-        music.setUploadDate(LocalDate.now());
-        music.setFavorite(false);
-
-        String currentUserId = getCurrentUserId();
-        Member user = memberRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
-        music.setUser(user);
-
-        music.setMusicXmlRoute(musicDTO.getMusicXmlRoute());
-        music.setModifiedMusicXmlRoute(musicDTO.getModifiedMusicXmlRoute());
-        music.setMusicImg(createMusicImg(musicDTO.getTitle()));
-
-        // OpenAI API를 통해 이미지 생성 후 설정
-//        String imageUrl = openAiService.generateImage(musicDTO.getTitle());
-//        music.setMusicImg(imageUrl);
-
-        Music savedMusic = musicRepository.save(music);
-
-        return mapMusicToDTO(savedMusic);
-    }
-
-    private String saveFile(MultipartFile file, String originalFileName) throws IOException {
-        String savedName = System.currentTimeMillis() + "_" + originalFileName;
-        Path savePath = Paths.get("uploads", savedName);
-        Files.createDirectories(savePath.getParent());
-        file.transferTo(savePath.toFile());
-        return savePath.toString();
+    public MusicDTO generateAndSaveImage(int musicId) throws IOException {
+        Optional<Music> optionalMusic = musicRepository.findById(musicId);
+        if (optionalMusic.isPresent()) {
+            Music music = optionalMusic.get();
+            String imageUrl = openAiService.generateImage(music.getTitle());
+            music.setMusicImg(imageUrl);
+            musicRepository.save(music);
+            return mapMusicToDTO(music);
+        } else {
+            throw new RuntimeException("Music not found with id " + musicId);
+        }
     }
 
     private String getCurrentUserId() {
@@ -156,14 +178,14 @@ public class MusicService {
     }
 
     private String createMusicImg(String title) {
-//        try {
-//            // OpenAI API를 사용하여 이미지 생성
-//            return openAiService.generateImage(title);
-//        } catch (IOException e) {
-//            // 오류 처리
-//            e.printStackTrace();
+        try {
+            // OpenAI API를 사용하여 이미지 생성
+            return openAiService.generateImage(title);
+        } catch (IOException e) {
+            // 오류 처리
+            e.printStackTrace();
             return "/path/to/default/image.png"; // 에러 발생 시 기본 이미지를 반환할 수 있음
-//        }
+        }
     }
 
 
@@ -200,16 +222,6 @@ public class MusicService {
             throw new RuntimeException("Music not found with id " + musicId);
         }
     }
-
-//    public String getModifiedMusicXmlRoute(int musicId) {
-//        Optional<Music> optionalMusic = musicRepository.findById(musicId);
-//        if (optionalMusic.isPresent()) {
-//            Music music = optionalMusic.get();
-//            return music.getModifiedMusicXmlRoute();
-//        } else {
-//            throw new RuntimeException("Music not found with id " + musicId);
-//        }
-//    }
 
     public List<MusicDTO> getAllMusic() {
         List<Music> musicList = musicRepository.findAll();
