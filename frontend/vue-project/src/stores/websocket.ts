@@ -29,7 +29,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
     }
 
     const headers = {
-      Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      Authorization: "Bearer " + sessionStorage.getItem("accessToken"),
     };
 
     const socket = new SockJS(import.meta.env.VITE_API_BASE_URL + "/ws");
@@ -97,15 +97,18 @@ export const useWebSocketStore = defineStore("websocket", () => {
   };
 
   // 메시지 전송
-  const sendMessage = (chatRoomId: number, content: string) => {
+  const sendMessage = (receiverId: string, content: string) => {
     if (stompClient.value && connected.value) {
       const message: Partial<MessageDTO> = {
-        chatRoomId: chatRoomId,
         content: content,
+        receiverId: receiverId,
         senderId: userStore.user.id,
       };
+
+      console.log("메시지 전송:", message);
+      console.log("제이슨변환:", JSON.stringify(message));
       stompClient.value.publish({
-        destination: `/topic/chat/${chatRoomId}`,
+        destination: `/topic/chat/${currentChatRoomId.value}`,
         body: JSON.stringify(message),
       });
 

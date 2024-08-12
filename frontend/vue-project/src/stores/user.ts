@@ -62,11 +62,13 @@ export const useUserStore = defineStore("user", () => {
 
   const GetUserInfo = async () => {
     try {
-      apiClient.get(REST_USER_API + "my-info").then((response) => {
-        user.value = response.data;
-      });
+      const response = await apiClient.get(REST_USER_API + "my-info");
+      console.log(response.data);
+      user.value = response.data;
+      return response.data; // response.data를 반환
     } catch (e) {
       console.error(e);
+      return null; // 에러 발생 시 null을 반환할 수도 있음
     }
   };
 

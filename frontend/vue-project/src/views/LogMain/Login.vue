@@ -71,8 +71,7 @@ async function Login() {
             userStore.SetAccessToken(res.data.accessToken);
             userStore.SetRefreshToken(res.data.refreshToken);
             userStore.GetUserInfo()
-                .then((response) => {
-                    userStore.user = response.data;
+                .then(() => {
                     console.log(userStore.user);
                 })
                 .catch((error) => {

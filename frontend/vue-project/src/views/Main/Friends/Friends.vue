@@ -160,6 +160,7 @@ const searchQuery = ref('');
 const searchResult = ref(null);
 const searchResultSentRequest = ref(false);
 const friendInfo = ref(null);
+const receiverId = ref(null);
 
 onMounted(() => {
     // 친구 목록을 불러오는 로직
@@ -182,6 +183,7 @@ const startChatting = async (friendId) => {
         console.log('채팅방을 열었습니다:', chatRoom);
         currentChatRoomId.value = chatRoom.id;
         messages.value = chatRoom.messages;
+        receiverId.value = friendId;
 
         // 채팅방에 메시지 구독
         webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
@@ -199,8 +201,9 @@ const startChatting = async (friendId) => {
 
 const sendMessage = () => {
     if (newMessage.value.trim() !== '') {
-        webSocketStore.sendMessage(currentChatRoomId.value, newMessage.value);
+        webSocketStore.sendMessage(receiverId.value, newMessage.value);
         newMessage.value = ''; // 입력 필드 초기화
+        console.log('메시지를 보냈습니다:', messages.value);
 
         // 메시지를 보낸 후에도 채팅창을 맨 아래로 스크롤
         scrollToBottom();

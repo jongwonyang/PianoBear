@@ -31,7 +31,8 @@
                 </md-outlined-select>
                 <div class="birth-box">
                     <md-outlined-text-field label="생년월일" placeholder="YYYY-MM-DD ex) 1999-01-01"
-                        class="regist-input birth" :value="userBirth" @input="setUserBirth"></md-outlined-text-field>
+                        class="regist-input birth" :value="userBirth" @input="setUserBirth" :error="birthError"
+                        :error-text="birthErrorMessage"></md-outlined-text-field>
                 </div>
             </div>
             <v-btn class="regist-button" @click="RegistUser" :loading="isLoading" :disabled="isLoading">
@@ -63,6 +64,8 @@ const emailErrorMessage = ref('');
 const passwordError = ref(false);
 const passwordErrorMessage = ref('');
 const PasswordCheck = ref('');
+const birthError = ref(false);
+const birthErrorMessage = ref('');
 
 const isLoading = ref(false); // 로딩 상태 변수
 
@@ -151,11 +154,11 @@ const setUserBirth = (e) => {
     // 유효성 검사: YYYY-MM-DD 형식
     const birthPattern = /^\d{4}-\d{2}-\d{2}$/;
     if (!birthPattern.test(userBirth.value)) {
-        emailError.value = true;
-        emailErrorMessage.value = '생년월일은 YYYY-MM-DD 형식이어야 합니다.';
+        birthError.value = true;
+        birthErrorMessage.value = '생년월일은 YYYY-MM-DD 형식으로 입력하세요.';
     } else {
-        emailError.value = false;
-        emailErrorMessage.value = '';
+        birthError.value = false;
+        birthErrorMessage.value = '';
     }
     userStore.user.birthday = userBirth.value;
 };

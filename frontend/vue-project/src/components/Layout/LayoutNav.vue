@@ -123,8 +123,8 @@ const showConfirmDeleteDialog = ref(false);
 onMounted(() => {
   userStore.GetUserInfo()
     .then((res) => {
-      userInfo.value.userEmail = res.data.email;
-      userInfo.value.userName = res.data.name;
+      userInfo.value.userEmail = res.email;
+      userInfo.value.userName = res.name;
       userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg";
     })
     .catch((err) => {
