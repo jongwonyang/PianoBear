@@ -80,26 +80,54 @@ public class MusicService {
         return mapMusicToDTO(savedMusic);
     }
 
+//    @Transactional
+//    public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
+//        // 기존 Music 엔티티를 가져옴
+//        Music music = musicRepository.findById(musicDTO.getId())
+//                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicDTO.getId()));
+//
+//        // 제목과 아티스트를 업데이트
+//        music.setTitle(musicDTO.getTitle());
+//        music.setArtist(musicDTO.getArtist());
+//
+//        // OpenAI API를 통해 이미지 생성 후 서버에 저장 (필요시 주석 해제)
+////    String imagePath = openAiService.generateImage(musicDTO.getTitle());
+////    music.setMusicImg(imagePath);
+//
+//        music.setMusicImg(null);
+//
+//        // 변경 사항을 저장
+//        Music savedMusic = musicRepository.save(music);
+//
+//        // DTO로 변환하여 반환
+//        return mapMusicToDTO(savedMusic);
+//    }
+
+
     @Transactional
     public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
-        // 기존 Music 엔티티를 가져옴
-        Music music = musicRepository.findById(musicDTO.getId())
-                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicDTO.getId()));
-
-        // 제목과 아티스트를 업데이트
+        Music music = new Music();
         music.setTitle(musicDTO.getTitle());
         music.setArtist(musicDTO.getArtist());
+        music.setUploadDate(LocalDate.now());
+        music.setFavorite(false);
 
-        // OpenAI API를 통해 이미지 생성 후 서버에 저장 (필요시 주석 해제)
-//    String imagePath = openAiService.generateImage(musicDTO.getTitle());
-//    music.setMusicImg(imagePath);
+        String currentUserId = getCurrentUserId();
+        Member user = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + currentUserId));
+        music.setUser(user);
+
+        music.setMusicXmlRoute(musicDTO.getMusicXmlRoute());
+        music.setModifiedMusicXmlRoute(musicDTO.getModifiedMusicXmlRoute());
+
+        // OpenAI API를 통해 이미지 생성 후 서버에 저장
+//        String imagePath = openAiService.generateImage(musicDTO.getTitle());
+//        music.setMusicImg(imagePath);
 
         music.setMusicImg(null);
 
-        // 변경 사항을 저장
         Music savedMusic = musicRepository.save(music);
 
-        // DTO로 변환하여 반환
         return mapMusicToDTO(savedMusic);
     }
 
