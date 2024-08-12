@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "Chat", description = "채팅 API")
-@RequestMapping("/api/v1/ws")
+@RequestMapping("/api/v1/chat")
 public class ChatRoomController {
 
     // 의존성 주입: ChatRoomService와 SimpMessagingTemplate을 주입
