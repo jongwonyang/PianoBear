@@ -11,6 +11,8 @@
                         <img class="my-status-image" :src="userInfo.profilePic">
                         <div class="my-status-ele">
                             <div class="my-name">{{ userInfo.name }}</div>
+                            <v-btn icon="mdi-pencil-outline" @click="editStatusMessage = true"></v-btn>
+                            <!-- 상태 메시지 수정 버튼 -->
                             <div class="my-status-message-box">
                                 <md-elevation></md-elevation>
                                 <div class="my-status-message">
@@ -130,6 +132,20 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <!-- 상태메시지 수정 다이얼로그 -->
+        <v-dialog v-model="editStatusMessage" max-width="500px">
+            <v-card class="edit-status-form">
+                <v-card-title class="headline">상태 메시지 수정</v-card-title>
+                <v-card-text>
+                    <v-text-field label="상태 메시지" v-model="newStatusMessage"></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="editStatusMessage = false">취소</v-btn>
+                    <v-btn text @click="saveStatusMessage">저장</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -161,6 +177,8 @@ const searchResult = ref(null);
 const searchResultSentRequest = ref(false);
 const friendInfo = ref(null);
 const receiverId = ref(null);
+const editStatusMessage = ref(false); // 상태 메시지 수정 다이얼로그 상태
+const newStatusMessage = ref(''); // 새로운 상태 메시지
 
 onMounted(() => {
     // 친구 목록을 불러오는 로직
@@ -286,6 +304,17 @@ const removeFriend = (id) => {
         });
 };
 
+const saveStatusMessage = () => {
+    userStore.UpdateStatusMessage(newStatusMessage.value)
+        .then((res) => {
+            userInfo.value.statusMessage = newStatusMessage.value; // 상태 메시지 업데이트
+            editStatusMessage.value = false; // 다이얼로그 닫기
+            console.log('상태 메시지가 업데이트되었습니다.');
+        })
+        .catch((err) => {
+            console.log('상태 메시지 업데이트 실패:', err);
+        });
+};
 </script>
 
 <style scoped>

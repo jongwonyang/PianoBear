@@ -1,11 +1,12 @@
 <template>
   <v-card>
     <v-layout>
-      <v-navigation-drawer expand-on-hover rail color="#D9F6D9">
+      <v-navigation-drawer expand-on-hover rail color="#D9F6D9" @mouseenter="isRail = false"
+        @mouseleave="isRail = true">
         <v-list>
-          <!-- 여기는 이미지 넣을 건데 이미지는 유저의 프로필 사진을 가져올거임 -->
-          <v-list-item :prepend-avatar="userInfo.profileImage" :subtitle="userInfo.userEmail"
-            :title="userInfo.userName"></v-list-item>
+          <v-list-item>
+            <img :src="isRail ? smallLogo : largeLogo" :max-width="isRail ? 60 : 120" class="mx-auto" />
+          </v-list-item>
         </v-list>
         <v-divider></v-divider>
         <v-list density="compact" nav>
@@ -63,7 +64,7 @@
                   <v-btn class="no-btn" small text @click="deleteChatMessage(index)">삭제</v-btn>
                 </template>
                 <template v-else-if="notification.type === 'sheetTranslation'">
-                  <v-btn class="yes-btn" small text @click="goToSheet(index), showDialog = false">이동</v-btn>
+                  <v-btn class="yes-btn" small text @click="goToSheet(index), (showDialog = false)">이동</v-btn>
                 </template>
               </v-list-item-action>
             </v-list-item>
@@ -97,11 +98,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 // import { useNotificationStore } from '@/stores/notification';
-import { useFriendStore } from '@/stores/friend';
+import { useFriendStore } from "@/stores/friend";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -120,8 +121,13 @@ const showConfirmDeleteDialog = ref(false);
 // const notifications = notificationStore.notifications;
 // const notificationCount = notificationStore.notificationCount;
 
+const isRail = ref(true);
+import largeLogo from "@/assets/logo.png";
+import smallLogo from "@/assets/characters/thf.png";
+
 onMounted(() => {
-  userStore.GetUserInfo()
+  userStore
+    .GetUserInfo()
     .then((res) => {
       userInfo.value.userEmail = res.email;
       userInfo.value.userName = res.name;
@@ -209,7 +215,7 @@ onMounted(() => {
 <style scoped>
 .notification-box {
   margin-top: 20px;
-  background: #FFF9E0;
+  background: #fff9e0;
   color: #947650;
 }
 
@@ -224,7 +230,7 @@ onMounted(() => {
 }
 
 .notification-list {
-  background: #FFF9E0;
+  background: #fff9e0;
   color: #947650;
   max-height: 300px;
 }
@@ -235,13 +241,13 @@ onMounted(() => {
 }
 
 .delete-all {
-  color: #FFF9E0;
+  color: #fff9e0;
   background: #947650;
 }
 
 .yes-btn {
   color: #947650;
-  background: #D9F6D9;
+  background: #d9f6d9;
 }
 
 .no-btn {
