@@ -254,8 +254,8 @@ public class MusicService {
         return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
-    public MusicPracticeDTO practiceMusic(int musicId, String userId) {
-        return musicPracticeService.practiceMusic(musicId, userId);
+    public MusicPracticeDTO practiceMusic(int musicId) {
+        return musicPracticeService.practiceMusic(musicId);
     }
 
     public List<LocalDate> getUploadDates(String userId) {
