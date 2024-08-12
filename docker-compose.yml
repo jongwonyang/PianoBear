@@ -18,6 +18,7 @@ services:
       ENV_APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS}
       ENV_OPENVIDU_URL: ${OPENVIDU_URL}
       ENV_OPENVIDU_SECRET: ${OPENVIDU_SECRET}
+      ENV_OPENAI_KEY: ${OPENAI_KEY}
     depends_on:
       - postgres-server
       - redis-server
