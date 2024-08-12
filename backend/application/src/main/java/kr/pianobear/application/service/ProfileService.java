@@ -1,7 +1,6 @@
 package kr.pianobear.application.service;
 
 import jakarta.transaction.Transactional;
-import kr.pianobear.application.dto.NameUpdateRequestDTO;
 import kr.pianobear.application.dto.PasswordUpdateRequestDTO;
 import kr.pianobear.application.model.FileData;
 import kr.pianobear.application.model.Member;
@@ -12,26 +11,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class ProfileService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final FileDataService fileDataService;
 
     @Autowired
-    public ProfileService(MemberRepository memberRepository, BCryptPasswordEncoder passwordEncoder){
+    public ProfileService(MemberRepository memberRepository, BCryptPasswordEncoder passwordEncoder, FileDataService fileDataService){
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileDataService = fileDataService;
     }
 
     @Transactional
-    public Optional<NameUpdateRequestDTO> updateName(String id, String newName) {
+    public Optional<String> updateName(String id, String newName) {
         Optional<Member> memberOpt = memberRepository.findById(id);
 
         if (memberOpt.isPresent()) {
@@ -40,12 +37,7 @@ public class ProfileService {
             member.setName(newName);
             memberRepository.save(member);
 
-            NameUpdateRequestDTO nameUpdateRequestDTO = new NameUpdateRequestDTO(
-                    member.getId(),
-                    member.getName()
-            );
-
-            return Optional.of(nameUpdateRequestDTO);
+            return Optional.of(newName);
         } else {
             return Optional.empty();
         }
@@ -66,7 +58,6 @@ public class ProfileService {
             memberRepository.save(member);
 
             PasswordUpdateRequestDTO passwordUpdateRequestDTO = new PasswordUpdateRequestDTO(
-                    member.getId(),
                     member.getPassword()
             );
 
@@ -83,24 +74,7 @@ public class ProfileService {
         if (memberOpt.isPresent()) {
             Member member = memberOpt.get();
 
-            // 파일 저장 경로 지정
-            String uploadDir = "${file.save-path}";
-            String originalFileName = profilePic.getOriginalFilename();
-            String savedFileName = UUID.randomUUID().toString() + "_" + originalFileName;
-            Path filePath = Paths.get(uploadDir, savedFileName);
-
-            // FileData 객체 생성
-            FileData fileData = new FileData();
-            fileData.setOriginalName(originalFileName);
-            fileData.setSavedName(savedFileName);
-            fileData.setType(profilePic.getContentType());
-            fileData.setPath(uploadDir);
-
-            // 파일 저장
-            Files.createDirectories(filePath.getParent());
-            profilePic.transferTo(filePath.toFile());
-
-            // 회원의 프로필 사진 정보 업데이트
+            FileData fileData = fileDataService.uploadImage(profilePic, 200, 200);
             member.setProfilePic(fileData);
             memberRepository.save(member);
 

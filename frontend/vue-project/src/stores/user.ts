@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 
 const REST_USER_API = import.meta.env.VITE_API_BASE_URL + "/users/";
 const REST_AUTH_API = import.meta.env.VITE_API_BASE_URL + "/auth/";
+const REST_PROFILE_API = import.meta.env.VITE_API_BASE_URL + "/profile/";
 
 export type User = {
   id: string;
@@ -139,6 +140,53 @@ export const useUserStore = defineStore("user", () => {
     sessionStorage.removeItem("refreshToken");
   };
 
+  const updateProfile = async (file: File): Promise<void> => {
+    if (!file) {
+      alert("변경할 사진을 선택해주세요!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profilePic", file);
+
+    try {
+      const response = await apiClient.put(`${REST_PROFILE_API}photo`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updateName = async (newName: string) => {
+    try {
+      const response = await apiClient.put(`${REST_PROFILE_API}name`, null, {
+        params: {
+          newName: newName,
+        },
+      });
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updatePassword = async (oldPassword: string, newPassword: string) => {
+    try {
+      const response = await apiClient.put(`${REST_PROFILE_API}password`, {
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      });
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return {
     user,
     isLoggedIn,
@@ -155,5 +203,8 @@ export const useUserStore = defineStore("user", () => {
     GetRefreshToken,
     RemoveToken,
     GetUserInfo,
+    updateProfile,
+    updateName,
+    updatePassword,
   };
 });

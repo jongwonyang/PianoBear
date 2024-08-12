@@ -14,14 +14,9 @@ public class PasswordUpdateRequestDTO {
 
     public PasswordUpdateRequestDTO(){}
 
-    public PasswordUpdateRequestDTO(String id, String newPassword){
-        this.id = id;
+    public PasswordUpdateRequestDTO(String newPassword){
         this.newPassword = newPassword;
     }
-
-    @NotBlank
-    @Schema(description = "사용자 아이디")
-    private String id;
 
     @NotBlank
     @Schema(description = "이전 비밀번호")
