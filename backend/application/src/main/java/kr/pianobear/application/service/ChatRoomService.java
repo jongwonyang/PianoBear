@@ -32,6 +32,9 @@ public class ChatRoomService {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // 트랜잭션 처리: getOrCreateChatRoom 메서드가 트랜잭션 내에서 실행됨
     @Transactional
     public ChatRoomDTO getOrCreateChatRoom(String friendId) {
@@ -85,12 +88,20 @@ public class ChatRoomService {
             // 메시지를 DB에 저장
             Message savedMessage = messageRepository.save(message);
 
+            // 알림 생성 및 전송 - JSON 형식으로 필요한 정보 포함
+            String notificationContent = String.format(
+                    "{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\", \"chatRoomId\":\"%d\"}",
+                    sender.getId(), sender.getName(),
+                    sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "",
+                    chatRoom.getId()
+            );
+            notificationService.createNotification(receiver, "CHAT", notificationContent);
+
             return convertToDTO(savedMessage);
         } else {
             throw new RuntimeException("Sender or Receiver not found");
         }
     }
-
 
     // 새 채팅방을 생성하는 메서드
     private ChatRoom createChatRoom(Member member1, Member member2) {

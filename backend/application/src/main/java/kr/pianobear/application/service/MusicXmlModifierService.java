@@ -30,7 +30,7 @@ public class MusicXmlModifierService {
 
     static {
         noteToSyllable.put("C", "도");
-        noteToSyllable.put("D", "레");
+        noteToSyllable.put("D", "ㄹㅔ");
         noteToSyllable.put("E", "미");
         noteToSyllable.put("F", "파");
         noteToSyllable.put("G", "솔");
@@ -75,7 +75,7 @@ public class MusicXmlModifierService {
             extractAndModifyXml(tempDir, xmlFilePath);
         } else if (musicXmlFilePath != null) {
             modifyXmlFileWithOpenedFile(musicXmlFilePath);
-            createContainerXml(musicXmlFilePath, tempDir);  // container.xml 파일 생성
+            createOrModifyContainerXml(musicXmlFilePath, tempDir);  // container.xml 파일 생성 또는 수정
         } else {
             throw new IOException("No XML or MusicXML file found inside the MXL file");
         }
@@ -168,7 +168,42 @@ public class MusicXmlModifierService {
             Document doc = dBuilder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
             doc.getDocumentElement().normalize();
 
-            // <note> 요소 출력 및 수정
+            // <part-list>에서 <part-name>이 "Voice"인 <score-part> 요소를 찾고 삭제
+            NodeList scorePartList = doc.getElementsByTagName("score-part");
+            String partIdToRemove = null;
+
+            for (int i = 0; i < scorePartList.getLength(); i++) {
+                Node scorePart = scorePartList.item(i);
+                if (scorePart.getNodeType() == Node.ELEMENT_NODE) {
+                    Element scorePartElement = (Element) scorePart;
+                    NodeList partNameList = scorePartElement.getElementsByTagName("part-name");
+                    if (partNameList.getLength() > 0) {
+                        String partName = partNameList.item(0).getTextContent();
+                        if (partName.equals("Voice")) {
+                            partIdToRemove = scorePartElement.getAttribute("id");
+                            scorePart.getParentNode().removeChild(scorePart);  // <score-part> 삭제
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // <part> 태그에서 해당 id를 가진 요소를 삭제
+            if (partIdToRemove != null) {
+                NodeList partList = doc.getElementsByTagName("part");
+                for (int i = 0; i < partList.getLength(); i++) {
+                    Node part = partList.item(i);
+                    if (part.getNodeType() == Node.ELEMENT_NODE) {
+                        Element partElement = (Element) part;
+                        if (partElement.getAttribute("id").equals(partIdToRemove)) {
+                            part.getParentNode().removeChild(part);  // <part> 삭제
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // <note> 요소 출력 및 수정 (계이름 추가)
             NodeList noteList = doc.getElementsByTagName("note");
             Element lyric = null;
             boolean isChord = false;
@@ -237,22 +272,52 @@ public class MusicXmlModifierService {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             String modifiedXmlContent = writer.getBuffer().toString();
 
-            // Save the modified content to a new file with .xml extension
-            String newFilePath = xmlFilePath.replace(".musicxml", "_modified.xml").replace(".xml", "_modified.xml");
-            StreamResult result = new StreamResult(new File(newFilePath));
+            // 원래 파일 이름으로 저장 (파일명에 _modified 추가하지 않음)
+            StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(new DOMSource(doc), result);
-
-            // Delete the original XML file
-            Files.delete(Paths.get(xmlFilePath));
-
-            // Output the result for debugging
-            String resultContent = new String(Files.readAllBytes(Paths.get(newFilePath)), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IOException("Failed to modify XML file", e);
         }
     }
 
+    private void createOrModifyContainerXml(String musicXmlFilePath, String tempDir) throws IOException {
+        String containerXmlPath = tempDir + File.separator + "META-INF" + File.separator + "container.xml";
+        File containerFile = new File(containerXmlPath);
+        String modifiedFileName = new File(musicXmlFilePath).getName().replace(".musicxml", "_modified.musicxml").replace(".xml", "_modified.xml");
+
+        if (containerFile.exists()) {
+            // 기존 container.xml 파일이 있을 경우 수정
+            try {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                dbFactory.setNamespaceAware(true);
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(containerFile);
+                doc.getDocumentElement().normalize();
+
+                // rootfile 요소를 찾아서 full-path 속성을 수정
+                NodeList rootfileList = doc.getElementsByTagName("rootfile");
+                if (rootfileList.getLength() > 0) {
+                    Element rootfileElement = (Element) rootfileList.item(0);
+                    rootfileElement.setAttribute("full-path", modifiedFileName);
+                }
+
+                // 수정된 내용을 다시 container.xml에 저장
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                transformer.transform(new DOMSource(doc), new StreamResult(containerFile));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new IOException("Failed to modify existing container.xml", e);
+            }
+        } else {
+            // container.xml 파일이 없을 경우 새로 생성
+            createContainerXml(musicXmlFilePath, tempDir);
+        }
+    }
 
     private void createContainerXml(String musicXmlFilePath, String tempDir) throws IOException {
         String containerXmlPath = tempDir + File.separator + "META-INF" + File.separator + "container.xml";
@@ -260,10 +325,11 @@ public class MusicXmlModifierService {
         if (!containerDir.exists()) {
             containerDir.mkdirs();
         }
+        String modifiedFileName = new File(musicXmlFilePath).getName().replace(".musicxml", "_modified.musicxml").replace(".xml", "_modified.xml");
         String containerXmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<container xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\" version=\"1.0\">\n" +
                 "  <rootfiles>\n" +
-                "    <rootfile full-path=\"" + new File(musicXmlFilePath).getName() + "\" media-type=\"application/vnd.recordare.musicxml+xml\"/>\n" +
+                "    <rootfile full-path=\"" + modifiedFileName + "\" media-type=\"application/vnd.recordare.musicxml+xml\"/>\n" +
                 "  </rootfiles>\n" +
                 "</container>";
         Files.write(Paths.get(containerXmlPath), containerXmlContent.getBytes(StandardCharsets.UTF_8));
