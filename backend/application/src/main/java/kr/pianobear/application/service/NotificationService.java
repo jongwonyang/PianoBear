@@ -1,14 +1,17 @@
 package kr.pianobear.application.service;
 
 import kr.pianobear.application.dto.NotificationDTO;
+import kr.pianobear.application.model.FriendRequest;
 import kr.pianobear.application.model.Member;
 import kr.pianobear.application.model.Notification;
+import kr.pianobear.application.repository.FriendRequestRepository;
 import kr.pianobear.application.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +19,9 @@ public class NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private FriendRequestRepository friendRequestRepository;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -54,12 +60,34 @@ public class NotificationService {
 
     // 알림 삭제
     public void deleteNotification(Long notificationId) {
-        notificationRepository.deleteById(notificationId);
+        // 1. 알림을 먼저 조회
+        Optional<Notification> notificationOpt = notificationRepository.findById(notificationId);
+
+        if (notificationOpt.isPresent()) {
+            Notification notification = notificationOpt.get();
+
+            // 2. 연결된 FriendRequest가 있는지 확인하고 삭제
+            FriendRequest friendRequest = notification.getFriendRequest();
+            if (friendRequest != null) {
+                friendRequestRepository.delete(friendRequest);
+            }
+
+            // 3. 알림 삭제
+            notificationRepository.deleteById(notificationId);
+        }
     }
 
-    // 모든 알림 삭제
+    // 전체 알림 삭제 메서드도 동일하게 수정할 수 있습니다
     public void clearNotifications(Member receiver) {
         List<Notification> notifications = notificationRepository.findByReceiver(receiver);
+        for (Notification notification : notifications) {
+            // 연결된 FriendRequest가 있는지 확인하고 삭제
+            FriendRequest friendRequest = notification.getFriendRequest();
+            if (friendRequest != null) {
+                friendRequestRepository.delete(friendRequest);
+            }
+        }
+        // 알림 삭제
         notificationRepository.deleteAll(notifications);
     }
 }
