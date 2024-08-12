@@ -5,6 +5,7 @@ import kr.pianobear.application.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,12 +19,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
 public class DatabaseUtil {
 
+    private final Environment environment;
     private final FileDataRepository fileDataRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -54,7 +55,8 @@ public class DatabaseUtil {
     );
 
     @Autowired
-    public DatabaseUtil(FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder, MusicRepository musicRepository, MusicPracticeRepository musicPracticeRepository, MusicTestRepository musicTestRepository, MusicHighScoreRepository musicHighScoreRepository) {
+    public DatabaseUtil(Environment environment, FileDataRepository fileDataRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder, MusicRepository musicRepository, MusicPracticeRepository musicPracticeRepository, MusicTestRepository musicTestRepository, MusicHighScoreRepository musicHighScoreRepository) {
+        this.environment = environment;
         this.fileDataRepository = fileDataRepository;
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
@@ -70,15 +72,18 @@ public class DatabaseUtil {
             @Override
             @Transactional
             public void run(String... args) throws Exception {
-                try {
-                    copyFiles();
-                    saveFileData();
-                    createMembers();
-                    createFriendRelationships();
-                    createMusic();
-                    System.out.println("sample data inserted");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                // 프로덕션 아닌 경우만 더미 데이터 삽입
+                if (!Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
+                    try {
+                        copyFiles();
+                        saveFileData();
+                        createMembers();
+                        createFriendRelationships();
+                        createMusic();
+                        System.out.println("sample data inserted");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
