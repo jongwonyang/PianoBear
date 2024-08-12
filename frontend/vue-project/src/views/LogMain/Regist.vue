@@ -30,9 +30,8 @@
                     </md-select-option>
                 </md-outlined-select>
                 <div class="birth-box">
-                    <md-outlined-text-field label="생년월일" placeholder="YYYY-MM-DD ex) 1999-01-01"
-                        class="regist-input birth" :value="userBirth" @input="setUserBirth" :error="birthError"
-                        :error-text="birthErrorMessage"></md-outlined-text-field>
+                    <input label="생년월일" placeholder="YYYY-MM-DD ex) 1999-01-01" type="date" class="regist-input birth"
+                        :value="userBirth" @input="setUserBirth" :error="birthError" :error-text="birthErrorMessage" />
                 </div>
             </div>
             <v-btn class="regist-button" @click="RegistUser" :loading="isLoading" :disabled="isLoading">
@@ -234,7 +233,7 @@ const RegistUser = async () => {
     color: #F5E5D1;
     background-color: #FBFCFE;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 30px;
     --md-outlined-text-field-input-text-placeholder-color: #a5a5a5;
 }
 

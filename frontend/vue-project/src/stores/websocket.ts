@@ -109,7 +109,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
       console.log("제이슨변환:", JSON.stringify(message));
 
       stompClient.value.publish({
-        destination: `/topic/chat/${currentChatRoomId.value}`,
+        destination: `/app/sendMessage`,
         body: JSON.stringify(message),
       });
 

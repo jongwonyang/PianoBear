@@ -38,7 +38,9 @@ export const useUserStore = defineStore("user", () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("이메일 인증을 완료해야 로그인이 가능합니다.");
+      alert(
+        "이메일 인증을 완료해야 로그인이 가능합니다. 이메일을 확인해주세요."
+      );
       router.push("/login");
     } catch (e) {
       console.error(e);
