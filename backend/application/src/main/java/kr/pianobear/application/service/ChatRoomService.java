@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -115,14 +116,20 @@ public class ChatRoomService {
         chatRoomDTO.setMember1Id(chatRoom.getMember1().getId());  // 첫 번째 멤버 ID 설정
         chatRoomDTO.setMember2Id(chatRoom.getMember2().getId());  // 두 번째 멤버 ID 설정
 
+        // 채팅방의 메시지 리스트가 null일 경우 빈 리스트로 처리
+        List<Message> messages = chatRoom.getMessages();
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
+
         // 채팅방의 모든 메시지를 DTO로 변환하여 리스트에 추가
-        List<MessageDTO> messages = chatRoom.getMessages().stream()
+        List<MessageDTO> messageDTOs = messages.stream()
                 .sorted(Comparator.comparing(Message::getTimestamp))  // 시간순 정렬
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
 
-        chatRoomDTO.setMessages(messages);  // 변환된 메시지 리스트를 DTO에 설정
+        chatRoomDTO.setMessages(messageDTOs);  // 변환된 메시지 리스트를 DTO에 설정
 
         return chatRoomDTO;  // DTO 반환
     }
