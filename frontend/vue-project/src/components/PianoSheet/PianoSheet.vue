@@ -46,11 +46,14 @@ const next = function () {
   };
 }
 
-onMounted(async () => {
-  await loadMxl(nowSheet.value);
-  await osmd('osmd-sheet', musicXml.value);
-  pages.value = document.querySelectorAll('#osmd-sheet > div');
-  pageLoad();
+onMounted(() => {
+  loadMxl(nowSheet.value).then(() => {
+    osmd('osmd-sheet', musicXml.value).then(() => {
+      pages.value = document.querySelectorAll('#osmd-sheet > div');
+      pageLoad();
+    })
+  });
+
 });
 </script>
 

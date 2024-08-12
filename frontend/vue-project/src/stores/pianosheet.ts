@@ -324,7 +324,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const mxlLoadfun = async (id: number): Promise<ArrayBuffer> => {
     try {
       const response = await apiClient.get<ArrayBuffer>(
-        `${REST_PIANOSHEET_API}/api/v1/music/${id}/download-modified-music-xml`,
+        `${REST_PIANOSHEET_API}/api/v1/music/${id}/download-music-xml`, //-modified
         {
           responseType: "arraybuffer",
         }
