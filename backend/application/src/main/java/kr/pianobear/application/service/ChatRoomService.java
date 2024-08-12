@@ -63,42 +63,35 @@ public class ChatRoomService {
     }
 
     public MessageDTO sendMessage(String receiverId, String content) {
-        // 현재 로그인된 사용자의 ID를 가져옴
         String senderId = SecurityUtil.getCurrentUserId();
-
-        // 송신자와 수신자 Member 객체를 DB에서 조회
         Optional<Member> senderOpt = memberRepository.findById(senderId);
         Optional<Member> receiverOpt = memberRepository.findById(receiverId);
 
-        // 두 멤버가 모두 존재하는 경우에만 처리
         if (senderOpt.isPresent() && receiverOpt.isPresent()) {
             Member sender = senderOpt.get();
             Member receiver = receiverOpt.get();
 
-            // 두 멤버가 참여한 채팅방을 한 번의 쿼리로 조회
             Optional<ChatRoom> chatRoomOpt = chatRoomRepository.findByMemberIds(sender, receiver);
-
-            // 채팅방이 존재하면 그 채팅방을 사용, 없으면 새로 생성
             ChatRoom chatRoom = chatRoomOpt.orElseGet(() -> createChatRoom(sender, receiver));
 
-            // 새 메시지 객체 생성 및 설정
             Message message = new Message();
-            message.setChatRoom(chatRoom);  // 메시지가 속한 채팅방 설정
-            message.setSender(sender);  // 메시지 송신자 설정
-            message.setReceiver(receiver);  // 메시지 수신자 설정
-            message.setContent(content);  // 메시지 내용 설정
-            message.setTimestamp(LocalDateTime.now());  // 메시지 전송 시간 설정
+            message.setChatRoom(chatRoom);
+            message.setSender(sender);
+            message.setReceiver(receiver);
+            message.setContent(content);
+            message.setTimestamp(LocalDateTime.now());
+
+            chatRoom.getMessages().add(message);
 
             // 메시지를 DB에 저장
-            messageRepository.save(message);
+            Message savedMessage = messageRepository.save(message);
 
-            // 메시지 엔티티를 DTO로 변환하여 반환
-            return convertToDTO(message);
+            return convertToDTO(savedMessage);
         } else {
-            // 만약 송신자나 수신자를 찾지 못하면 예외 발생
             throw new RuntimeException("Sender or Receiver not found");
         }
     }
+
 
     // 새 채팅방을 생성하는 메서드
     private ChatRoom createChatRoom(Member member1, Member member2) {

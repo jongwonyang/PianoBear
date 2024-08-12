@@ -89,44 +89,60 @@ onMounted(() => {
 <style scoped>
 .button-container {
   display: flex;
-  flex-direction: column; /* 수직으로 정렬 */
-  gap: 20px; /* 버튼 간격 설정 */
+  flex-direction: column;
+  /* 수직으로 정렬 */
+  gap: 20px;
+  /* 버튼 간격 설정 */
   color: #947650;
 }
 
 .third-row {
   display: flex;
-  justify-content: space-between; /* 좌우로 공간 분배 */
+  justify-content: space-between;
+  /* 좌우로 공간 분배 */
 }
 
 .third-row button {
-  flex: 1; /* 버튼이 동일한 너비를 가지도록 설정 */
+  flex: 1;
+  /* 버튼이 동일한 너비를 가지도록 설정 */
 }
 
 .third-row button:first-of-type {
-  margin-right: 10px; /* '즐겨찾기' 버튼 오른쪽에 공간 추가 */
+  margin-right: 10px;
+  /* '즐겨찾기' 버튼 오른쪽에 공간 추가 */
 }
 
 .third-row button:last-of-type {
-  margin-left: 10px; /* '삭제' 버튼 왼쪽에 공간 추가 */
+  margin-left: 10px;
+  /* '삭제' 버튼 왼쪽에 공간 추가 */
 }
 
 .btn {
   background-color: #fff9e0;
   height: 70px;
-  border-radius: 5px; /* 기본 버튼 스타일에 가장 가까운 둥근 모서리 추가 */
-  cursor: pointer; /* 클릭 가능한 버튼 모양 */
+  border-radius: 5px;
+  /* 기본 버튼 스타일에 가장 가까운 둥근 모서리 추가 */
+  cursor: pointer;
+  /* 클릭 가능한 버튼 모양 */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px; /* 버튼의 좌우 패딩 추가 */
-  font-size: 18px; /* 버튼 텍스트의 크기 설정 */
+  padding: 0 16px;
+  /* 버튼의 좌우 패딩 추가 */
+  font-size: 18px;
+  /* 버튼 텍스트의 크기 설정 */
   font-weight: bold;
   box-shadow: 2px 2px 2px gray;
 }
 
 .btn:hover {
-  background-color: #e0e0e0; /* 버튼 호버 상태 색상 */
+  background-color: #e0e0e0;
+  /* 버튼 호버 상태 색상 */
+}
+
+.btn:active {
+  background-color: #9e9e9e;
+  /* 버튼 호버 상태 색상 */
 }
 
 /* 모달 스타일 */
@@ -145,7 +161,8 @@ onMounted(() => {
 .modal-content {
   background: #fffff8;
   border-radius: 8px;
-  width: 80%; /* 부모 요소의 80% 너비로 설정 */
+  width: 80%;
+  /* 부모 요소의 80% 너비로 설정 */
   width: 800px;
   height: 500px;
 }

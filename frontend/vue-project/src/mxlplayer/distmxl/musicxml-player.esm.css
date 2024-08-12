@@ -1,12 +1,30 @@
 .player-sheet {
   overflow: auto;
+  z-index: 2;
 }
 .player-cursor {
-  z-index: 2;
-  width: 2px;
+  z-index: 1;
+  width: 17px;
   will-change: transform;
   position: absolute;
   top: 0;
-  left: 0;
-  background: rgb(234, 107, 36);
+  left: -30vh;
+  /* noteColorSet 
+    #bde7bd7d
+  */
+  background: #bde7bd7d;
+  border-radius: 20px;
+}
+
+#osmd-sheet {
+  overflow: hidden;
+  width: 28vw;
+  height: 78vh;
+  border: 2px solid #f5e5d1;
+  padding-top: 8vh;
+  position: relative;
+  background-color: white;
+}
+#osmd-sheet::-webkit-scrollbar {
+  display: none;
 }
