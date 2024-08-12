@@ -9,6 +9,7 @@ import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
 import kr.pianobear.application.repository.UserStreakRepository;
+import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,15 @@ public class MusicPracticeService {
     }
 
     @Transactional
-    public MusicPracticeDTO practiceMusic(int musicId, String userId) {
+    public MusicPracticeDTO practiceMusic(int musicId) {
+        // 현재 로그인한 사용자 ID 가져오기
+        String userId = SecurityUtil.getCurrentUserId();
+
+        // 사용자가 인증되지 않은 경우 예외 처리
+        if (userId == null) {
+            throw new RuntimeException("User is not authenticated");
+        }
+
         Optional<Music> optionalMusic = musicRepository.findById(musicId);
         if (!optionalMusic.isPresent()) {
             throw new RuntimeException("Music not found with id " + musicId);
@@ -71,6 +80,7 @@ public class MusicPracticeService {
 
         return mapToDTO(savedPractice);
     }
+
 
     private void updateStreak(MusicPractice practice) {
         UserStreak streak = userStreakRepository.findById(practice.getMember().getId())

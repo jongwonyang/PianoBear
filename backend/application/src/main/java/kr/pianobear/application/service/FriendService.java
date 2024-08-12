@@ -52,38 +52,7 @@ public class FriendService {
         }
     }
 
-    // public void sendFriendRequest(String senderId, String receiverId) {
-    // if (senderId.equals(receiverId)) {
-    // return;
-    // }
-    //
-    // Optional<Member> senderOpt = memberRepository.findById(senderId);
-    // Optional<Member> receiverOpt = memberRepository.findById(receiverId);
-    //
-    // if (senderOpt.isPresent() && receiverOpt.isPresent()) {
-    // Member sender = senderOpt.get();
-    // Member receiver = receiverOpt.get();
-    //
-    // // 이미 친구인 경우 요청을 보내지 않도록 함
-    // if (sender.getFriends().contains(receiver)) {
-    // return; // 이미 친구인 경우 그냥 반환
-    // }
-    //
-    // FriendRequest friendRequest = new FriendRequest(sender, receiver);
-    // friendRequestRepository.save(friendRequest);
-    //
-    // // 알림 생성 및 전송
-    // String content = String.format("{\"senderId\":\"%s\", \"senderName\":\"%s\",
-    // \"senderProfilePic\":\"%s\"}",
-    // sender.getId(), sender.getName(), sender.getProfilePic() != null ?
-    // sender.getProfilePic().getFilePath() : "");
-    // notificationService.createNotification(receiver, "FRIEND_REQUEST", content);
-    // }
-    // }
-
-    // 수락 메서드
     public void acceptFriendRequest(String senderId, String receiverId) {
-
         Optional<Member> senderOpt = memberRepository.findById(senderId);
         Optional<Member> receiverOpt = memberRepository.findById(receiverId);
 
@@ -107,7 +76,6 @@ public class FriendService {
         }
     }
 
-    // 거절 메서드
     public void rejectFriendRequest(String senderId, String receiverId) {
         Optional<Member> senderOpt = memberRepository.findById(senderId);
         Optional<Member> receiverOpt = memberRepository.findById(receiverId);
