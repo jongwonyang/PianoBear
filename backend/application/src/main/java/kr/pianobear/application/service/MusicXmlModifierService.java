@@ -172,6 +172,7 @@ public class MusicXmlModifierService {
             NodeList noteList = doc.getElementsByTagName("note");
             Element lyric = null;
             boolean isChord = false;
+            StringBuilder syllableText = new StringBuilder();
 
             for (int i = 0; i < noteList.getLength(); i++) {
                 Node note = noteList.item(i);
@@ -183,32 +184,45 @@ public class MusicXmlModifierService {
                     isChord = chordList.getLength() > 0;
 
                     NodeList pitchList = noteElement.getElementsByTagName("pitch");
-                    if (pitchList.getLength() > 0) {
-                        Element pitch = (Element) pitchList.item(0);
+                    StringBuilder chordSyllables = new StringBuilder();
+
+                    for (int j = 0; j < pitchList.getLength(); j++) {
+                        Element pitch = (Element) pitchList.item(j);
                         String step = pitch.getElementsByTagName("step").item(0).getTextContent();
+                        String octave = pitch.getElementsByTagName("octave").item(0).getTextContent();
                         String syllable = noteToSyllable.get(step);
 
                         if (syllable != null) {
-                            if (isChord && lyric != null) {
-                                // Append syllable to existing text if it's part of the same chord
-                                Node textNode = lyric.getElementsByTagName("text").item(0);
-                                textNode.setTextContent(textNode.getTextContent() + syllable);
-                            } else {
-                                // New note or first note in a chord, create new lyric element
-                                lyric = doc.createElement("lyric");
+                            // Append the syllable with octave information if needed
+                            chordSyllables.append(syllable).append(octave);
 
-                                Element text = doc.createElement("text");
-                                text.setAttribute("font-size", "20"); // Set font size
-                                text.setAttribute("font-weight", "bold"); // Set font weight
-                                text.setAttribute("color", "#00FF00"); // Set font color to green
-                                text.setTextContent(syllable); // Add the actual syllable text
-                                lyric.appendChild(text);
-
-                                // Add necessary attributes
-                                lyric.setAttribute("default-y", "-60");  // Adjust y-position to prevent overlap
-
-                                noteElement.appendChild(lyric);
+                            if (j < pitchList.getLength() - 1) {
+                                chordSyllables.append("-"); // Hyphenate between syllables in a chord
                             }
+                        }
+                    }
+
+                    if (chordSyllables.length() > 0) {
+                        if (lyric != null && isChord) {
+                            // If it's the continuation of a chord, append the syllables
+                            Node textNode = lyric.getElementsByTagName("text").item(0);
+                            textNode.setTextContent(textNode.getTextContent() + chordSyllables.toString());
+                        } else {
+                            // Create new lyric element for the new note or the first note in a chord
+                            lyric = doc.createElement("lyric");
+
+                            Element text = doc.createElement("text");
+                            text.setAttribute("font-size", "20"); // Set font size
+                            text.setAttribute("font-weight", "bold"); // Set font weight
+                            text.setAttribute("color", "#00FF00"); // Set font color to green
+                            text.setTextContent(chordSyllables.toString()); // Add the actual syllable text
+                            lyric.appendChild(text);
+
+                            // Adjust y-position to prevent overlap
+                            String yPosition = isChord ? "-75" : "-60";
+                            lyric.setAttribute("default-y", yPosition);
+
+                            noteElement.appendChild(lyric);
                         }
                     }
                 }
