@@ -28,6 +28,10 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
 
+    @OneToOne
+    @JoinColumn(name = "friend_request_id", referencedColumnName = "id")
+    private FriendRequest friendRequest;
+
     public Notification(Member receiver, String type, String content) {
         this();
         this.receiver = receiver;

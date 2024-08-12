@@ -28,16 +28,6 @@ public class MusicTestController {
         this.musicTestService = musicTestService;
     }
 
-    @Operation(summary = "더미 테스트 데이터 추가", description = "더미 테스트 데이터를 추가합니다.")
-    @PostMapping("/add-dummy")
-    public ResponseEntity<MusicTestDTO> addDummyMusicTest(@RequestParam int musicId,
-                                                          @RequestParam String userId,
-                                                          @RequestParam int grade) {
-        LocalDate testDate = LocalDate.now();
-        MusicTestDTO createdTest = musicTestService.addDummyMusicTest(musicId, userId, grade, testDate);
-        return ResponseEntity.ok(createdTest);
-    }
-
     @Operation(summary = "악보 도전", description = "도전 데이터 추가하기")
     @PreAuthorize("hasRole('ROLE_MEMBER')")
     @PostMapping("/{id}")
