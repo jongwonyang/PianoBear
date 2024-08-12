@@ -1,23 +1,54 @@
 <template>
   <v-card>
     <v-layout>
-      <v-navigation-drawer expand-on-hover rail color="#D9F6D9">
+      <v-navigation-drawer
+        expand-on-hover
+        rail
+        color="#D9F6D9"
+        @mouseenter="isRail = false"
+        @mouseleave="isRail = true"
+      >
         <v-list>
-          <!-- 여기는 이미지 넣을 건데 이미지는 유저의 프로필 사진을 가져올거임 -->
-          <v-list-item :prepend-avatar="userInfo.profileImage" :subtitle="userInfo.userEmail"
-            :title="userInfo.userName"></v-list-item>
+          <v-list-item>
+            <img
+              :src="isRail ? smallLogo : largeLogo"
+              :max-width="isRail ? 60 : 120"
+              class="mx-auto"
+            />
+          </v-list-item>
         </v-list>
         <v-divider></v-divider>
         <v-list density="compact" nav>
-          <v-list-item prepend-icon="mdi-home-variant-outline" title="메인" value="내 정보"
-            @click="router.push({ name: 'myInfo' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-account-multiple-outline" title="친구들" value="친구들"
-            @click="router.push({ name: 'friends' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-music-box-multiple" title="내 악보" value="악보목록"
-            @click="router.push({ name: 'pianoSheetList' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-video-account" title="놀이터" value="소통방"
-            @click="router.push({ name: 'community' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-bell-outline" title="알림" value="알림" @click="showDialog = true"></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-home-variant-outline"
+            title="메인"
+            value="내 정보"
+            @click="router.push({ name: 'myInfo' })"
+          ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-account-multiple-outline"
+            title="친구들"
+            value="친구들"
+            @click="router.push({ name: 'friends' })"
+          ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-music-box-multiple"
+            title="내 악보"
+            value="악보목록"
+            @click="router.push({ name: 'pianoSheetList' })"
+          ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-video-account"
+            title="놀이터"
+            value="소통방"
+            @click="router.push({ name: 'community' })"
+          ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-bell-outline"
+            title="알림"
+            value="알림"
+            @click="showDialog = true"
+          ></v-list-item>
         </v-list>
       </v-navigation-drawer>
     </v-layout>
@@ -27,33 +58,80 @@
       <v-card class="notification-box">
         <v-card-title class="headline">
           <div>알림</div>
-          <v-btn class="delete-all" icon @click="showConfirmDeleteDialog = true">
+          <v-btn
+            class="delete-all"
+            icon
+            @click="showConfirmDeleteDialog = true"
+          >
             <v-icon>mdi-delete-outline</v-icon>
           </v-btn>
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
           <v-list class="notification-list">
-            <v-list-item v-for="(notification, index) in notifications" :key="index">
+            <v-list-item
+              v-for="(notification, index) in notifications"
+              :key="index"
+            >
               <v-list-item-content>
                 <v-list-item-title>{{ notification.title }}</v-list-item-title>
-                <v-list-item-subtitle>{{ notification.message }}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{
+                  notification.message
+                }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action class="notification-actions">
                 <template v-if="notification.type === 'friendRequest'">
-                  <v-btn class="yes-btn" small text @click="acceptFriendRequest(index)">수락</v-btn>
-                  <v-btn class="no-btn" small text @click="declineFriendRequest(index)">거절</v-btn>
+                  <v-btn
+                    class="yes-btn"
+                    small
+                    text
+                    @click="acceptFriendRequest(index)"
+                    >수락</v-btn
+                  >
+                  <v-btn
+                    class="no-btn"
+                    small
+                    text
+                    @click="declineFriendRequest(index)"
+                    >거절</v-btn
+                  >
                 </template>
                 <template v-else-if="notification.type === 'meetingInvite'">
-                  <v-btn class="yes-btn" small text @click="acceptMeetingInvite(index)">수락</v-btn>
-                  <v-btn class="no-btn" small text @click="declineMeetingInvite(index)">거절</v-btn>
+                  <v-btn
+                    class="yes-btn"
+                    small
+                    text
+                    @click="acceptMeetingInvite(index)"
+                    >수락</v-btn
+                  >
+                  <v-btn
+                    class="no-btn"
+                    small
+                    text
+                    @click="declineMeetingInvite(index)"
+                    >거절</v-btn
+                  >
                 </template>
                 <template v-else-if="notification.type === 'chatMessage'">
-                  <v-btn class="yes-btn" small text @click="goToChat(index)">이동</v-btn>
-                  <v-btn class="no-btn" small text @click="deleteChatMessage(index)">삭제</v-btn>
+                  <v-btn class="yes-btn" small text @click="goToChat(index)"
+                    >이동</v-btn
+                  >
+                  <v-btn
+                    class="no-btn"
+                    small
+                    text
+                    @click="deleteChatMessage(index)"
+                    >삭제</v-btn
+                  >
                 </template>
                 <template v-else-if="notification.type === 'sheetTranslation'">
-                  <v-btn class="yes-btn" small text @click="goToSheet(index), showDialog = false">이동</v-btn>
+                  <v-btn
+                    class="yes-btn"
+                    small
+                    text
+                    @click="goToSheet(index), (showDialog = false)"
+                    >이동</v-btn
+                  >
                 </template>
               </v-list-item-action>
             </v-list-item>
@@ -82,11 +160,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 // import { useNotificationStore } from '@/stores/notification';
-import { useFriendStore } from '@/stores/friend';
+import { useFriendStore } from "@/stores/friend";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -105,12 +183,18 @@ const showConfirmDeleteDialog = ref(false);
 // const notifications = ref([]);
 // const notificationCount = ref(0);
 
+const isRail = ref(true);
+import largeLogo from "@/assets/logo.png";
+import smallLogo from "@/assets/characters/thf.png";
+
 onMounted(() => {
-  userStore.GetUserInfo()
+  userStore
+    .GetUserInfo()
     .then((res) => {
       userInfo.value.userEmail = res.data.email;
       userInfo.value.userName = res.data.name;
-      userInfo.value.profileImage = "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg";
+      userInfo.value.profileImage =
+        "https://file2.mk.co.kr/meet/neds/2024/06/image_readtop_2024_417649_17176680616002440.jpg";
     })
     .catch((err) => {
       console.log(err);
@@ -187,7 +271,7 @@ onMounted(() => {
 <style scoped>
 .notification-box {
   margin-top: 20px;
-  background: #FFF9E0;
+  background: #fff9e0;
   color: #947650;
 }
 
@@ -202,7 +286,7 @@ onMounted(() => {
 }
 
 .notification-list {
-  background: #FFF9E0;
+  background: #fff9e0;
   color: #947650;
   max-height: 300px;
 }
@@ -213,13 +297,13 @@ onMounted(() => {
 }
 
 .delete-all {
-  color: #FFF9E0;
+  color: #fff9e0;
   background: #947650;
 }
 
 .yes-btn {
   color: #947650;
-  background: #D9F6D9;
+  background: #d9f6d9;
 }
 
 .no-btn {
