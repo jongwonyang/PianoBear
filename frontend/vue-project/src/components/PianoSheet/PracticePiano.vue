@@ -1,8 +1,11 @@
 <template>
     <div class="back">
         <div class="sheetback">
-            <a v-if="wavBlobUrl" :href="wavBlobUrl" download="recording.wav">WAV 다운로드</a>
             <div class="practice-options" :style="{ visibility: props.challenge ? 'hidden' : 'visible' }">
+                <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
+                    <v-btn prepend-icon="mdi-reload" :width="27" :height="27" class="changeSheet" variant="text"
+                        @click="changeSheet()">{{ isBaby ? "원본악보" : "애기악보" }}</v-btn>
+                </v-sheet>
                 <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
                     <label for="velocity"> 속도 </label>
                     <input type="number" id="velocity" name="velocity" :value="velo" min="0.25" max="2" step="0.25"
@@ -64,7 +67,7 @@
 <script setup>
 import { onMounted, ref, onUnmounted, defineProps, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange, isMidiStop } from '@/mxlplayer/demo.mjs';
+import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange, isMidiStop, currPitch } from '@/mxlplayer/demo.mjs';
 import { usePianoSheetStore } from '@/stores/pianosheet';
 import ChallengeModal from '@/components/PianoSheet/ChallengeModal.vue';
 import Piano from './Piano.vue';
@@ -87,6 +90,7 @@ const musicXml = ref();
 const nowSheet = ref(route.params['id']);
 const playChallenge = ref();
 const practiceSuccess = ref(false);
+const isBaby = ref(false);
 
 // record 변수
 const isRecording = ref(false);
@@ -95,6 +99,8 @@ const audioChunks = ref([]);
 const wavBlobUrl = ref();
 const stream = ref();
 const dialog = ref(true);
+const today = new Date();
+const date = (today.getFullYear().toString() + (today.getMonth() + 1).toString() + today.getDate().toString())
 
 // 모달 변수
 const text = ref("* 도전하기를 위해 마이크 권한을 허용해주세요.");
@@ -104,7 +110,7 @@ const interval1 = ref();
 const interval2 = ref();
 const practiceToday = computed(() => {
     return store.practiceData.filter((e) =>
-        e.practiceDate[0].toString() + e.practiceDate[1].toString() + e.practiceDate[2].toString() === '2024812'
+        e.practiceDate[0].toString() + e.practiceDate[1].toString() + e.practiceDate[2].toString() === date
     )[0]
 })
 
@@ -114,6 +120,20 @@ const practiceGet = function () {
     store.practiceDatafun(nowSheet.value)
 };
 
+// 악보변환
+const changeSheet = async function () {
+    if (isBaby.value) {
+        status.value = false;
+        isBaby.value = false;
+    } else {
+        status.value = false;
+        isBaby.value = true;
+    }
+    await loadMxl(nowSheet.value);
+    await sheetSelect(musicXml.value);
+    await createPlayer(props.challenge);
+    status.value = true;
+}
 
 // space-bar 로 재생, 일시정지 설정
 window.addEventListener("keydown", (e) => {
@@ -129,7 +149,11 @@ window.addEventListener("keydown", (e) => {
 
 // mxl 불러오기
 const loadMxl = async function (id) {
-    musicXml.value = await store.mxlLoadfun(id);
+    if (isBaby.value) {
+        musicXml.value = await store.mxlModifiedLoadfun(id);
+    } else {
+        musicXml.value = await store.mxlLoadfun(id);
+    }
 }
 
 // 녹음 재생
@@ -234,7 +258,7 @@ onMounted(async () => {
         await practiceGet();
 
         // 1분이 지나면 연습추가
-        if (practiceToday.value.practiceCount >= 5) {
+        if (practiceToday.value && practiceToday.value.practiceCount >= 5) {
             knowledge.value = 100;
         } else {
             interval1.value = setInterval(async () => {
@@ -379,6 +403,11 @@ h1 {
 .strewbery {
     display: flex;
     width: 120px;
+}
+
+.changeSheet {
+    font-size: larger;
+    margin-left: 1.5vw;
 }
 
 @keyframes showNumber {

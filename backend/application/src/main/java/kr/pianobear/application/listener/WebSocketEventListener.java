@@ -26,21 +26,16 @@ public class WebSocketEventListener {
         Principal user = headerAccessor.getUser();
         if (user != null) {
             String userId = user.getName();
-            System.out.println("CONNECT: " + userId);
-            System.out.println(event);
             redisTemplate.opsForValue().set("user:online:" + userId, true);
         }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        System.out.println("LETS DISCONNECT!!!!!!!!!!!!!!!!!!!!!!");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
         if (user != null) {
             String userId = user.getName();
-            System.out.println("DISCONNECT: " + userId);
-            System.out.println(event);
             redisTemplate.delete("user:online:" + userId);
         }
     }

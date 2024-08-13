@@ -1,0 +1,8 @@
+correlation
+numpy
+uvicorn
+midi2audio
+fluidsynth
+music21
+aiofiles
+python-multipart

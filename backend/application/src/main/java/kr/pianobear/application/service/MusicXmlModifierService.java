@@ -30,7 +30,7 @@ public class MusicXmlModifierService {
 
     static {
         noteToSyllable.put("C", "도");
-        noteToSyllable.put("D", "레");
+        noteToSyllable.put("D", "ㄹㅔ");
         noteToSyllable.put("E", "미");
         noteToSyllable.put("F", "파");
         noteToSyllable.put("G", "솔");
@@ -75,7 +75,7 @@ public class MusicXmlModifierService {
             extractAndModifyXml(tempDir, xmlFilePath);
         } else if (musicXmlFilePath != null) {
             modifyXmlFileWithOpenedFile(musicXmlFilePath);
-            createContainerXml(musicXmlFilePath, tempDir);  // container.xml 파일 생성
+            createOrModifyContainerXml(musicXmlFilePath, tempDir);  // container.xml 파일 생성 또는 수정
         } else {
             throw new IOException("No XML or MusicXML file found inside the MXL file");
         }
@@ -168,24 +168,15 @@ public class MusicXmlModifierService {
             Document doc = dBuilder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
             doc.getDocumentElement().normalize();
 
-            // <note> 요소 출력 및 수정
+            // <note> 요소 출력 및 수정 (계이름 추가)
             NodeList noteList = doc.getElementsByTagName("note");
-            Element lyric = null;
-            boolean isChord = false;
-            StringBuilder syllableText = new StringBuilder();
 
             for (int i = 0; i < noteList.getLength(); i++) {
                 Node note = noteList.item(i);
                 if (note.getNodeType() == Node.ELEMENT_NODE) {
                     Element noteElement = (Element) note;
 
-                    // Check if the note is part of a chord
-                    NodeList chordList = noteElement.getElementsByTagName("chord");
-                    isChord = chordList.getLength() > 0;
-
                     NodeList pitchList = noteElement.getElementsByTagName("pitch");
-                    StringBuilder chordSyllables = new StringBuilder();
-
                     for (int j = 0; j < pitchList.getLength(); j++) {
                         Element pitch = (Element) pitchList.item(j);
                         String step = pitch.getElementsByTagName("step").item(0).getTextContent();
@@ -193,35 +184,21 @@ public class MusicXmlModifierService {
                         String syllable = noteToSyllable.get(step);
 
                         if (syllable != null) {
-                            // Append the syllable with octave information if needed
-                            chordSyllables.append(syllable).append(octave);
+                            // <lyric> 요소 생성
+                            Element lyric = doc.createElement("lyric");
+                            lyric.setAttribute("default-y", "-60");
 
-                            if (j < pitchList.getLength() - 1) {
-                                chordSyllables.append("-"); // Hyphenate between syllables in a chord
-                            }
-                        }
-                    }
-
-                    if (chordSyllables.length() > 0) {
-                        if (lyric != null && isChord) {
-                            // If it's the continuation of a chord, append the syllables
-                            Node textNode = lyric.getElementsByTagName("text").item(0);
-                            textNode.setTextContent(textNode.getTextContent() + chordSyllables.toString());
-                        } else {
-                            // Create new lyric element for the new note or the first note in a chord
-                            lyric = doc.createElement("lyric");
-
+                            // <text> 요소 생성
                             Element text = doc.createElement("text");
-                            text.setAttribute("font-size", "20"); // Set font size
-                            text.setAttribute("font-weight", "bold"); // Set font weight
-                            text.setAttribute("color", "#00FF00"); // Set font color to green
-                            text.setTextContent(chordSyllables.toString()); // Add the actual syllable text
+                            text.setAttribute("font-size", "20");
+                            text.setAttribute("font-weight", "bold");
+                            text.setAttribute("color", "#00FF00");
+                            text.setTextContent(syllable + octave);
+
+                            // <lyric> 요소에 <text> 추가
                             lyric.appendChild(text);
 
-                            // Adjust y-position to prevent overlap
-                            String yPosition = isChord ? "-75" : "-60";
-                            lyric.setAttribute("default-y", yPosition);
-
+                            // <note> 요소에 <lyric> 추가
                             noteElement.appendChild(lyric);
                         }
                     }
@@ -237,16 +214,9 @@ public class MusicXmlModifierService {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             String modifiedXmlContent = writer.getBuffer().toString();
 
-            // Save the modified content to a new file with .xml extension
-            String newFilePath = xmlFilePath.replace(".musicxml", "_modified.xml").replace(".xml", "_modified.xml");
-            StreamResult result = new StreamResult(new File(newFilePath));
+            // 원래 파일 이름으로 저장 (파일명에 _modified 추가하지 않음)
+            StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(new DOMSource(doc), result);
-
-            // Delete the original XML file
-            Files.delete(Paths.get(xmlFilePath));
-
-            // Output the result for debugging
-            String resultContent = new String(Files.readAllBytes(Paths.get(newFilePath)), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IOException("Failed to modify XML file", e);
@@ -254,16 +224,55 @@ public class MusicXmlModifierService {
     }
 
 
+    private void createOrModifyContainerXml(String musicXmlFilePath, String tempDir) throws IOException {
+        String containerXmlPath = tempDir + File.separator + "META-INF" + File.separator + "container.xml";
+        File containerFile = new File(containerXmlPath);
+        String modifiedFileName = new File(musicXmlFilePath).getName().replace(".musicxml", "_modified.musicxml").replace(".xml", "_modified.xml");
+
+        if (containerFile.exists()) {
+            // 기존 container.xml 파일이 있을 경우 수정
+            try {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                dbFactory.setNamespaceAware(true);
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(containerFile);
+                doc.getDocumentElement().normalize();
+
+                // rootfile 요소를 찾아서 full-path 속성을 수정
+                NodeList rootfileList = doc.getElementsByTagName("rootfile");
+                if (rootfileList.getLength() > 0) {
+                    Element rootfileElement = (Element) rootfileList.item(0);
+                    rootfileElement.setAttribute("full-path", modifiedFileName);
+                }
+
+                // 수정된 내용을 다시 container.xml에 저장
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                transformer.transform(new DOMSource(doc), new StreamResult(containerFile));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new IOException("Failed to modify existing container.xml", e);
+            }
+        } else {
+            // container.xml 파일이 없을 경우 새로 생성
+            createContainerXml(musicXmlFilePath, tempDir);
+        }
+    }
+
     private void createContainerXml(String musicXmlFilePath, String tempDir) throws IOException {
         String containerXmlPath = tempDir + File.separator + "META-INF" + File.separator + "container.xml";
         File containerDir = new File(containerXmlPath).getParentFile();
         if (!containerDir.exists()) {
             containerDir.mkdirs();
         }
+        String modifiedFileName = new File(musicXmlFilePath).getName().replace(".musicxml", "_modified.musicxml").replace(".xml", "_modified.xml");
         String containerXmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<container xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\" version=\"1.0\">\n" +
                 "  <rootfiles>\n" +
-                "    <rootfile full-path=\"" + new File(musicXmlFilePath).getName() + "\" media-type=\"application/vnd.recordare.musicxml+xml\"/>\n" +
+                "    <rootfile full-path=\"" + modifiedFileName + "\" media-type=\"application/vnd.recordare.musicxml+xml\"/>\n" +
                 "  </rootfiles>\n" +
                 "</container>";
         Files.write(Paths.get(containerXmlPath), containerXmlContent.getBytes(StandardCharsets.UTF_8));

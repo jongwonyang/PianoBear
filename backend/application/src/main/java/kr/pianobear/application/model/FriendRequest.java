@@ -18,7 +18,7 @@ public class FriendRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+ 
     @ManyToOne
     @JoinColumn(name = "sender_id")
     private Member sender;
