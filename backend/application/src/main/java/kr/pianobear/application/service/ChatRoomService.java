@@ -65,8 +65,8 @@ public class ChatRoomService {
         }
     }
 
-    public MessageDTO sendMessage(String receiverId, String content) {
-        String senderId = SecurityUtil.getCurrentUserId();
+    @Transactional
+    public MessageDTO sendMessage(String receiverId, String content, String senderId) {
         Optional<Member> senderOpt = memberRepository.findById(senderId);
         Optional<Member> receiverOpt = memberRepository.findById(receiverId);
 

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.Principal;
+
 @RestController
 @Tag(name = "Chat", description = "채팅 API")
 @RequestMapping("/api/v1/ws")
@@ -32,7 +34,7 @@ public class ChatRoomController {
 
     // 1. 친구와의 채팅방으로 이동 - 과거 메시지 포함
     @Operation(summary = "채팅방 열기(과거 메시지 포함)")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @GetMapping("/room/{friendId}")
     public ChatRoomDTO enterChatRoom(@PathVariable String friendId) {
         // 친구와의 채팅방을 생성하거나 가져온 뒤, 해당 방의 정보를 반환
@@ -41,9 +43,11 @@ public class ChatRoomController {
 
     // 2. 메시지 보내기 - WebSocket 사용
     @Operation(summary = "채팅 메시지 보내기")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @MessageMapping("/sendMessage")
-    public MessageDTO sendMessage(MessageDTO messageDTO) {
+    public MessageDTO sendMessage(MessageDTO messageDTO, Principal principal) {
+        String senderId = principal.getName();
+
         // Logger를 사용하여 메시지 정보를 출력
         logger.debug("Received message from sender: {}, to receiver: {}, content: {}",
                 messageDTO.getSenderId(), messageDTO.getReceiverId(), messageDTO.getContent());
@@ -51,7 +55,8 @@ public class ChatRoomController {
         // 클라이언트에서 전송된 메시지를 DB에 저장하고, 저장된 메시지 정보를 가져옴
         MessageDTO savedMessage = chatRoomService.sendMessage(
                 messageDTO.getReceiverId(),
-                messageDTO.getContent()
+                messageDTO.getContent(),
+                senderId
         );
 
         // 저장된 메시지를 해당 채팅방에 연결된 모든 클라이언트에게 전송
@@ -64,18 +69,18 @@ public class ChatRoomController {
         return savedMessage;  // 저장된 메시지 DTO를 반환
     }
 
-    // 클라이언트로부터 메시지 받기 및 처리
-    @Operation(summary = "메시지 받기")
-    @PreAuthorize("hasRole('ROLE_MEMBER')")
-    @MessageMapping("/chat/{roomId}")
-    public void processMessageFromClient(MessageDTO messageDTO) {
-        // 클라이언트로부터 받은 메시지를 DB에 저장하고, 저장된 메시지 정보를 가져옴
-        MessageDTO savedMessage = chatRoomService.sendMessage(
-                messageDTO.getReceiverId(),
-                messageDTO.getContent()
-        );
-
-        // 저장된 메시지를 해당 채팅방에 연결된 모든 클라이언트에게 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + messageDTO.getChatRoomId(), savedMessage);
-    }
+//    // 클라이언트로부터 메시지 받기 및 처리
+//    @Operation(summary = "메시지 받기")
+////    @PreAuthorize("hasRole('ROLE_MEMBER')")
+//    @MessageMapping("/chat/{roomId}")
+//    public void processMessageFromClient(MessageDTO messageDTO, Principal principal) {
+//        // 클라이언트로부터 받은 메시지를 DB에 저장하고, 저장된 메시지 정보를 가져옴
+//        MessageDTO savedMessage = chatRoomService.sendMessage(
+//                messageDTO.getReceiverId(),
+//                messageDTO.getContent()
+//        );
+//
+//        // 저장된 메시지를 해당 채팅방에 연결된 모든 클라이언트에게 전송
+//        messagingTemplate.convertAndSend("/topic/chat/" + messageDTO.getChatRoomId(), savedMessage);
+//    }
 }
