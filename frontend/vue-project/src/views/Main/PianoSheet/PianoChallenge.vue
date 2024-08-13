@@ -28,7 +28,6 @@ h2 {
 }
 
 .modal {
-  margin: 13vh;
-  margin-left: 34vw;
+  margin: auto;
 }
 </style>
