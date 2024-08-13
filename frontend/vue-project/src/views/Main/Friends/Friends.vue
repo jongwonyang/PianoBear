@@ -11,7 +11,6 @@
                         <img class="my-status-image" :src="userInfo.profilePic">
                         <div class="my-status-ele">
                             <div class="my-name">{{ userInfo.name }}</div>
-                            <v-btn icon="mdi-pencil-outline" @click="editStatusMessage = true"></v-btn>
                             <!-- 상태 메시지 수정 버튼 -->
                             <div class="my-status-message-box">
                                 <md-elevation></md-elevation>
@@ -21,6 +20,8 @@
                             </div>
                         </div>
                     </div>
+                    <v-btn append-icon="mdi-pencil-outline" size="small" class="edit-status-message"
+                        @click="editStatusMessage = true">상태 수정</v-btn>
                 </div>
             </div>
             <div class="friend-box">
@@ -245,8 +246,11 @@ const scrollToBottom = () => {
 
 const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
-    return `${date.getHours()}:${date.getMinutes()}`;
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    return `${hours}시 ${minutes.toString().padStart(2, '0')}분`;
 };
+
 
 const searchFriend = () => {
     friendStore.GetFriendInfo(searchQuery.value)
@@ -404,6 +408,7 @@ const saveStatusMessage = () => {
 }
 
 .my-status-box {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -433,6 +438,7 @@ const saveStatusMessage = () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding-bottom: 10px;
 }
 
 .my-status-message-box {
@@ -459,6 +465,21 @@ const saveStatusMessage = () => {
     border-radius: 50%;
     margin-right: 50px;
     margin-left: 30px;
+}
+
+.edit-status-message {
+    position: absolute;
+    bottom: 10px;
+    /* 하단에서의 간격 */
+    right: 10px;
+    /* 우측에서의 간격 */
+    background-color: #F5E5D1;
+    color: #947650;
+}
+
+.edit-status-form {
+    background: #FFF9E0;
+    color: #947650;
 }
 
 .my-friends-ele {
