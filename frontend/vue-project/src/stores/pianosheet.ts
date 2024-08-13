@@ -327,6 +327,28 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
         `${REST_PIANOSHEET_API}/api/v1/music/${id}/download-music-xml`, //-modified
         {
           responseType: "arraybuffer",
+          headers: {
+            "Content-Type": "application/xml",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  //mxl 불러오기
+  const mxlModifiedLoadfun = async (id: number): Promise<ArrayBuffer> => {
+    try {
+      const response = await apiClient.get<ArrayBuffer>(
+        `${REST_PIANOSHEET_API}/api/v1/music/${id}/download-modified-music-xml`, //-modified
+        {
+          responseType: "arraybuffer",
+          headers: {
+            "Content-Type": "application/xml",
+          },
         }
       );
       return response.data;
@@ -348,15 +370,23 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 결과 모달창
   // 도전 결과
   const isResultModalOpen = ref(false);
-  const challengefun = async (id: number, result: Blob): Promise<void> => {
+  const challengefun = async (id: number, formData: Blob): Promise<void> => {
     try {
-      // await apiClient.post<void>(`${REST_PIANOSHEET_API}/practice/${id}`, {
-      //   params: result,
-      // });
-      console.log(result);
+      const response = await apiClient.post(
+        `${REST_PIANOSHEET_API}/test/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       isResultModalOpen.value = true;
+      isResultModalOpen.value = true;
+      return response.data;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   };
 
@@ -399,5 +429,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     mxlLoadfun,
     practicePostfun,
     challengefun,
+    mxlModifiedLoadfun,
   };
 });

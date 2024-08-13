@@ -21,6 +21,7 @@ const notes2 = [
 ];
 const LOCALSTORAGE_KEY = "musicxml-player";
 const challenge = ref(false);
+const pitchShow = ref();
 export const num = ref([]);
 
 const g_state = {
@@ -78,28 +79,6 @@ export async function createPlayer(muteCheck) {
       document.getElementById("error").textContent =
         "Error creating player. Please try another setting.";
     }
-
-    const elements = document.getElementsByClassName("player-cursor");
-
-    const callback = function (mutationsList, observer) {
-      for (const mutation of mutationsList) {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "style"
-        ) {
-          currPitch();
-        }
-      }
-    };
-
-    const observer = new MutationObserver(callback);
-
-    Array.from(elements).forEach((element) => {
-      observer.observe(element, {
-        attributes: true,
-        attributeFilter: ["style"],
-      });
-    });
   }
 }
 
@@ -154,10 +133,16 @@ function handlePlayPauseKey(e) {
     e.preventDefault();
     if (g_state.player.state === PLAYER_PLAYING) {
       g_state.timingObject?.update({ velocity: 0 });
+      if (pitchShow.value) {
+        clearInterval(pitchShow.value);
+      }
     } else {
       g_state.timingObject?.update({
         velocity: Number(document.getElementById("velocity").value),
       });
+      pitchShow.value = setInterval(() => {
+        currPitch();
+      }, 100);
     }
   }
 }
@@ -227,7 +212,7 @@ export async function pageLoad() {
   g_state.params.set("output", "local");
 }
 
-function currPitch() {
+export function currPitch() {
   const currPlayer = g_state.player;
   if (
     currPlayer &&
@@ -279,10 +264,19 @@ export const stateChange = function (state) {
     g_state.timingObject?.update({
       velocity: Number(document.getElementById("velocity").value),
     });
+    pitchShow.value = setInterval(() => {
+      currPitch();
+    }, 100);
   } else if (state === "pause") {
     g_state.timingObject?.update({ velocity: 0 });
+    if (pitchShow.value) {
+      clearInterval(pitchShow.value);
+    }
   } else if (state === "rewind") {
     g_state.timingObject?.update({ position: 0, velocity: 0 });
+    if (pitchShow.value) {
+      clearInterval(pitchShow.value);
+    }
   }
 };
 
@@ -323,4 +317,5 @@ export default {
   stateChange,
   isMidiStop,
   playingPiano,
+  currPitch,
 };
