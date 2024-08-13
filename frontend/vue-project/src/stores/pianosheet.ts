@@ -383,8 +383,11 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 결과 모달창
   // 도전 결과
-  const isResultModalOpen = ref(false);
-  const challengefun = async (id: number, formData: Blob): Promise<void> => {
+  const resultChallenge = ref();
+  const isResultModalOpen = ref<Boolean>(false);
+  const challengefun = async (id: number, audioBlob: Blob): Promise<void> => {
+    const formData = new FormData();
+    formData.append("audioFile", audioBlob);
     try {
       const response = await apiClient.post(
         `${REST_PIANOSHEET_API}/test/${id}`,
@@ -395,13 +398,15 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
           },
         }
       );
+      resultChallenge.value = response.data;
       isResultModalOpen.value = true;
-      isResultModalOpen.value = true;
-      return response.data;
     } catch (error) {
       console.log(error);
-      throw error;
     }
+  };
+
+  const clearResult = function () {
+    resultChallenge.value = null;
   };
 
   // 정렬기준
@@ -445,5 +450,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     challengefun,
     mxlModifiedLoadfun,
     makeImg,
+    resultChallenge,
+    clearResult,
   };
 });

@@ -49,7 +49,8 @@
                     <img v-for="n in 5" :key="n"
                         :src="(practiceToday && n <= practiceToday.practiceCount) ? '/src/assets/images/가득찬딸기.png' : '/src/assets/images/빈딸기.png'"
                         :alt="n" class="practice-image" width="25" />
-                    <v-btn v-if="isPractice" icon="mdi-circle" :width="25" :height="25" @click="doPractice"></v-btn>
+                    <v-btn v-if="isPractice" icon="mdi-circle" :width="31" :height="31" style="margin-left: 5px;"
+                        @click="doPractice"></v-btn>
                 </div>
             </div>
             <div v-show="status" id="sheet-container" :value="status"></div>
@@ -183,7 +184,6 @@ async function startRecording() {
             stopRecording(true);
             afterChallenge.value = true;
         }
-        console.log(isMidiStop());
     }, 500)
     stateChange('play')
     stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -193,12 +193,6 @@ async function startRecording() {
     };
     recorder.value.start();
     isRecording.value = true;
-
-    //test
-    setTimeout(() => {
-        stopRecording(true);
-    }, 2000)
-
 }
 
 // 녹음 중지
@@ -227,12 +221,10 @@ async function stopRecording(isSuccess) {
         recorder.value.stop();
         recorder.value.onstop = async () => {
             const audioBlob = new Blob(audioChunks.value, { type: 'audio/wav' });
-            wavBlobUrl.value = URL.createObjectURL(audioBlob);
+            store.challengefun(nowSheet.value, audioBlob);
             // await stateChange('rewind')
-            reset();
             isRecording.value = false;
             audioChunks.value = [];
-            store.challengefun(nowSheet.value, audioBlob);
         };
     }
 }
@@ -242,7 +234,7 @@ const changeDialog = function () {
 }
 
 const doPractice = async function () {
-    if (!practiceToday.value || practiceToday.value.practiceCount < 5) {
+    if (!practiceToday.value || practiceToday.value.practiceCount < 4) {
         await store.practicePostfun(nowSheet.value);
         await practiceGet();
         isPractice.value = false;
@@ -251,12 +243,14 @@ const doPractice = async function () {
             if (knowledge.value < 100) {
                 knowledge.value += 1;
             } else if (knowledge.value === 100) {
-                if (practiceToday.value.practiceCount < 5) {
-                    isPractice.value = true;
-                }
+                isPractice.value = true;
                 clearInterval(interval1.value);
             }
         }, 60)
+    } else if (practiceToday.value.practiceCount === 4) {
+        await store.practicePostfun(nowSheet.value);
+        await practiceGet();
+        isPractice.value = false;
     }
 }
 
