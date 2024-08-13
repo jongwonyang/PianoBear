@@ -357,6 +357,18 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       throw error;
     }
   };
+  // 썸네일
+  const makeImg = async (id: number) => {
+    try {
+      console.log("요청보냄");
+      const response = await apiClient.post(
+        `${REST_PIANOSHEET_API}/${id}/generate-image`
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // 연습하기
   const practicePostfun = async (id: number): Promise<void> => {
@@ -430,5 +442,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     practicePostfun,
     challengefun,
     mxlModifiedLoadfun,
+    makeImg,
   };
 });
