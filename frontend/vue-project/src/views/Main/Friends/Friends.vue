@@ -571,6 +571,7 @@ const saveStatusMessage = () => {
     overflow-y: auto;
     scrollbar-width: thin;
     justify-content: flex-end;
+    padding-bottom: 60px;
 }
 
 .message {
