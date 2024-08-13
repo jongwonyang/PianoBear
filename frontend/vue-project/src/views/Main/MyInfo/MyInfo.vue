@@ -11,12 +11,7 @@
           <!-- 편집 버튼 -->
           <v-dialog v-model="profileDialogOpen" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
-                v-bind="activatorProps"
-                icon="mdi-pencil-outline"
-                class="edit-btn"
-                density="comfortable"
-              ></v-btn>
+              <v-btn v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn" density="comfortable"></v-btn>
             </template>
             <template v-slot:default="{ isActive }">
               <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" />
@@ -58,19 +53,9 @@
       <div class="practice-box">
         <md-elevation></md-elevation>
         <div class="practice-header">
-          <v-btn
-            icon="mdi-menu-left-outline"
-            class="pre-month-btn"
-            density="compact"
-            @click="previousMonth"
-          ></v-btn>
+          <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact" @click="previousMonth"></v-btn>
           <div>{{ currentYear }}년 {{ currentMonth }}월 연습 스티커</div>
-          <v-btn
-            icon="mdi-menu-right-outline"
-            class="next-month-btn"
-            density="compact"
-            @click="nextMonth"
-          ></v-btn>
+          <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact" @click="nextMonth"></v-btn>
         </div>
         <div v-if="isLoading.practice" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
@@ -81,20 +66,12 @@
               <template v-slot:activator="{ props: activatorProps }">
                 <button class="honey-button" v-bind="activatorProps">
                   <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀" />
-                  <v-tooltip activator="parent" location="bottom"
-                    >{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip
-                  >
+                  <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
                 </button>
               </template>
               <template v-slot:default="{ isActive }">
-                <DayPracticeDetail
-                  v-if="isActive"
-                  :month="currentMonth"
-                  :day="index + 1"
-                  :year="currentYear"
-                  :closeDialog="closeDialog"
-                  :index="index"
-                />
+                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :year="currentYear"
+                  :closeDialog="closeDialog" :index="index" />
               </template>
             </v-dialog>
           </template>
@@ -111,10 +88,7 @@
         <div v-else class="online-friend">
           <template v-for="friend in topOnlineFriends" :key="friend.id">
             <div class="friend-box">
-              <div
-                class="friend-image"
-                :style="{ backgroundImage: `url(${friend.profilePic.path})` }"
-              ></div>
+              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic.path})` }"></div>
               <div class="friend-name">{{ friend.name }}</div>
               <div class="friend-chat">
                 <v-icon aria-hidden="false"> mdi-chat </v-icon>
@@ -134,6 +108,7 @@ import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useDashboardStore } from "@/stores/dashboard";
+import { useWebSocketStore } from "@/stores/websocket";
 import honeyFilledImg from "@/assets/images/채워진 벌꿀.png";
 import honeyEmptyImg from "@/assets/images/빈 벌꿀.png";
 import ProfileEdit from "@/components/MyInfo/ProfileEdit.vue";
@@ -142,6 +117,7 @@ import DayPracticeDetail from "@/components/MyInfo/DayPracticeDetail.vue";
 const router = useRouter();
 const userStore = useUserStore();
 const dashboardStore = useDashboardStore();
+const webSocketStore = useWebSocketStore();
 
 const isLoading = ref({
   profile: true,
@@ -260,6 +236,9 @@ onMounted(() => {
       console.error(error);
       isLoading.value.friends = false;
     });
+
+  // 웹소켓 연결
+  webSocketStore.connectWebSocket();
 });
 
 const profileImgSrc = computed(() => {

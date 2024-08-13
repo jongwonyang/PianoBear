@@ -67,13 +67,12 @@ async function Login() {
             console.log("로그인에 성공했습니다.");
 
             userStore.isLoggedIn = true;
-            localStorage.setItem("accessToken", res.data.accessToken);
-            sessionStorage.setItem("refreshToken", res.data.refreshToken);
+            sessionStorage.setItem("accessToken", res.data.accessToken);
+            localStorage.setItem("refreshToken", res.data.refreshToken);
             userStore.SetAccessToken(res.data.accessToken);
             userStore.SetRefreshToken(res.data.refreshToken);
             userStore.GetUserInfo()
-                .then((response) => {
-                    userStore.user = response.data;
+                .then(() => {
                     console.log(userStore.user);
                 })
                 .catch((error) => {

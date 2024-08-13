@@ -16,14 +16,13 @@ const { isLoggedIn } = storeToRefs(userStore);
 
 // 페이지 로드 시 로그인 상태 확인 및 WebSocket 연결 설정
 onMounted(() => {
-  const token = localStorage.getItem("accessToken");
+  const token = sessionStorage.getItem("accessToken");
 
   if (token !== null) {
     userStore.isLoggedIn = true;
     userStore.GetUserInfo()
       .then((response) => {
-        userStore.user = response?.data;
-        console.log(userStore.user);
+        userStore.user = response;
       })
       .catch((error) => {
         console.error(error);

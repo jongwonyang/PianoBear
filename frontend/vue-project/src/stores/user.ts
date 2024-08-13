@@ -23,8 +23,8 @@ export const useUserStore = defineStore("user", () => {
   const user = ref<User | {}>({});
 
   const isLoggedIn = ref(false);
-  const accessToken = ref(localStorage.getItem("accessToken") || "");
-  const refreshToken = ref(sessionStorage.getItem("refreshToken") || "");
+  const accessToken = ref(sessionStorage.getItem("accessToken") || "");
+  const refreshToken = ref(localStorage.getItem("refreshToken") || ""); // 로컬 스토리지에서 리프레시 토큰을 가져옴
 
   const router = useRouter();
 
@@ -39,7 +39,9 @@ export const useUserStore = defineStore("user", () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("이메일 인증을 완료해야 로그인이 가능합니다.");
+      alert(
+        "이메일 인증을 완료해야 로그인이 가능합니다. 이메일을 확인해주세요."
+      );
       router.push("/login");
     } catch (e) {
       console.error(e);
@@ -63,9 +65,13 @@ export const useUserStore = defineStore("user", () => {
 
   const GetUserInfo = async () => {
     try {
-      return apiClient.get(REST_USER_API + "my-info");
+      const response = await apiClient.get(REST_USER_API + "my-info");
+      console.log(response.data);
+      user.value = response.data;
+      return response.data; // response.data를 반환
     } catch (e) {
       console.error(e);
+      return null; // 에러 발생 시 null을 반환할 수도 있음
     }
   };
 
@@ -117,27 +123,27 @@ export const useUserStore = defineStore("user", () => {
 
   const SetAccessToken = (token: string) => {
     accessToken.value = token;
-    localStorage.setItem("accessToken", token);
+    sessionStorage.setItem("accessToken", token);
   };
 
   const SetRefreshToken = (token: string) => {
     refreshToken.value = token;
-    sessionStorage.setItem("refreshToken", token);
+    localStorage.setItem("refreshToken", token); // 로컬 스토리지에 리프레시 토큰을 저장
   };
 
   const GetAccessToken = () => {
-    return accessToken.value || localStorage.getItem("accessToken");
+    return accessToken.value || sessionStorage.getItem("accessToken");
   };
 
   const GetRefreshToken = () => {
-    return refreshToken.value || sessionStorage.getItem("refreshToken");
+    return refreshToken.value || localStorage.getItem("refreshToken"); // 로컬 스토리지에서 리프레시 토큰을 가져옴
   };
 
   const RemoveToken = () => {
     accessToken.value = "";
     refreshToken.value = "";
-    localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken"); // 로컬 스토리지에서 리프레시 토큰 삭제
   };
 
   const updateProfile = async (file: File): Promise<void> => {

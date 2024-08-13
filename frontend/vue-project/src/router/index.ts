@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user"; // token store import
+import axios from "axios";
 
 import Main from "@/views/Main.vue";
 import LogMain from "@/views/LogMain.vue";
@@ -150,9 +151,27 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
-  const isAuthenticated = !!userStore.GetAccessToken();
+  let isAuthenticated = !!userStore.GetAccessToken();
+
+  if (!isAuthenticated) {
+    try {
+      const res = await axios.post(
+        import.meta.env.VITE_API_BASE_URL + "/auth/refresh",
+        {
+          refreshToken: userStore.GetRefreshToken(),
+        }
+      );
+
+      userStore.SetAccessToken(res.data.accessToken);
+      userStore.SetRefreshToken(res.data.refreshToken);
+      isAuthenticated = true;
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      isAuthenticated = false;
+    }
+  }
 
   if (to.name === "login" && isAuthenticated) {
     next("/main");
