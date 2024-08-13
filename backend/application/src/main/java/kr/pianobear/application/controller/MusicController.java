@@ -187,4 +187,11 @@ public class MusicController {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+
+    @Operation(summary = "사용자별 악보 불러오기", description = "사용자 ID에 따라 악보를 필터링하여 불러옵니다. 기본 악보도 포함됩니다.")
+    @GetMapping("/user-or-default/{userId}")
+    public ResponseEntity<List<MusicDTO>> getMusicByUserOrDefault(@PathVariable String userId) {
+        List<MusicDTO> musicList = musicService.getMusicByUserOrNull(userId);
+        return ResponseEntity.ok(musicList);
+    }
 }
