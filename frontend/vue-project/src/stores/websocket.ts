@@ -26,7 +26,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
   const userStore = useUserStore();
 
   const notificationCount = ref(0);
-  const notifications = ref([]);
+  const notifications = ref<any[]>([]);
 
   const accessToken = ref(userStore.GetAccessToken());
 
@@ -162,7 +162,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
       const message: Partial<MessageDTO> = {
         content: content,
         receiverId: receiverId,
-        senderId: userStore.user.id,
+        senderId: (userStore.user as { id: string }).id,
       };
 
       const headers = {
