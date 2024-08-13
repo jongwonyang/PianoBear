@@ -108,14 +108,13 @@ public class MusicService {
     }
 
     @Transactional
-    public MusicDTO editMusic(int musicId, String title, String artist) throws IOException {
+    public MusicDTO editMusic(int musicId, String title) throws IOException {
         // 기존 Music 엔티티를 ID로 조회
         Music music = musicRepository.findById(musicId)
                 .orElseThrow(() -> new RuntimeException("Music not found with id " + musicId));
 
-        // 제목과 작곡가를 업데이트
+        // 제목 업데이트
         music.setTitle(title);
-        music.setArtist(artist);
 
         // 변경 사항을 저장
         Music savedMusic = musicRepository.save(music);

@@ -79,6 +79,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       basicFavoriteList.value = [...favorites, ...nonFavorites];
 
       basicSheetList.value = data;
+
       console.log("응답 데이터:", data);
     } catch (error) {
       console.error("악보 목록 가져오기 실패!", error);
@@ -138,22 +139,26 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
-  // 변환된 악보 저장
-  const saveSheet = async (): Promise<void> => {
-    if (!convertedFile.value) {
-      alert("변환된 악보가 없습니다.");
+  // 변환된 악보 수정
+  const editSheet = async (editTitle: string): Promise<void> => {
+    if (!detailSheet.value) {
       return;
     }
 
     try {
-      const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/save`,
-        convertedFile.value
-      );
-      console.log("변환된 악보", convertedFile.value);
-      console.log("저장된 정보", response.data);
+      const sheetId = detailSheet.value.id;
+      console.log(sheetId);
+      console.log(editTitle);
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${sheetId}/edit`, null, {
+        params: {
+          id: sheetId,
+          title: editTitle,
+        },
+      });
+      detailSheet.value.title = editTitle;
+      console.log(response.data);
     } catch (error) {
-      console.error("악보 저장 실패ㅠ", error);
+      console.error("악보 수정 실패", error);
     }
   };
 
@@ -283,7 +288,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       // 전체 목록 저장
       userSheetList.value = data;
 
-      console.log("응답 데이터:", data); // 응답 데이터 확인
+      console.log("응답 데이터:", userSheetList.value[0]); // 응답 데이터 확인
     } catch (error) {
       console.error("악보 목록 가져오기 실패!", error);
     }
@@ -408,6 +413,26 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 검색어
   const searchText = ref<string>("");
 
+  const makeImg = async (id: number) => {
+    try {
+      console.log("요청보냄");
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/generate-image`);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveMakedImg = async (id: number) => {
+    try {
+      const response = await apiClient.get(`${REST_PIANOSHEET_API}/${id}/download-music-img`);
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return {
     basicSheetList,
     basicPracticeList,
@@ -428,7 +453,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     convertFilefun,
     modifySheetForm,
     isOpen,
-    saveSheet,
+    editSheet,
     practiceData,
     practiceDatafun,
     detailSheet,
@@ -443,5 +468,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     challengefun,
     mxlModifiedLoadfun,
     makeImg,
+    saveMakedImg,
   };
 });
