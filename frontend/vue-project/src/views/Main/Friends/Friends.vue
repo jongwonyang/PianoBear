@@ -20,8 +20,8 @@
                             </div>
                         </div>
                     </div>
-                    <v-btn append-icon="mdi-pencil-outline" size="small" class="edit-status-message"
-                        @click="editStatusMessage = true">상태 수정</v-btn>
+                    <v-btn icon="mdi-pencil-outline" class="edit-status-message" @click="editStatusMessage = true"
+                        density="comfortable"></v-btn>
                 </div>
             </div>
             <div class="friend-box">
@@ -145,7 +145,8 @@
             <v-card class="edit-status-form">
                 <v-card-title class="headline">상태 메시지 수정</v-card-title>
                 <v-card-text>
-                    <v-text-field label="상태 메시지" v-model="newStatusMessage"></v-text-field>
+                    <v-text-field label="상태 메시지" v-model="newStatusMessage"
+                        @keyup.enter="saveStatusMessage"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -158,7 +159,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeUnmount, computed } from "vue";
+import { onMounted, ref, nextTick, computed } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useFriendStore } from "@/stores/friend";
 import { useWebSocketStore } from "@/stores/websocket";
@@ -221,6 +222,11 @@ const startChatting = async (friendId) => {
             // 메시지를 추가할 때 채팅창을 맨 아래로 스크롤
             scrollToBottom();
         });
+
+        nextTick(() => {
+            scrollToBottom();
+        });
+
         // 채팅창을 표시하기 위해 다이얼로그를 닫음
         friendInfoDialog.value = false;
     } catch (error) {
@@ -235,18 +241,23 @@ const sendMessage = () => {
         console.log("메시지를 보냈습니다:", messages.value);
 
         // 메시지를 보낸 후에도 채팅창을 맨 아래로 스크롤
-        scrollToBottom();
+
+        nextTick(() => {
+            scrollToBottom();
+        });
     }
 };
 
-onBeforeUnmount(() => {
-    webSocketStore.disconnectWebSocket();
-});
+// onBeforeUnmount(() => {
+//     webSocketStore.disconnectWebSocket();
+// });
 
 // 채팅창을 맨 아래로 스크롤하는 함수
 const scrollToBottom = () => {
     const chatContainer = document.querySelector('.chat-box .messages');
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 };
 
 const formatTimestamp = (timestamp) => {
@@ -453,7 +464,7 @@ const friendProfilePic = computed(() => {
     font-size: 20px;
     font-weight: 700;
     color: #947650;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 .my-status-message {
@@ -504,9 +515,9 @@ const friendProfilePic = computed(() => {
 
 .edit-status-message {
     position: absolute;
-    bottom: 10px;
+    top: 55px;
     /* 하단에서의 간격 */
-    right: 10px;
+    right: 20px;
     /* 우측에서의 간격 */
     background-color: #F5E5D1;
     color: #947650;
@@ -608,8 +619,7 @@ const friendProfilePic = computed(() => {
     position: relative;
     border-radius: 30px;
     text-align: center;
-    overflow-y: auto;
-    scrollbar-width: thin;
+
     --md-sys-color-shadow: #947650;
 }
 
@@ -617,6 +627,7 @@ const friendProfilePic = computed(() => {
     display: flex;
     flex-direction: column;
     height: 100%;
+
 }
 
 .messages {
@@ -625,8 +636,10 @@ const friendProfilePic = computed(() => {
     flex-direction: column;
     padding: 10px;
     overflow-y: auto;
-    scrollbar-width: thin;
-    justify-content: flex-end;
+    scrollbar-width: none;
+    /* 스크롤 활성화 */
+    max-height: calc(100% - 60px);
+    /* 스크롤을 위한 고정된 높이 설정 */
     padding-bottom: 60px;
 }
 
@@ -677,12 +690,7 @@ input {
     margin-right: 10px;
 }
 
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
+
 
 .chat-box {
     flex: 1;

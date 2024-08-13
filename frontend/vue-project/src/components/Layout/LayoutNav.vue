@@ -18,7 +18,9 @@
             @click="router.push({ name: 'pianoSheetList' })"></v-list-item>
           <v-list-item prepend-icon="mdi-video-account" title="놀이터" value="소통방"
             @click="router.push({ name: 'community' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-bell-outline" title="알림" :subtitle="notificationCount" value="알림"
+          <v-list-item v-if="notificationCount == 0" prepend-icon="mdi-bell-outline" title="알림" value="알림"
+            @click="handleNotificationClick"></v-list-item>
+          <v-list-item v-if="notificationCount != 0" prepend-icon="mdi-bell-badge-outline" title="알림" value="알림"
             @click="handleNotificationClick"></v-list-item>
         </v-list>
       </v-navigation-drawer>
