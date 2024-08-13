@@ -23,7 +23,7 @@ import { ref } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
-const title = ref(store.convertedFile?.title || "");
+const title = ref(store.detailSheet?.title || "");
 
 const closeModal = () => {
   // if (store.convertedFile) {

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.pianobear.application.dto.MusicDTO;
 import kr.pianobear.application.service.MusicService;
+import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -184,8 +185,9 @@ public class MusicController {
     }
 
     @Operation(summary = "사용자별 악보 불러오기", description = "사용자 ID에 따라 악보를 필터링하여 불러옵니다. 기본 악보도 포함됩니다.")
-    @GetMapping("/user-or-default/{userId}")
-    public ResponseEntity<List<MusicDTO>> getMusicByUserOrDefault(@PathVariable String userId) {
+    @GetMapping("/user-or-default")
+    public ResponseEntity<List<MusicDTO>> getMusicByUserOrDefault() {
+        String userId = SecurityUtil.getCurrentUserId();
         List<MusicDTO> musicList = musicService.getMusicByUserOrNull(userId);
         return ResponseEntity.ok(musicList);
     }
