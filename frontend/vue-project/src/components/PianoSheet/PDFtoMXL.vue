@@ -37,6 +37,7 @@ const onFileChange = (event: Event): void => {
 .container {
   border: 2px solid #f5e5d1;
   color: #947650;
+  background-color: #fffff8;
   width: 350px;
   height: 550px;
   padding: 10px;

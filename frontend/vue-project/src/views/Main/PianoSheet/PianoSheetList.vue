@@ -56,6 +56,13 @@ const currentTabComponent = computed(() => {
   return currentTab.value === "UserSheet" ? UserSheet : BasicSheet;
 });
 
+// const musicImg = computed(() => {
+//   return (
+//     import.meta.env.VITE_API_BASE_URL +
+//     store.userSheetList.musicImg.slice(7, store.userSheetList.musicImg.length)
+//   );
+// });
+
 onMounted(() => {
   const savedSortOption = store.sortOption;
   if (savedSortOption) {

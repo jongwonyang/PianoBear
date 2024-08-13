@@ -47,26 +47,26 @@ onBeforeRouteLeave((to, from, next) => {
 .btn {
   position: absolute;
   margin-left: 100%;
-  width: 200px;
-  height: 100px;
+  width: 250px;
+  margin-top: -10%;
 }
 .bear-frame {
   width: 100%;
-  height: 700px;
-  margin-top: 5%;
+  height: 600px;
+  margin-top: 3%;
   z-index: -1;
 }
 .bear {
   position: relative;
-  width: 697px;
-  height: 700px;
+  width: 597px;
+  height: 600px;
   margin: auto;
 }
 .video-frame {
   position: absolute;
   width: 100%;
   height: 430px;
-  top: 170px;
+  top: 150px;
   z-index: 1;
 }
 .video {

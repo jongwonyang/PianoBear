@@ -53,6 +53,7 @@ dependencies {
 
 	implementation group: 'io.openvidu', name: 'openvidu-java-client', version: '2.30.0'
 
+	implementation group: 'org.springframework.security', name: 'spring-security-messaging', version: '6.3.1'
 
 	testImplementation 'org.springframework.security:spring-security-test'
 	compileOnly 'org.projectlombok:lombok'

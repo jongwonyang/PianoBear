@@ -2,7 +2,9 @@
 // import { defineStore } from "pinia";
 // import { useUserStore } from "./user";
 // import apiClient from "@/loginController/verification"; // Axios 인스턴스 import
+// import EventSourcePolyFill from "event-source-polyfill";
 // import { useRouter } from "vue-router";
+// import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
 
 // const REST_NOTIFICATION_API =
 //   import.meta.env.VITE_API_BASE_URL + "/notifications/";
@@ -12,14 +14,20 @@
 //   const notificationCount = ref(0);
 //   const userStore = useUserStore();
 
-//   const GetNotificationList = async () => {
-//     try {
-//       const response = await apiClient.get(REST_NOTIFICATION_API);
-//       notifications.value = response.data;
-//     } catch (error) {
-//       console.error("Error fetching notifications:", error);
-//     }
-//   };
+//   const EventSource = EventSourcePolyfill;
+//   const accessToken = ref(userStore.GetAccessToken());
+//   console.log("accessToken", accessToken.value);
+
+//   // const GetNotificationList = async () => {
+//   //   try {
+//   //     const response = await apiClient.get(REST_NOTIFICATION_API);
+//   //     console.log("response.data", response.data);
+//   //     notifications.value = response.data;
+//   //     console.log("notifications.value", notifications.value);
+//   //   } catch (error) {
+//   //     console.error("Error fetching notifications:", error);
+//   //   }
+//   // };
 
 //   const GetNotificationCount = async () => {
 //     try {
@@ -53,42 +61,47 @@
 //   };
 
 //   const SubscribeToNotifications = () => {
-//     const eventSource = new EventSource(REST_NOTIFICATION_API + "subscribe", {
+//     const source = new EventSource(REST_NOTIFICATION_API + "subscribe", {
+//       headers: {
+//         Authorization: `Bearer ${accessToken.value}`,
+//       },
 //       withCredentials: true,
 //     });
 
-//     eventSource.onopen = () => {
+//     // const eventSource = new EventSourcePolyFill(
+//     //   REST_NOTIFICATION_API + "subscribe",
+//     //   {
+//     //     headers: {
+//     //       Authorization: `Bearer ${accessToken.value}`,
+//     //     },
+//     //     withCredentials: true,
+//     //   }
+//     // );
+
+//     source.onopen = () => {
 //       console.log("SSE connection opened");
-//       console.log(eventSource);
 //     };
 
-//     eventSource.onmessage = (event) => {
-//       console.log("event.data", event.data);
-//       const newNotification = JSON.parse(event.data);
-//       notifications.value.push(newNotification);
-//       notificationCount.value += 1;
-//       console.log("New notification:", newNotification);
-//     };
+//     // source.addEventListener("notification", (event) => {
+//     //   console.log("event.data", event.data);
+//     //   const newNotification = JSON.parse(event.data);
+//     //   newNotification.content = JSON.parse(newNotification.content);
+//     //   notifications.value.push(newNotification);
+//     //   notificationCount.value += 1;
+//     //   console.log("New notification:", newNotification);
+//     //   console.log("notificationCount.value", notificationCount.value);
+//     // });
 
-//     eventSource.close = () => {
-//       console.log("SSE connection closed");
-//     };
-
-//     eventSource.addEventListener("connected", (event) => {
-//       const { data: receivedConnectData } = event;
-//       console.log("Connected to SSE server:", receivedConnectData);
-//     });
-
-//     eventSource.onerror = (error) => {
+//     source.onerror = (error) => {
 //       console.error("SSE connection error:", error);
-//       eventSource.close();
+//       source.close();
 //     };
 //   };
 
 //   return {
 //     notifications,
 //     notificationCount,
-//     GetNotificationList,
+//     // GetNotificationList,
 //     GetNotificationCount,
 //     DeleteNotification,
 //     ClearNotifications,

@@ -1,7 +1,11 @@
 <template>
   <div>
-    <h2>{{ store.detailSheet?.title }}</h2>
-    <!-- 제목을 표시 -->
+    <div>
+      {{ store.detailSheet?.title }}
+    </div>
+    <div>
+      <button @click="makeImg">악보 이미지 만들기</button>
+    </div>
     <div class="container">
       <div class="left">
         <PianoSheet />
@@ -26,6 +30,17 @@ import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const route = useRoute();
 const store = usePianoSheetStore();
+const id = ref<number | null>(null);
+
+const makeImg = async () => {
+  if (id.value !== null) {
+    console.log("클릭됨");
+    console.log(id.value);
+    await store.makeImg(id.value);
+  } else {
+    console.error("ID is null, cannot make image.");
+  }
+};
 
 // 악보 데이터를 가져오는 함수
 const fetchDetailData = async (id: number) => {
@@ -33,6 +48,7 @@ const fetchDetailData = async (id: number) => {
 };
 
 onMounted(() => {
+  id.value = Number(route.params.id);
   fetchDetailData(Number(route.params.id)); // 1대신 musicId 들어가야 함
 });
 </script>

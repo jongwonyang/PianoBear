@@ -2,6 +2,7 @@
     <div class="login-container">
         <div class="login-box">
             <md-elevation></md-elevation>
+            <div class="flex flex-row items-center justify-center w-full"><img src="@/assets/logo.png" class="w-50" /></div>
             <div class="login-text">로그인</div>
             <md-outlined-text-field label="아이디" type="text" class="login-input id" :value="userId" @input="setUserId"
                 @keyup.enter="Login"></md-outlined-text-field>
@@ -66,13 +67,12 @@ async function Login() {
             console.log("로그인에 성공했습니다.");
 
             userStore.isLoggedIn = true;
-            localStorage.setItem("accessToken", res.data.accessToken);
-            sessionStorage.setItem("refreshToken", res.data.refreshToken);
+            sessionStorage.setItem("accessToken", res.data.accessToken);
+            localStorage.setItem("refreshToken", res.data.refreshToken);
             userStore.SetAccessToken(res.data.accessToken);
             userStore.SetRefreshToken(res.data.refreshToken);
             userStore.GetUserInfo()
-                .then((response) => {
-                    userStore.user = response.data;
+                .then(() => {
                     console.log(userStore.user);
                 })
                 .catch((error) => {
