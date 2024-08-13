@@ -429,7 +429,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     mxlLoadfun,
     practicePostfun,
     challengefun,
-<<<<<<< HEAD
     mxlModifiedLoadfun,
   };
 });
