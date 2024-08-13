@@ -107,10 +107,13 @@ watch(
 
 .text {
   text-align: center;
+  background-color: #fffff8;
   color: #947650;
   font-size: 30px;
   font-weight: bold;
   margin-bottom: 20px;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .tab div {
