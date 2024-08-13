@@ -5,7 +5,7 @@
       @click="setCurrentTab('UserSheet')"
       :class="{ active: currentTab === 'UserSheet' }"
     >
-      <v-tooltip text="oo이 악보">
+      <v-tooltip text="내 악보">
         <template v-slot:activator="{ props }">
           <span>
             <img src="@/assets/characters/토니/토니머리.png" alt="" v-bind="props" />

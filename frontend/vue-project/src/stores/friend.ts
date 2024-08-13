@@ -42,6 +42,10 @@ export const useFriendStore = defineStore("friend", () => {
     return apiClient.get(REST_FRIEND_API + "requests/is-sent/" + receiverId);
   };
 
+  const RemoveFriend = async (friendId: string) => {
+    return apiClient.delete(REST_FRIEND_API + friendId);
+  };
+
   return {
     GetFriendList,
     GetFriendInfo,
@@ -51,5 +55,6 @@ export const useFriendStore = defineStore("friend", () => {
     SentRequestsList,
     ReceivedRequestsList,
     IsSentRequest,
+    RemoveFriend,
   };
 });

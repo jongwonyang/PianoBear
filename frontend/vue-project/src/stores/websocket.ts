@@ -179,11 +179,11 @@ export const useWebSocketStore = defineStore("websocket", () => {
       });
 
       // 로컬 메시지 리스트에 바로 추가
-      messages.value.push({
-        ...message,
-        id: Date.now(), // 임시 ID
-        timestamp: new Date().toISOString(),
-      } as MessageDTO);
+      // messages.value.push({
+      //   ...message,
+      //   id: Date.now(), // 임시 ID
+      //   timestamp: new Date().toISOString(),
+      // } as MessageDTO);
     }
   };
 
