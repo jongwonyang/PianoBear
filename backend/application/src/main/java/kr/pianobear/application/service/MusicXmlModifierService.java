@@ -168,59 +168,15 @@ public class MusicXmlModifierService {
             Document doc = dBuilder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
             doc.getDocumentElement().normalize();
 
-            // <part-list>에서 <part-name>이 "Voice"인 <score-part> 요소를 찾고 삭제
-            NodeList scorePartList = doc.getElementsByTagName("score-part");
-            String partIdToRemove = null;
-
-            for (int i = 0; i < scorePartList.getLength(); i++) {
-                Node scorePart = scorePartList.item(i);
-                if (scorePart.getNodeType() == Node.ELEMENT_NODE) {
-                    Element scorePartElement = (Element) scorePart;
-                    NodeList partNameList = scorePartElement.getElementsByTagName("part-name");
-                    if (partNameList.getLength() > 0) {
-                        String partName = partNameList.item(0).getTextContent();
-                        if (partName.equals("Voice")) {
-                            partIdToRemove = scorePartElement.getAttribute("id");
-                            scorePart.getParentNode().removeChild(scorePart);  // <score-part> 삭제
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // <part> 태그에서 해당 id를 가진 요소를 삭제
-            if (partIdToRemove != null) {
-                NodeList partList = doc.getElementsByTagName("part");
-                for (int i = 0; i < partList.getLength(); i++) {
-                    Node part = partList.item(i);
-                    if (part.getNodeType() == Node.ELEMENT_NODE) {
-                        Element partElement = (Element) part;
-                        if (partElement.getAttribute("id").equals(partIdToRemove)) {
-                            part.getParentNode().removeChild(part);  // <part> 삭제
-                            break;
-                        }
-                    }
-                }
-            }
-
             // <note> 요소 출력 및 수정 (계이름 추가)
             NodeList noteList = doc.getElementsByTagName("note");
-            Element lyric = null;
-            boolean isChord = false;
-            StringBuilder syllableText = new StringBuilder();
 
             for (int i = 0; i < noteList.getLength(); i++) {
                 Node note = noteList.item(i);
                 if (note.getNodeType() == Node.ELEMENT_NODE) {
                     Element noteElement = (Element) note;
 
-                    // Check if the note is part of a chord
-                    NodeList chordList = noteElement.getElementsByTagName("chord");
-                    isChord = chordList.getLength() > 0;
-
                     NodeList pitchList = noteElement.getElementsByTagName("pitch");
-                    StringBuilder chordSyllables = new StringBuilder();
-
                     for (int j = 0; j < pitchList.getLength(); j++) {
                         Element pitch = (Element) pitchList.item(j);
                         String step = pitch.getElementsByTagName("step").item(0).getTextContent();
@@ -228,35 +184,21 @@ public class MusicXmlModifierService {
                         String syllable = noteToSyllable.get(step);
 
                         if (syllable != null) {
-                            // Append the syllable with octave information if needed
-                            chordSyllables.append(syllable).append(octave);
+                            // <lyric> 요소 생성
+                            Element lyric = doc.createElement("lyric");
+                            lyric.setAttribute("default-y", "-60");
 
-                            if (j < pitchList.getLength() - 1) {
-                                chordSyllables.append("-"); // Hyphenate between syllables in a chord
-                            }
-                        }
-                    }
-
-                    if (chordSyllables.length() > 0) {
-                        if (lyric != null && isChord) {
-                            // If it's the continuation of a chord, append the syllables
-                            Node textNode = lyric.getElementsByTagName("text").item(0);
-                            textNode.setTextContent(textNode.getTextContent() + chordSyllables.toString());
-                        } else {
-                            // Create new lyric element for the new note or the first note in a chord
-                            lyric = doc.createElement("lyric");
-
+                            // <text> 요소 생성
                             Element text = doc.createElement("text");
-                            text.setAttribute("font-size", "20"); // Set font size
-                            text.setAttribute("font-weight", "bold"); // Set font weight
-                            text.setAttribute("color", "#00FF00"); // Set font color to green
-                            text.setTextContent(chordSyllables.toString()); // Add the actual syllable text
+                            text.setAttribute("font-size", "20");
+                            text.setAttribute("font-weight", "bold");
+                            text.setAttribute("color", "#00FF00");
+                            text.setTextContent(syllable + octave);
+
+                            // <lyric> 요소에 <text> 추가
                             lyric.appendChild(text);
 
-                            // Adjust y-position to prevent overlap
-                            String yPosition = isChord ? "-75" : "-60";
-                            lyric.setAttribute("default-y", yPosition);
-
+                            // <note> 요소에 <lyric> 추가
                             noteElement.appendChild(lyric);
                         }
                     }
@@ -280,6 +222,7 @@ public class MusicXmlModifierService {
             throw new IOException("Failed to modify XML file", e);
         }
     }
+
 
     private void createOrModifyContainerXml(String musicXmlFilePath, String tempDir) throws IOException {
         String containerXmlPath = tempDir + File.separator + "META-INF" + File.separator + "container.xml";
