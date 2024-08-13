@@ -205,65 +205,51 @@ public class MusicXmlModifierService {
 
             // <note> 요소 출력 및 수정 (계이름 추가)
             NodeList noteList = doc.getElementsByTagName("note");
-            Element lyric = null;
-            boolean isChord = false;
-            StringBuilder syllableText = new StringBuilder();
-
             for (int i = 0; i < noteList.getLength(); i++) {
                 Node note = noteList.item(i);
                 if (note.getNodeType() == Node.ELEMENT_NODE) {
                     Element noteElement = (Element) note;
 
-                    // Check if the note is part of a chord
-                    NodeList chordList = noteElement.getElementsByTagName("chord");
-                    isChord = chordList.getLength() > 0;
-
-                    NodeList pitchList = noteElement.getElementsByTagName("pitch");
-                    StringBuilder chordSyllables = new StringBuilder();
-
-                    for (int j = 0; j < pitchList.getLength(); j++) {
-                        Element pitch = (Element) pitchList.item(j);
-                        String step = pitch.getElementsByTagName("step").item(0).getTextContent();
-                        String octave = pitch.getElementsByTagName("octave").item(0).getTextContent();
-                        String syllable = noteToSyllable.get(step);
-
-                        if (syllable != null) {
-                            // Append the syllable with octave information if needed
-                            chordSyllables.append(syllable).append(octave);
-
-                            if (j < pitchList.getLength() - 1) {
-                                chordSyllables.append("-"); // Hyphenate between syllables in a chord
-                            }
-                        }
+                    // 기존에 <lyric> 태그가 있으면 삭제하고 새로 생성
+                    NodeList existingLyricList = noteElement.getElementsByTagName("lyric");
+                    if (existingLyricList.getLength() > 0) {
+                        noteElement.removeChild(existingLyricList.item(0));
                     }
 
-                    if (chordSyllables.length() > 0) {
-                        if (lyric != null && isChord) {
-                            // If it's the continuation of a chord, append the syllables
-                            Node textNode = lyric.getElementsByTagName("text").item(0);
-                            textNode.setTextContent(textNode.getTextContent() + chordSyllables.toString());
-                        } else {
-                            // Create new lyric element for the new note or the first note in a chord
-                            lyric = doc.createElement("lyric");
+                    NodeList pitchList = noteElement.getElementsByTagName("pitch");
+                    if (pitchList.getLength() > 0) {
+                        // 새로운 <lyric> 요소 생성
+                        Element lyric = doc.createElement("lyric");
+                        lyric.setAttribute("default-y", "-60");
 
-                            Element text = doc.createElement("text");
-                            text.setAttribute("font-size", "20"); // Set font size
-                            text.setAttribute("font-weight", "bold"); // Set font weight
-                            text.setAttribute("color", "#00FF00"); // Set font color to green
-                            text.setTextContent(chordSyllables.toString()); // Add the actual syllable text
-                            lyric.appendChild(text);
+                        // 각 pitch 요소에 대해 <text> 태그 생성 및 추가
+                        for (int j = 0; j < pitchList.getLength(); j++) {
+                            Element pitch = (Element) pitchList.item(j);
+                            String step = pitch.getElementsByTagName("step").item(0).getTextContent();
+                            String octave = pitch.getElementsByTagName("octave").item(0).getTextContent();
+                            String syllable = noteToSyllable.get(step);
 
-                            // Adjust y-position to prevent overlap
-                            String yPosition = isChord ? "-75" : "-60";
-                            lyric.setAttribute("default-y", yPosition);
+                            if (syllable != null) {
+                                String syllableText = syllable + octave;
 
-                            noteElement.appendChild(lyric);
+                                // <text> 요소 생성
+                                Element newText = doc.createElement("text");
+                                newText.setAttribute("font-size", "10"); // 폰트 크기 설정
+                                newText.setAttribute("color", "#00FF00"); // 글자 색상 설정
+                                newText.setTextContent(syllableText);
+
+                                // <lyric> 요소에 <text> 추가
+                                lyric.appendChild(newText);
+                            }
                         }
+
+                        // <note> 요소에 <lyric> 추가
+                        noteElement.appendChild(lyric);
                     }
                 }
             }
 
-            // Save the modified XML
+            // 수정된 XML 저장
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -272,7 +258,7 @@ public class MusicXmlModifierService {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             String modifiedXmlContent = writer.getBuffer().toString();
 
-            // 원래 파일 이름으로 저장 (파일명에 _modified 추가하지 않음)
+            // 원래 파일 이름으로 저장
             StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(new DOMSource(doc), result);
         } catch (Exception e) {
@@ -280,6 +266,7 @@ public class MusicXmlModifierService {
             throw new IOException("Failed to modify XML file", e);
         }
     }
+
 
     private void createOrModifyContainerXml(String musicXmlFilePath, String tempDir) throws IOException {
         String containerXmlPath = tempDir + File.separator + "META-INF" + File.separator + "container.xml";
