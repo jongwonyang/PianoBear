@@ -53,15 +53,19 @@
             </div>
         </div>
         <div class="chat-box">
-            <md-elevation></md-elevation>
             <div class="my-chatting-header">
                 <div class="my-chatting-text">채팅</div>
             </div>
             <v-divider></v-divider>
             <div class="chat-container" v-if="currentChatRoomId">
                 <div class="messages">
-                    <div v-for="(message, index) in messages" :key="index" class="message">
-                        <strong>{{ message.senderId }}:</strong> {{ message.content }}
+                    <div v-for="(message, index) in messages" :key="index"
+                        :class="{ 'message': true, 'sent': message.senderId === userInfo.id, 'received': message.senderId !== userInfo.id }">
+                        <div class="message-header">
+                            <strong>{{ message.senderId === userInfo.id ? '나' : receiverId }}:</strong>
+                            <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
+                        </div>
+                        <div class="message-content">{{ message.content }}</div>
                     </div>
                 </div>
                 <div class="input-area">
@@ -70,6 +74,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- 친구 정보 다이얼로그 -->
         <v-dialog v-model="friendInfoDialog" max-width="500px">
@@ -234,8 +239,13 @@ onBeforeUnmount(() => {
 
 // 채팅창을 맨 아래로 스크롤하는 함수
 const scrollToBottom = () => {
-    const chatContainer = document.querySelector('.chat-container .messages');
+    const chatContainer = document.querySelector('.chat-box .messages');
     chatContainer.scrollTop = chatContainer.scrollHeight;
+};
+
+const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.getHours()}:${date.getMinutes()}`;
 };
 
 const searchFriend = () => {
@@ -540,11 +550,92 @@ const saveStatusMessage = () => {
     width: 500px;
     background: #FFF9E0;
     position: relative;
-    padding: 30px;
     border-radius: 30px;
     text-align: center;
     overflow-y: auto;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    --md-sys-color-shadow: #947650;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.messages {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    justify-content: flex-end;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.message.sent {
+    align-self: flex-end;
+    background-color: #DCF8C6;
+}
+
+.message.received {
+    align-self: flex-start;
+    background-color: #FFF;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #999;
+}
+
+.message-content {
+    font-size: 14px;
+}
+
+.input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+    position: sticky;
+    bottom: 0;
+    /* 화면 하단에 고정 */
+}
+
+input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.chat-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #FFF9E0;
+    position: relative;
+    border-radius: 30px;
+    text-align: center;
+    overflow: hidden;
     --md-sys-color-shadow: #947650;
 }
 
