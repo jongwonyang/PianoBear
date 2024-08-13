@@ -386,9 +386,11 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 결과 모달창
   // 도전 결과
-  const resultChallenge = ref();
+  const resultChallenge = ref<Promise<void> | null>();
   const isResultModalOpen = ref<Boolean>(false);
+  const challengeLoading = ref<Boolean>(false);
   const challengefun = async (id: number, audioBlob: Blob): Promise<void> => {
+    challengeLoading.value = true;
     const formData = new FormData();
     formData.append("audioFile", audioBlob);
     try {
@@ -402,13 +404,14 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
         }
       );
       resultChallenge.value = response.data;
+      challengeLoading.value = false;
       isResultModalOpen.value = true;
     } catch (error) {
       console.log(error);
     }
   };
 
-  const clearResult = function () {
+  const clearResult = function (): void {
     resultChallenge.value = null;
   };
 
@@ -417,14 +420,16 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 검색어
   const searchText = ref<string>("");
-
+  const makeImgLoading = ref<Boolean>(false);
   const makeImg = async (id: number) => {
     try {
       console.log("요청보냄");
+      makeImgLoading.value = true;
       const response = await apiClient.post(
         `${REST_PIANOSHEET_API}/${id}/generate-image`
       );
       console.log(response.data);
+      makeImgLoading.value = false;
     } catch (error) {
       console.error(error);
     }
@@ -480,5 +485,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     saveMakedImg,
     resultChallenge,
     clearResult,
+    challengeLoading,
+    makeImgLoading,
   };
 });

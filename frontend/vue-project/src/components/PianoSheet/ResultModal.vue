@@ -4,19 +4,18 @@
       <div class="text">도전 결과</div>
       <div class="bear">
         <span>
-          <img src="@/assets/characters/토니/토니응원.png" alt="" class="tone" />
+          <img src="@/assets/characters/토니/토니응원.png" alt="" width="100" />
         </span>
         <span>
-          <img src="@/assets/characters/피치/피치기쁨.png" alt="" class="pitch" />
+          <img src="@/assets/characters/피치/피치기쁨.png" alt="" width="100" />
         </span>
       </div>
       <div class="score">
-        <div>악보 제목</div>
-        <div>{{ result }} 점</div>
+        <div class="result">{{ result }} 점</div>
       </div>
       <div class="buttons">
-        <button @click="share">공유하기</button>
-        <button @click="closeModal">닫기</button>
+        <v-btn @click="share" variant="tonal">공유하기</v-btn>
+        <v-btn @click="closeModal" variant="tonal">닫기</v-btn>
       </div>
     </div>
   </div>
@@ -62,16 +61,6 @@ const share = () => {
   align-items: center;
 }
 
-.tone {
-  width: 6.5vw;
-  height: 20vh;
-}
-
-.pitch {
-  width: 6.5vw;
-  height: 19.5vh;
-}
-
 .bear {
   display: flex;
   justify-content: center;
@@ -86,6 +75,8 @@ const share = () => {
   justify-content: center;
   padding: 7vh;
   text-align: center;
+  border-radius: 10px;
+  box-shadow: 0.1vw 0.4vh 0.8vh gray;
 }
 
 .buttons {
@@ -102,5 +93,11 @@ const share = () => {
   font-weight: bold;
   margin-bottom: 2%;
   color: #947650;
+}
+
+.result {
+  font-size: 5vw;
+  font-weight: bold;
+  color: rgb(243, 244, 207);
 }
 </style>

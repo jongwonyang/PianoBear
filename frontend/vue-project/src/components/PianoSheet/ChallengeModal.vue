@@ -1,8 +1,8 @@
 <template>
     <div>
         <div class="text-center pa-4">
-            <v-dialog v-model="props.dialog" width="400" persistent>
-                <v-card max-width="400" v-show="props.playChallenge && cardCheck" color="#FFF9E0">
+            <v-dialog v-model="props.dialog" :width="450" :height="250" persistent>
+                <v-card max-width="600" :height="400" v-show="props.playChallenge && cardCheck" color="#FFF9E0">
                     <v-card-title class="text" prepend-icon="mdi-update">도전하기!</v-card-title>
                     <v-divider :thickness="2" class="border-opacity-25" color="#947650"></v-divider>
                     <v-card-text class="text" :style="{ whiteSpace: 'pre-line' }">

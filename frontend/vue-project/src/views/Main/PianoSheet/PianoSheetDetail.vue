@@ -6,8 +6,20 @@
         <v-icon @click="openModal">mdi-pencil</v-icon>
       </div>
       <div class="make">
-        <button @click="makeImg">표지 만들기</button>
+        <button v-if="!store.makeImgLoading" @click="makeImg">표지 만들기</button>
+        <button v-else>만드는 중이에요..
+          <v-progress-circular indeterminate></v-progress-circular>
+        </button>
       </div>
+    </div>
+    <div class="btn">
+      <button class="cursor-pointer duration-200 hover:scale-125 active:scale-100" title="Go Back"
+        @click="router.push('/main/piano-sheet')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24" class="goBack">
+          <path stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" d="M11 6L5 12M5 12L11 18M5 12H19">
+          </path>
+        </svg>
+      </button>
     </div>
     <div class="container">
       <div class="left">
@@ -28,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import PianoSheet from "@/components/PianoSheet/PianoSheet.vue";
 import DetailPractice from "@/components/PianoSheet/DetailPractice.vue";
 import EditSheetModal from "@/components/PianoSheet/EditSheetModal.vue";
@@ -36,6 +48,7 @@ import Buttons from "@/components/PianoSheet/Buttons.vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const route = useRoute();
+const router = useRouter();
 const store = usePianoSheetStore();
 const id = ref<number | null>(null);
 
@@ -64,18 +77,23 @@ onMounted(() => {
 
 <style scoped>
 .container {
-  display: flex; /* Flexbox 레이아웃 사용 */
+  display: flex;
+  /* Flexbox 레이아웃 사용 */
 }
 
 .left {
-  flex: 1; /* 왼쪽 콘텐츠 영역이 가로 공간을 차지하도록 설정 */
-  margin-right: 20px; /* 왼쪽과 오른쪽 콘텐츠 사이에 공간 추가 */
+  flex: 1;
+  /* 왼쪽 콘텐츠 영역이 가로 공간을 차지하도록 설정 */
+  margin-right: 20px;
+  /* 왼쪽과 오른쪽 콘텐츠 사이에 공간 추가 */
 }
 
 .right {
-  flex: 1; /* 오른쪽 콘텐츠 영역이 가로 공간을 차지하도록 설정 */
+  flex: 1;
+  /* 오른쪽 콘텐츠 영역이 가로 공간을 차지하도록 설정 */
   display: flex;
-  flex-direction: column; /* 수직으로 정렬 */
+  flex-direction: column;
+  /* 수직으로 정렬 */
 }
 
 .detail {
@@ -108,5 +126,15 @@ onMounted(() => {
   justify-content: start;
   font-size: larger;
   font-weight: bold;
+}
+
+.goBack {
+  stroke: black;
+}
+
+.btn {
+  position: absolute;
+  top: 8vh;
+  left: 18vw;
 }
 </style>
