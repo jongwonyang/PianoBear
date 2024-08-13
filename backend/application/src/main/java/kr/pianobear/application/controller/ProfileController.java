@@ -55,4 +55,13 @@ public class ProfileController {
             return ResponseEntity.status(500).body("프로필 사진 변경 중 오류가 발생했습니다.");
         }
     }
+
+    @PutMapping(value = "/statusMessage")
+    @Operation(summary = "상태 메세지 변경")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
+    public ResponseEntity<String> updateStatusMessage(@RequestParam String statusMessage){
+        String userId = SecurityUtil.getCurrentUserId();
+        profileService.updateStatusMessage(userId, statusMessage);
+        return ResponseEntity.ok("상태 매세지가 성공적으로 변경되었습니다.");
+    }
 }
