@@ -15,7 +15,7 @@ public class WebSocketSecurityConfig {
     AuthorizationManager<Message<?>> authorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages.simpDestMatchers("/topic").authenticated() // 구독
                 .simpDestMatchers("/app").authenticated() // 발행
-                .anyMessage().authenticated();
+                .anyMessage().permitAll();
         return messages.build();
     }
 }
