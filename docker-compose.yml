@@ -56,6 +56,13 @@ services:
     networks:
       - pianobear-network
 
+  audio-compare-server:
+    build:
+      context: ./backend/audiocompare
+      dockerfile: Dockerfile
+    networks:
+      - pianobear-network
+
 networks:
   pianobear-network:
     driver: bridge

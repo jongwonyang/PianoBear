@@ -1,0 +1,6 @@
+.venv
+midi/
+musicxml/
+wav/
+wav_mid/
+__pycache__

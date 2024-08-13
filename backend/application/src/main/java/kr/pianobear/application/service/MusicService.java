@@ -80,30 +80,6 @@ public class MusicService {
         return mapMusicToDTO(savedMusic);
     }
 
-//    @Transactional
-//    public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
-//        // 기존 Music 엔티티를 가져옴
-//        Music music = musicRepository.findById(musicDTO.getId())
-//                .orElseThrow(() -> new RuntimeException("Music not found with id " + musicDTO.getId()));
-//
-//        // 제목과 아티스트를 업데이트
-//        music.setTitle(musicDTO.getTitle());
-//        music.setArtist(musicDTO.getArtist());
-//
-//        // OpenAI API를 통해 이미지 생성 후 서버에 저장 (필요시 주석 해제)
-////    String imagePath = openAiService.generateImage(musicDTO.getTitle());
-////    music.setMusicImg(imagePath);
-//
-//        music.setMusicImg(null);
-//
-//        // 변경 사항을 저장
-//        Music savedMusic = musicRepository.save(music);
-//
-//        // DTO로 변환하여 반환
-//        return mapMusicToDTO(savedMusic);
-//    }
-
-
     @Transactional
     public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
         Music music = new Music();
@@ -146,7 +122,6 @@ public class MusicService {
         // DTO로 변환하여 반환
         return mapMusicToDTO(savedMusic);
     }
-
 
     public MusicDTO fileDataToMusicDTO(FileData fileData) throws IOException {
         // 새로운 Music 엔티티 생성 및 초기화
@@ -203,18 +178,6 @@ public class MusicService {
             return principal.toString();
         }
     }
-
-    private String createMusicImg(String title) {
-        try {
-            // OpenAI API를 사용하여 이미지 생성
-            return openAiService.generateImage(title);
-        } catch (IOException e) {
-            // 오류 처리
-            e.printStackTrace();
-            return "/path/to/default/image.png"; // 에러 발생 시 기본 이미지를 반환할 수 있음
-        }
-    }
-
 
     private MusicDTO mapMusicToDTO(Music music) {
         MusicDTO musicDTO = new MusicDTO();
@@ -293,10 +256,6 @@ public class MusicService {
         return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
-    public MusicPracticeDTO practiceMusic(int musicId) {
-        return musicPracticeService.practiceMusic(musicId);
-    }
-
     public List<LocalDate> getUploadDates(String userId) {
         List<Music> musicList = musicRepository.findByUserId(userId);
         return musicList.stream().map(Music::getUploadDate).collect(Collectors.toList());
@@ -357,6 +316,12 @@ public class MusicService {
         musicDTO.setUploadDate(music.getUploadDate());
         musicDTO.setArtist(music.getArtist());
         return musicDTO;
+    }
+
+    public List<MusicDTO> getMusicByUserOrNull(String userId) {
+        // 사용자 ID 또는 null 사용자에 해당하는 악보들을 불러옴
+        List<Music> musicList = musicRepository.findByUser_IdOrUserIsNull(userId);
+        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
 }

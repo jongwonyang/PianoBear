@@ -80,7 +80,7 @@ public class MusicController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "찜하기", description = "악보를 찜합니다.")
+    @Operation(summary = "찜하기/찜 해제", description = "악보를 찜하거나 찜을 해제합니다.")
     @PostMapping("/{id}/favorite")
     public ResponseEntity<Void> favoriteMusic(@PathVariable int id, @RequestParam boolean favorite) {
         musicService.favoriteMusic(id, favorite);
@@ -181,5 +181,12 @@ public class MusicController {
         } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
+    }
+
+    @Operation(summary = "사용자별 악보 불러오기", description = "사용자 ID에 따라 악보를 필터링하여 불러옵니다. 기본 악보도 포함됩니다.")
+    @GetMapping("/user-or-default/{userId}")
+    public ResponseEntity<List<MusicDTO>> getMusicByUserOrDefault(@PathVariable String userId) {
+        List<MusicDTO> musicList = musicService.getMusicByUserOrNull(userId);
+        return ResponseEntity.ok(musicList);
     }
 }
