@@ -136,8 +136,8 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi chatGroup() {
         return GroupedOpenApi.builder()
-                .group("Chat")
-                .pathsToMatch("/api/v1/chat/**")
+                .group("chat")
+                .pathsToMatch("/api/v1/ws/**")
                 .build();
     }
 }

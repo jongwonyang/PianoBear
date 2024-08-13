@@ -58,6 +58,17 @@
                 <div class="my-chatting-text">채팅</div>
             </div>
             <v-divider></v-divider>
+            <div class="chat-container" v-if="currentChatRoomId">
+                <div class="messages">
+                    <div v-for="(message, index) in messages" :key="index" class="message">
+                        <strong>{{ message.senderId }}:</strong> {{ message.content }}
+                    </div>
+                </div>
+                <div class="input-area">
+                    <input v-model="newMessage" placeholder="메시지를 입력하세요" @keyup.enter="sendMessage">
+                    <button @click="sendMessage">전송</button>
+                </div>
+            </div>
         </div>
 
         <!-- 친구 정보 다이얼로그 -->
@@ -80,7 +91,8 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn text @click="removeFriend(friendInfo.id)" color="red">삭제</v-btn>
+                    <v-btn text @click="removeFriend(friendInfo.id)" color="red">친구 삭제</v-btn>
+                    <v-btn text @click="startChatting(friendInfo.id)">대화하기</v-btn>
                     <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
                 </v-card-actions>
             </v-card>
@@ -103,9 +115,11 @@
                                 <md-elevation></md-elevation>
                                 {{ searchResult.statusMessage }}
                             </div>
-                            <v-btn v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.id"
+                            <v-btn
+                                v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.id && !searchResultSentRequest"
                                 class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
                             <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
+                            <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
                             <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
                         </div>
                     </div>
@@ -136,60 +150,112 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useFriendStore } from '@/stores/friend';
-// import { useNotificationStore } from '@/stores/notification';
+import { useWebSocketStore } from '@/stores/websocket';
 
-const userInfo = ref({
-
-});
-
+const userInfo = ref({});
 const isLoading = ref({
     userInfo: true,
     friendList: true,
     chattingList: true,
 });
-
 const friends = ref([]);
+const currentChatRoomId = ref(null); // 현재 채팅방 ID
+const messages = ref([]); // 현재 채팅방 메시지 리스트
+const newMessage = ref(''); // 새 메시지 입력 필드
 
 const userStore = useUserStore();
 const friendStore = useFriendStore();
-// const notificationStore = useNotificationStore();
-const showDialog = ref(false); // 친구 검색 다이얼로그 상태 추가
-const friendInfoDialog = ref(false); // 친구 정보 다이얼로그 상태 추가
-const searchQuery = ref(''); // 검색어를 저장할 상태
-const searchResult = ref(null); // 검색 결과를 저장할 상태
-const friendInfo = ref(null); // 친구 정보를 저장할 상태
+const webSocketStore = useWebSocketStore();
+
+const showDialog = ref(false);
+const friendInfoDialog = ref(false);
+const searchQuery = ref('');
+const searchResult = ref(null);
+const searchResultSentRequest = ref(false);
+const friendInfo = ref(null);
+const receiverId = ref(null);
 const editStatusMessage = ref(false); // 상태 메시지 수정 다이얼로그 상태
 const newStatusMessage = ref(''); // 새로운 상태 메시지
 
 onMounted(() => {
-
-    // 친구 목록을 불러오는 로직을 여기에 구현합니다.
+    // 친구 목록을 불러오는 로직
     friendStore.GetFriendList()
         .then((res) => {
             friends.value = res.data;
             isLoading.value.friendList = false;
-            // 유저정보가 친구목록이 로딩되면 가져오도록 함.
             userInfo.value = userStore.user;
             isLoading.value.userInfo = false;
-            console.log(res);
-            console.log(res.data.length);
         })
         .catch((err) => {
             console.log(err);
         });
 });
 
+const startChatting = async (friendId) => {
+    try {
+        // 채팅방 열기
+        const chatRoom = await webSocketStore.enterChatRoom(friendId);
+        console.log('채팅방을 열었습니다:', chatRoom);
+        currentChatRoomId.value = chatRoom.id;
+        messages.value = chatRoom.messages;
+        receiverId.value = friendId;
+
+        // 채팅방에 메시지 구독
+        webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
+            messages.value.push(message);
+
+            // 메시지를 추가할 때 채팅창을 맨 아래로 스크롤
+            scrollToBottom();
+        });
+        // 채팅창을 표시하기 위해 다이얼로그를 닫음
+        friendInfoDialog.value = false;
+    } catch (error) {
+        console.error('채팅방을 열지 못했습니다:', error);
+    }
+};
+
+const sendMessage = () => {
+    if (newMessage.value.trim() !== '') {
+        webSocketStore.sendMessage(receiverId.value, newMessage.value);
+        newMessage.value = ''; // 입력 필드 초기화
+        console.log('메시지를 보냈습니다:', messages.value);
+
+        // 메시지를 보낸 후에도 채팅창을 맨 아래로 스크롤
+        scrollToBottom();
+    }
+};
+
+onBeforeUnmount(() => {
+    webSocketStore.disconnectWebSocket();
+});
+
+// 채팅창을 맨 아래로 스크롤하는 함수
+const scrollToBottom = () => {
+    const chatContainer = document.querySelector('.chat-container .messages');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+};
+
 const searchFriend = () => {
     friendStore.GetFriendInfo(searchQuery.value)
         .then((res) => {
             searchResult.value = res.data;
             console.log(res);
+            // 검색 결과에 대해 친구 요청을 보냈는지 확인
+            friendStore.IsSentRequest(searchResult.value.id)
+                .then((requestRes) => {
+                    searchResultSentRequest.value = requestRes.data;
+                })
+                .catch((err) => {
+                    console.log(err);
+                    searchResultSentRequest.value = false;
+                });
         })
         .catch((err) => {
             searchResult.value = null;
+            searchResultSentRequest.value = false;
             console.log(err);
         });
 };
