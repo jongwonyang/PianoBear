@@ -13,7 +13,7 @@
       </div>
       <div v-if="store.convertedFile?.title">
         <router-link
-          v-if="goDetail"
+          v-if="store.convertedFile"
           :to="`/main/piano-sheet/${store.convertedFile.id}`"
           class="router"
           >악보 바로가기</router-link
@@ -28,7 +28,6 @@ import { ref, onMounted } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
-const goDetail = ref(false);
 </script>
 
 <style scoped>
