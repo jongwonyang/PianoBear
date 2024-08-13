@@ -53,12 +53,12 @@ const makeImg = async () => {
 
 // 악보 데이터를 가져오는 함수
 const fetchDetailData = async (id: number) => {
-  await store.detailSheetfun(id); // 스토어의 practiceDatafun 메서드 호출
+  await store.detailSheetfun(id);
 };
 
 onMounted(() => {
   id.value = Number(route.params.id);
-  fetchDetailData(Number(route.params.id)); // 1대신 musicId 들어가야 함
+  fetchDetailData(Number(route.params.id));
 });
 </script>
 
