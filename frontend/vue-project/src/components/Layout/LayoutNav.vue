@@ -18,7 +18,9 @@
             @click="router.push({ name: 'pianoSheetList' })"></v-list-item>
           <v-list-item prepend-icon="mdi-video-account" title="놀이터" value="소통방"
             @click="router.push({ name: 'community' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-bell-outline" title="알림" :subtitle="notificationCount" value="알림"
+          <v-list-item v-if="notificationCount == 0" prepend-icon="mdi-bell-outline" title="알림" value="알림"
+            @click="handleNotificationClick"></v-list-item>
+          <v-list-item v-if="notificationCount != 0" prepend-icon="mdi-bell-badge-outline" title="알림" value="알림"
             @click="handleNotificationClick"></v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -129,8 +131,12 @@ import largeLogo from "@/assets/logo.png";
 import smallLogo from "@/assets/characters/thf.png";
 
 const handleNotificationClick = () => {
+  webSocketStore.GetNotificationList().then((res) => {
+    notifications.value = res;
+    notificationCount.value = res.length;
+    console.log("알림 목록: ", notifications.value);
+  });
   showDialog.value = true;
-  webSocketStore.GetNotificationList();
 };
 
 onMounted(() => {
@@ -145,7 +151,7 @@ onMounted(() => {
       console.log(err);
     });
 
-
+  webSocketStore.subscribeToNotifications();
 
   // SSE 연결 설정
   // notificationStore.SubscribeToNotifications();
@@ -168,62 +174,62 @@ watch(
   }
 );
 
-// const clearAllNotifications = () => {
-//   notificationStore.ClearNotifications();
-//   notifications.value.splice(0, notifications.value.length);
-//   // notifications.value = [];
-//   // notificationCount.value = 0;
-// };
+const clearAllNotifications = () => {
+  webSocketStore.ClearNotifications();
+  notifications.value.splice(0, notifications.value.length);
+  // notifications.value = [];
+  // notificationCount.value = 0;
+};
 
-// const confirmDeleteAllNotifications = () => {
-//   clearAllNotifications();
-//   showConfirmDeleteDialog.value = false;
-// };
+const confirmDeleteAllNotifications = () => {
+  clearAllNotifications();
+  showConfirmDeleteDialog.value = false;
+};
 
-// const acceptFriendRequest = (index) => {
-//   // 친구 요청 수락 API 호출
-//   friendStore.AcceptFriendRequest(notifications.value[index].content.senderId);
+const acceptFriendRequest = (index) => {
+  // 친구 요청 수락 API 호출
+  friendStore.AcceptFriendRequest(notifications.value[index].content.senderId);
 
-//   console.log("친구 추가 요청 수락:", notifications.value[index].message);
-//   // 특정 알림 삭제
-//   notificationStore.DeleteNotification(notifications.value[index].id);
-//   notifications.value.splice(index, 1);
-// };
+  console.log("친구 추가 요청 수락:", notifications.value[index].message);
+  // 특정 알림 삭제
+  webSocketStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
+};
 
-// const declineFriendRequest = (index) => {
-//   console.log("친구 추가 요청 거절:", notifications.value[index].message);
-//   // 특정 알림 삭제
-//   notificationStore.DeleteNotification(notifications.value[index].id);
-//   notifications.value.splice(index, 1);
-// };
+const declineFriendRequest = (index) => {
+  console.log("친구 추가 요청 거절:", notifications.value[index].message);
+  // 특정 알림 삭제
+  webSocketStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
+};
 
-// const acceptMeetingInvite = (index) => {
-//   console.log("회의실 초대 수락:", notifications.value[index].message);
-//   // 특정 알림 삭제
-//   notificationStore.DeleteNotification(notifications.value[index].id);
-//   notifications.value.splice(index, 1);
-// };
+const acceptMeetingInvite = (index) => {
+  console.log("회의실 초대 수락:", notifications.value[index].message);
+  // 특정 알림 삭제
+  webSocketStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
+};
 
-// const declineMeetingInvite = (index) => {
-//   console.log("회의실 초대 거절:", notifications.value[index].message);
-//   // 특정 알림 삭제
-//   notificationStore.DeleteNotification(notifications.value[index].id);
-//   notifications.value.splice(index, 1);
-// };
+const declineMeetingInvite = (index) => {
+  console.log("회의실 초대 거절:", notifications.value[index].message);
+  // 특정 알림 삭제
+  webSocketStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
+};
 
-// const goToChat = (index) => {
-//   console.log("채팅으로 이동:", notifications.value[index].message);
-//   // 특정 알림 삭제
-//   notificationStore.DeleteNotification(notifications.value[index].id);
-//   notifications.value.splice(index, 1);
-// };
+const goToChat = (index) => {
+  console.log("채팅으로 이동:", notifications.value[index].message);
+  // 특정 알림 삭제
+  webSocketStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
+};
 
-// const deleteChatMessage = (index) => {
-//   console.log("채팅 메시지 삭제:", notifications.value[index].message);
-//   // 특정 알림 삭제
-//   notificationStore.DeleteNotification(notifications.value[index].id);
-//   notifications.value.splice(index, 1);
-// };
+const deleteChatMessage = (index) => {
+  console.log("채팅 메시지 삭제:", notifications.value[index].message);
+  // 특정 알림 삭제
+  webSocketStore.DeleteNotification(notifications.value[index].id);
+  notifications.value.splice(index, 1);
+};
 
 // const goToSheet = (index) => {
 //   router.push({ name: 'pianoUpload', params: { sheetId: 1 } });

@@ -3,15 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <title>피아노배어 이메일 인증</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('/static/pianoBG.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+            text-align: center;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: -1;
+        }
+
+        div {
+            transform: translateY(-50px);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #a89375;
+            font-size: 1.5em;
+            margin-bottom: 50px;
+        }
+
+        #btn-verify {
+            padding: 10px 40px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #41d641;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #btn-verify:hover {
+            background-color: #FFF9E0;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        #goto-main a {
+            color: #FFD700;
+            text-decoration: none;
+            font-size: 1.2em;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        #goto-main a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-<h1>아래 버튼을 클릭하면 인증이 완료됩니다.</h1>
+<div>
+    <h1>아래 버튼을 클릭하면 인증이 완료됩니다.</h1>
 
-<button id="btn-verify">인증하기</button>
+    <button id="btn-verify">인증 완료</button>
 
-<div id="result"></div>
-<div id="goto-main" style="display:none;"><a href="/">피아노배어 메인으로 가기</a></div>
+    <div id="result"></div>
+    <div id="goto-main" style="display:none;"><a href="/">피아노배어 메인으로 가기</a></div>
+</div>
 
 <div id="server-data" style="display:none;" th:attr="data-uuid=${uuid}"></div>
 
