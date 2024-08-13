@@ -129,6 +129,7 @@ function createOutput(output) {
 }
 
 function handlePlayPauseKey(e) {
+  e.stopPropagation();
   if (!challenge.value && e.key === " " && g_state.player) {
     e.preventDefault();
     if (g_state.player.state === PLAYER_PLAYING) {
@@ -302,7 +303,7 @@ export const playingPiano = function (pitch, oct) {
     window[g_state.player._output._instruments[0].instrumentInfo.variable],
     0,
     k,
-    1
+    0.5
   );
 };
 

@@ -9,7 +9,7 @@
                 <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
                     <label for="velocity"> 속도 </label>
                     <input type="number" id="velocity" name="velocity" :value="velo" min="0.25" max="2" step="0.25"
-                        readonly style="width: 6.5vh; position: relative; left: 1.5vh;" />
+                        readonly style="width: 50px; position: relative; left: 5px;" />
 
                     <div class="btns">
                         <v-btn icon="mdi-triangle-small-up" class="velo" @click="velo <= 1.75 ? velo += 0.25 : null"
@@ -45,9 +45,11 @@
                         <strong>연습량 {{ Math.ceil(knowledge) }}%</strong>
                     </v-progress-linear>
                 </div>
-                <div v-if="practiceToday" class="strewbery">
-                    <img v-for="n in practiceToday.practiceCount" :key="n" src="@/assets/images/산딸기.png"
-                        alt="Practice Image" class="practice-image" width="25" />
+                <div class="strewbery">
+                    <img v-for="n in 5" :key="n"
+                        :src="(practiceToday && n <= practiceToday.practiceCount) ? '/src/assets/images/가득찬딸기.png' : '/src/assets/images/빈딸기.png'"
+                        :alt="n" class="practice-image" width="25" />
+                    <v-btn v-if="isPractice" icon="mdi-circle" :width="25" :height="25" @click="doPractice"></v-btn>
                 </div>
             </div>
             <div v-show="status" id="sheet-container" :value="status"></div>
@@ -67,7 +69,7 @@
 <script setup>
 import { onMounted, ref, onUnmounted, defineProps, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange, isMidiStop, currPitch } from '@/mxlplayer/demo.mjs';
+import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, stateChange, isMidiStop, currPitch, playingPiano } from '@/mxlplayer/demo.mjs';
 import { usePianoSheetStore } from '@/stores/pianosheet';
 import ChallengeModal from '@/components/PianoSheet/ChallengeModal.vue';
 import Piano from './Piano.vue';
@@ -89,8 +91,8 @@ const toggle_one = ref(1);
 const musicXml = ref();
 const nowSheet = ref(route.params['id']);
 const playChallenge = ref();
-const practiceSuccess = ref(false);
 const isBaby = ref(false);
+const isPractice = ref(false);
 
 // record 변수
 const isRecording = ref(false);
@@ -137,12 +139,30 @@ const changeSheet = async function () {
 
 // space-bar 로 재생, 일시정지 설정
 window.addEventListener("keydown", (e) => {
-    if (!status.value) return;
-    if (e.key === " " && !props.challenge) {
-        if (toggle_one.value == 2) {
-            toggle_one.value = 1;
-        } else {
-            toggle_one.value = 2;
+    e.stopPropagation();
+    if (status.value) {
+        if (e.key === " " && !props.challenge) {
+            if (toggle_one.value == 2) {
+                toggle_one.value = 1;
+            } else {
+                toggle_one.value = 2;
+            }
+        } else if (e.key === "s" && !props.challenge) {
+            playingPiano("C", 4);
+        } else if (e.key === "d" && !props.challenge) {
+            playingPiano("D", 4);
+        } else if (e.key === "f" && !props.challenge) {
+            playingPiano("E", 4);
+        } else if (e.key === "g" && !props.challenge) {
+            playingPiano("F", 4);
+        } else if (e.key === "h" && !props.challenge) {
+            playingPiano("G", 4);
+        } else if (e.key === "j" && !props.challenge) {
+            playingPiano("A", 4);
+        } else if (e.key === "k" && !props.challenge) {
+            playingPiano("B", 4);
+        } else if (e.key === "l" && !props.challenge) {
+            playingPiano("C", 5);
         }
     }
 });
@@ -221,6 +241,24 @@ const changeDialog = function () {
     dialog.value = !dialog.value;
 }
 
+const doPractice = async function () {
+    if (!practiceToday.value || practiceToday.value.practiceCount < 5) {
+        await store.practicePostfun(nowSheet.value);
+        await practiceGet();
+        isPractice.value = false;
+        knowledge.value = 0;
+        interval1.value = setInterval(async () => {
+            if (knowledge.value < 100) {
+                knowledge.value += 1;
+            } else if (knowledge.value === 100) {
+                if (practiceToday.value.practiceCount < 5) {
+                    isPractice.value = true;
+                }
+                clearInterval(interval1.value);
+            }
+        }, 60)
+    }
+}
 
 // 악보 불러오기
 onMounted(async () => {
@@ -265,10 +303,8 @@ onMounted(async () => {
                 if (knowledge.value < 100) {
                     knowledge.value += 1;
                 } else if (knowledge.value === 100) {
-                    await store.practicePostfun(nowSheet.value);
+                    isPractice.value = true;
                     clearInterval(interval1.value);
-                    practiceGet();
-                    practiceSuccess.value = true;
                 }
             }, 60)
         }
@@ -280,10 +316,12 @@ router.beforeEach((to, from) => {
     if (from.name === 'pianoPractice' || from.name === 'pianoChallenge') {
         reset();
         stopRecording(false);
+        status.value = false;
     }
 });
 
 onUnmounted(() => {
+    status.value = false;
     reset();
     stopRecording(false);
     clearInterval(interval1.value);
@@ -394,7 +432,7 @@ h1 {
     position: absolute;
     left: 2vw;
     top: 7vh;
-    width: 350px;
+    width: 370px;
     display: flex;
     justify-content: space-between;
 
@@ -402,12 +440,13 @@ h1 {
 
 .strewbery {
     display: flex;
-    width: 120px;
+    width: 160px;
 }
 
 .changeSheet {
-    font-size: larger;
-    margin-left: 1.5vw;
+    font-size: medium;
+    font-weight: bold;
+    margin-left: 25px;
 }
 
 @keyframes showNumber {

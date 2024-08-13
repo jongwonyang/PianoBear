@@ -344,6 +344,8 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     try {
       const response = await apiClient.get<ArrayBuffer>(
         `${REST_PIANOSHEET_API}/api/v1/music/${id}/download-modified-music-xml`, //-modified
+        // const response = await axios.get(
+        //   "/c6fb7283-44c1-4c7a-bdf7-a3264b1d452e_modified.mxl",
         {
           responseType: "arraybuffer",
           headers: {
