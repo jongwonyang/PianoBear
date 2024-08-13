@@ -15,7 +15,7 @@
         </span>
       </div>
       <div v-if="store.convertedFile?.title">
-        <button @click="saveSheet" v-if="!goDetail"  class="button">저장</button>
+        <button @click="saveSheet" v-if="!goDetail" class="button">저장</button>
         <router-link
           v-if="goDetail"
           :to="`/main/piano-sheet/${store.convertedFile.id}`"
@@ -50,6 +50,7 @@ const saveSheet = () => {
 <style scoped>
 .container {
   border: 2px solid #f5e5d1;
+  background-color: #fffff8;
   color: #947650;
   width: 350px;
   height: 550px;
@@ -59,7 +60,7 @@ const saveSheet = () => {
 
 .filebox {
   border: 2px dashed #f5e5d1;
-  width: 350px;
+  width: 350;
   height: 530px;
   padding-left: 70px;
   padding-right: 70px;

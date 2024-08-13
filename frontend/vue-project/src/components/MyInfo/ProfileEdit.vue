@@ -1,23 +1,4 @@
 <template>
-  <!-- <v-card class="edit-box">
-    <v-card-title class="edit-title"> 프로필 편집 </v-card-title>
-    <v-card-text class="edit-element">
-      <div class="profile-section">
-        <img :src="userInfo.profilePic" alt="내 이미지" />
-        <v-btn class="img-edit-button" @click="openProfileModal"> 프로필 사진 변경 </v-btn>
-      </div>
-      <div class="edit-buttons">
-        <v-btn class="edit-button" @click="openNameModal"> 이름 변경 </v-btn>
-        <v-divider></v-divider>
-        <v-btn class="edit-button" @click="openPasswordModal"> 비밀번호 변경 </v-btn>
-      </div>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn class="close-button" @click="props.closeDialog">닫기</v-btn>
-    </v-card-actions>
-  </v-card> -->
-
   <div class="text-center pa-4">
     <v-dialog v-model="isProfileModalOpen" max-width="400" persistent>
       <template v-slot:activator="{ props: activatorProps }">
