@@ -16,8 +16,14 @@
               class="router"
             >
               <div class="book">
-                <img src="@/assets/images/blur.png" alt="Book Image" />
-                <!-- <img :src="imageUrl" alt="Music" v-if="imageUrl" /> -->
+                <!-- 이미지가 있을 때 -->
+                <img
+                  v-if="book.musicImg"
+                  :src="'http://localhost:7000/api/v1/music/' + book.id + '/download-music-img'"
+                  alt="Book Image"
+                />
+                <!-- 이미지가 없을 때 -->
+                <img v-else src="@/assets/images/blur.png" alt="Default Book Image" />
               </div>
             </router-link>
           </div>
@@ -44,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { usePianoSheetStore, type UserSheet } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
@@ -98,7 +104,6 @@ const currentList = computed(() => {
 
   return list;
 });
-
 // props로 전달받은 sortOption
 const props = defineProps<{ sortOption: number }>();
 
@@ -108,6 +113,19 @@ watch(
     currentSortOption.value = newSortOption;
   }
 );
+
+const imageUrl = computed(() => {
+  return (
+    import.meta.env.VITE_API_BASE_URL +
+    store.userSheetList[0].musicImg.slice(4, store.userSheetList[0].musicImg.length)
+  );
+});
+
+// const imgSrc = ref("");
+
+// const savedImageUrl = async (id: number) => {
+//   imgSrc.value = store.saveMakedImg(id);
+// };
 </script>
 
 <style scoped>

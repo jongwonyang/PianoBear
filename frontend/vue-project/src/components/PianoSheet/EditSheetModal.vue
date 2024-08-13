@@ -11,10 +11,6 @@
             <label for="title">제목 : </label>
             <input type="text" id="title" v-model="title" />
           </div>
-          <div class="form-group">
-            <label for="artist">작곡가 : </label>
-            <input type="text" id="artist" v-model="artist" />
-          </div>
         </div>
         <button class="submit-button" @click="submitChanges">수정 완료</button>
       </div>
@@ -28,19 +24,22 @@ import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
 const title = ref(store.convertedFile?.title || "");
-const artist = ref(store.convertedFile?.artist || "");
 
 const closeModal = () => {
-  if (store.convertedFile) {
-    store.convertedFile.title = title.value;
-    store.convertedFile.artist = artist.value;
-  }
+  // if (store.convertedFile) {
+  //   store.convertedFile.title = title.value;
+  // }
   store.isOpen = false; // 모달을 닫도록 설정
-  // console.log(title.value);
-  // console.log(store.convertedFile);
 };
 
 const submitChanges = () => {
+  if (title.value.trim() === "") {
+    console.error("Title is empty.");
+    return;
+  }
+
+  console.log(title.value);
+  store.editSheet(title.value);
   closeModal(); // 수정 완료 후 모달 닫기
 };
 </script>

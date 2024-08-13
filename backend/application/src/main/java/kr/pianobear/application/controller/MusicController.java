@@ -45,15 +45,10 @@ public class MusicController {
         return ResponseEntity.ok(createdMusic);
     }
 
-    @Operation(summary = "Music 수정", description = "최근 변환된 Music의 제목과 작곡가를 저장합니다.")
-    @PostMapping("/edit")
-    public ResponseEntity<MusicDTO> saveMusic(@RequestParam String title, @RequestParam String artist) throws IOException {
-        if (lastConvertedMusic == null) {
-            return ResponseEntity.badRequest().build(); // 최근 변환된 음악이 없을 경우 에러 처리
-        }
-
-        MusicDTO savedMusic = musicService.editMusic(lastConvertedMusic.getId(), title, artist);
-        lastConvertedMusic = null; // 저장 후, 변환된 음악 정보 초기화
+    @Operation(summary = "Music 수정", description = "최근 변환된 Music의 제목을 수정합니다.")
+    @PostMapping("/{id}/edit")
+    public ResponseEntity<MusicDTO> saveMusic(@PathVariable int id, @RequestParam String title) throws IOException {
+        MusicDTO savedMusic = musicService.editMusic(id, title);
         return ResponseEntity.ok(savedMusic);
     }
 
