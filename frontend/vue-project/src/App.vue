@@ -57,6 +57,8 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
+
+import backgroundImage from '@/assets/images/bg12.jpg';
 </script>
 
 <style>
@@ -82,7 +84,7 @@ body {
   --md-elevation-level: 5;
   --md-sys-color-shadow: #d2b659;
 
-  background-image: url('@/assets/images/bg10.webp');
+  background-image: url('@/assets/images/bg13.webp');
   background-size: cover;
   z-index: -1;
 }
