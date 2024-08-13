@@ -342,26 +342,25 @@ const saveStatusMessage = () => {
 };
 
 const userProfilePic = computed(() => {
-    if (userInfo.value.profilePic) {
-        return (
-            import.meta.env.VITE_API_BASE_URL +
-            userInfo.value.profilePic.slice(7, userInfo.value.profilePic.length)
-        );
-    } else {
-        return "@/assets/characters/토니/토니머리.png ";
-    }
+  if (userInfo.value.profilePic) {
+    return (
+      import.meta.env.VITE_API_BASE_URL +
+      userInfo.value.profilePic.slice(7, userInfo.value.profilePic.length)
+    );
+  } else {
+    return "src/assets/characters/토니/토니머리.png ";
+  }
 });
 
 const friendProfilePic = computed(() => {
-    for (var i = 0; i < friends.value.length; i++) {
-        if (friends.value[i].profilePic) {
-            return (
-                import.meta.env.VITE_API_BASE_URL +
-                friends.value[i].profilePic.slice(7, friends.value[i].profilePic.length)
-            );
-        } else {
-            return "@/assets/characters/토니/토니머리.png ";
-        }
+  for (var i = 0; i < friends.value.length; i++) {
+    if (friends.value[i].profilePic) {
+      return (
+        import.meta.env.VITE_API_BASE_URL +
+        friends.value[i].profilePic.slice(7, friends.value[i].profilePic.length)
+      );
+    } else {
+      return "src/assets/characters/토니/토니머리.png ";
     }
 });
 </script>
