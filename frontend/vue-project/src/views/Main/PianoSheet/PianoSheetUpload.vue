@@ -51,9 +51,6 @@
         </v-tab>
       </v-tabs>
     </div>
-
-    <!-- 모달이 필요할 때만 표시 -->
-    <SaveSheetModal v-if="store.isOpen" />
   </div>
 </template>
 
@@ -65,7 +62,6 @@ import PDFtoMXL from "@/components/PianoSheet/PDFtoMXL.vue";
 import ConvertedFile from "@/components/PianoSheet/ConvertedFile.vue";
 import ConvertAI from "@/components/PianoSheet/ConvertAI.vue";
 import ConvertPDF from "@/components/PianoSheet/ConvertPDF.vue";
-import SaveSheetModal from "@/components/PianoSheet/SaveSheetModal.vue";
 import AITranscriber from "@/components/PianoSheet/AITranscriber.vue";
 
 const tab = ref(1);
@@ -84,10 +80,7 @@ watch(
   (newFile) => {
     console.log(store.convertedFile);
     if (newFile && !hasShownModal.value) {
-      // store.isOpen.value = true;
       hasShownModal.value = true; // 모달이 열렸음을 기록 -> 이후에 모달을 열기 위해서는 연필 아이콘 클릭
-      // console.log(store.isOpen.value);
-      // console.log(store.isOpen);
     }
   }
 );

@@ -83,4 +83,19 @@ public class ProfileService {
             return Optional.empty();
         }
     }
+
+    @Transactional
+    public Optional<String> updateStatusMessage(String id, String statusMessage){
+        Optional<Member> memberOpt = memberRepository.findById(id);
+
+        if(memberOpt.isPresent()){
+            Member member = memberOpt.get();
+            member.setStatusMessage(statusMessage);
+            memberRepository.save(member);
+
+            return Optional.of("상태 메세지가 성공적으로 변경되었습니다.");
+        } else {
+            return Optional.empty();
+        }
+    }
 }

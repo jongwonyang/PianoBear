@@ -84,7 +84,7 @@
                 <v-card-text v-if="friendInfo">
                     <div class="friend-item">
                         <div class="my-friends-ele-left">
-                            <img :src="friendInfo.profilePic" alt="친구 img">
+                            <img :src="friendProfilePic" alt="친구 img" />
                         </div>
                         <div class="my-friends-ele-right">
                             <div class="friend-name">{{ friendInfo.name }}</div>
@@ -113,7 +113,7 @@
                 <v-card-text v-if="searchResult">
                     <div class="friend-item">
                         <div class="my-friends-ele-left">
-                            <img :src="searchResult.profilePic" alt="친구 img">
+                            <img :src="searchResult.profilePic" alt="친구 img" />
                         </div>
                         <div class="my-friends-ele-right">
                             <div class="friend-name">{{ searchResult.name }}</div>
@@ -121,9 +121,11 @@
                                 <md-elevation></md-elevation>
                                 {{ searchResult.statusMessage }}
                             </div>
-                            <v-btn
-                                v-if="!isFriend(searchResult.id) && searchResult.id != userInfo.id && !searchResultSentRequest"
-                                class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
+                            <v-btn v-if="
+                                !isFriend(searchResult.id) &&
+                                searchResult.id != userInfo.id &&
+                                !searchResultSentRequest
+                            " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
                             <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
                             <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
                             <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
@@ -156,10 +158,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeUnmount } from 'vue';
-import { useUserStore } from '@/stores/user';
-import { useFriendStore } from '@/stores/friend';
-import { useWebSocketStore } from '@/stores/websocket';
+import { onMounted, ref, onBeforeUnmount, computed } from "vue";
+import { useUserStore } from "@/stores/user";
+import { useFriendStore } from "@/stores/friend";
+import { useWebSocketStore } from "@/stores/websocket";
 
 const userInfo = ref({});
 const isLoading = ref({
@@ -170,7 +172,7 @@ const isLoading = ref({
 const friends = ref([]);
 const currentChatRoomId = ref(null); // 현재 채팅방 ID
 const messages = ref([]); // 현재 채팅방 메시지 리스트
-const newMessage = ref(''); // 새 메시지 입력 필드
+const newMessage = ref(""); // 새 메시지 입력 필드
 
 const userStore = useUserStore();
 const friendStore = useFriendStore();
@@ -178,21 +180,24 @@ const webSocketStore = useWebSocketStore();
 
 const showDialog = ref(false);
 const friendInfoDialog = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref("");
 const searchResult = ref(null);
 const searchResultSentRequest = ref(false);
 const friendInfo = ref(null);
 const receiverId = ref(null);
 const editStatusMessage = ref(false); // 상태 메시지 수정 다이얼로그 상태
-const newStatusMessage = ref(''); // 새로운 상태 메시지
+const newStatusMessage = ref(""); // 새로운 상태 메시지
 
 onMounted(() => {
     // 친구 목록을 불러오는 로직
-    friendStore.GetFriendList()
+    friendStore
+        .GetFriendList()
         .then((res) => {
             friends.value = res.data;
+            console.log(friends.value);
             isLoading.value.friendList = false;
             userInfo.value = userStore.user;
+            console.log(userInfo.value);
             isLoading.value.userInfo = false;
         })
         .catch((err) => {
@@ -204,7 +209,7 @@ const startChatting = async (friendId) => {
     try {
         // 채팅방 열기
         const chatRoom = await webSocketStore.enterChatRoom(friendId);
-        console.log('채팅방을 열었습니다:', chatRoom);
+        console.log("채팅방을 열었습니다:", chatRoom);
         currentChatRoomId.value = chatRoom.id;
         messages.value = chatRoom.messages;
         receiverId.value = friendId;
@@ -219,15 +224,15 @@ const startChatting = async (friendId) => {
         // 채팅창을 표시하기 위해 다이얼로그를 닫음
         friendInfoDialog.value = false;
     } catch (error) {
-        console.error('채팅방을 열지 못했습니다:', error);
+        console.error("채팅방을 열지 못했습니다:", error);
     }
 };
 
 const sendMessage = () => {
-    if (newMessage.value.trim() !== '') {
+    if (newMessage.value.trim() !== "") {
         webSocketStore.sendMessage(receiverId.value, newMessage.value);
-        newMessage.value = ''; // 입력 필드 초기화
-        console.log('메시지를 보냈습니다:', messages.value);
+        newMessage.value = ""; // 입력 필드 초기화
+        console.log("메시지를 보냈습니다:", messages.value);
 
         // 메시지를 보낸 후에도 채팅창을 맨 아래로 스크롤
         scrollToBottom();
@@ -253,12 +258,14 @@ const formatTimestamp = (timestamp) => {
 
 
 const searchFriend = () => {
-    friendStore.GetFriendInfo(searchQuery.value)
+    friendStore
+        .GetFriendInfo(searchQuery.value)
         .then((res) => {
             searchResult.value = res.data;
             console.log(res);
             // 검색 결과에 대해 친구 요청을 보냈는지 확인
-            friendStore.IsSentRequest(searchResult.value.id)
+            friendStore
+                .IsSentRequest(searchResult.value.id)
                 .then((requestRes) => {
                     searchResultSentRequest.value = requestRes.data;
                 })
@@ -276,7 +283,8 @@ const searchFriend = () => {
 
 const addFriend = (id) => {
     // 친구 추가 로직을 여기에 구현합니다.
-    friendStore.SendFriendRequest(id)
+    friendStore
+        .SendFriendRequest(id)
         .then((res) => {
             console.log(res);
             console.log(`친구 ID: ${id}를 친구요청하였습니다.`);
@@ -288,11 +296,12 @@ const addFriend = (id) => {
 };
 
 const isFriend = (id) => {
-    return friends.value.some(friend => friend.id === id);
+    return friends.value.some((friend) => friend.id === id);
 };
 
 const viewFriendInfo = (id) => {
-    friendStore.GetFriendInfo(id)
+    friendStore
+        .GetFriendInfo(id)
         .then((res) => {
             friendInfo.value = res.data;
             friendInfoDialog.value = true; // 친구 정보 다이얼로그를 엽니다.
@@ -305,12 +314,13 @@ const viewFriendInfo = (id) => {
 
 const removeFriend = (id) => {
     // 친구 삭제 로직을 여기에 구현합니다.
-    friendStore.RemoveFriend(id)
+    friendStore
+        .RemoveFriend(id)
         .then((res) => {
             console.log(res);
             console.log(`친구 ID: ${id}를 삭제하였습니다.`);
             // 친구 목록 업데이트
-            friends.value = friends.value.filter(friend => friend.id !== id);
+            friends.value = friends.value.filter((friend) => friend.id !== id);
             friendInfoDialog.value = false; // 다이얼로그를 닫습니다.
         })
         .catch((err) => {
@@ -319,16 +329,41 @@ const removeFriend = (id) => {
 };
 
 const saveStatusMessage = () => {
-    userStore.UpdateStatusMessage(newStatusMessage.value)
+    userStore
+        .UpdateStatusMessage(newStatusMessage.value)
         .then((res) => {
             userInfo.value.statusMessage = newStatusMessage.value; // 상태 메시지 업데이트
             editStatusMessage.value = false; // 다이얼로그 닫기
-            console.log('상태 메시지가 업데이트되었습니다.');
+            console.log("상태 메시지가 업데이트되었습니다.");
         })
         .catch((err) => {
-            console.log('상태 메시지 업데이트 실패:', err);
+            console.log("상태 메시지 업데이트 실패:", err);
         });
 };
+
+const userProfilePic = computed(() => {
+    if (userInfo.value.profilePic) {
+        return (
+            import.meta.env.VITE_API_BASE_URL +
+            userInfo.value.profilePic.slice(7, userInfo.value.profilePic.length)
+        );
+    } else {
+        return "@/assets/characters/토니/토니머리.png ";
+    }
+});
+
+const friendProfilePic = computed(() => {
+    for (var i = 0; i < friends.value.length; i++) {
+        if (friends.value[i].profilePic) {
+            return (
+                import.meta.env.VITE_API_BASE_URL +
+                friends.value[i].profilePic.slice(7, friends.value[i].profilePic.length)
+            );
+        } else {
+            return "@/assets/characters/토니/토니머리.png ";
+        }
+    }
+});
 </script>
 
 <style scoped>
@@ -358,7 +393,7 @@ const saveStatusMessage = () => {
 
 .my-status {
     flex: 0 0 20%;
-    background: #FFF9E0;
+    background: #fff9e0;
     position: relative;
     padding: 30px;
     border-radius: 30px;
@@ -368,7 +403,7 @@ const saveStatusMessage = () => {
 
 .friend-box {
     flex: 1;
-    background: #FFF9E0;
+    background: #fff9e0;
     position: relative;
     padding: 30px;
     border-radius: 30px;
@@ -384,7 +419,7 @@ const saveStatusMessage = () => {
     align-items: center;
     position: sticky;
     top: 0;
-    background: #FFF9E0;
+    background: #fff9e0;
     z-index: 10;
     padding: 10px 0;
 }
@@ -442,7 +477,7 @@ const saveStatusMessage = () => {
 }
 
 .my-status-message-box {
-    background: #F5E5D1;
+    background: #f5e5d1;
     display: flex;
     position: relative;
     padding: 20px 10px;
@@ -495,8 +530,8 @@ const saveStatusMessage = () => {
     padding: 10px 0;
     border-bottom: 0.5px solid #947650;
     opacity: 0.6;
-    -webkit-transition: .2s ease-in-out;
-    transition: .2s ease-in-out;
+    -webkit-transition: 0.2s ease-in-out;
+    transition: 0.2s ease-in-out;
 }
 
 .friend-item:hover {
@@ -505,7 +540,7 @@ const saveStatusMessage = () => {
 
 .add-friend-btn {
     color: #947650;
-    background-color: #F5E5D1;
+    background-color: #f5e5d1;
 }
 
 .my-friends-ele-left {
@@ -536,7 +571,7 @@ const saveStatusMessage = () => {
 }
 
 .friend-status-message {
-    background: #F5E5D1;
+    background: #f5e5d1;
     padding: 10px;
     border-radius: 10px;
     font-size: 15px;
@@ -553,7 +588,7 @@ const saveStatusMessage = () => {
 }
 
 .add-friend-form {
-    background: #FFF9E0;
+    background: #fff9e0;
     color: #947650;
 }
 
@@ -562,7 +597,7 @@ const saveStatusMessage = () => {
 }
 
 .friend-info-form {
-    background: #FFF9E0;
+    background: #fff9e0;
     color: #947650;
 }
 
@@ -666,7 +701,7 @@ button {
     align-items: center;
     position: sticky;
     top: 0;
-    background: #FFF9E0;
+    background: #fff9e0;
     z-index: 10;
     padding: 10px 0;
 }

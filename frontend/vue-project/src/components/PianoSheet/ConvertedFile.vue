@@ -10,14 +10,10 @@
         <span v-if="store.convertedFile?.title">{{ store.convertedFile.title }}</span>
         <!-- 변환된 악보가 없을 때 기본 메시지 표시 -->
         <span v-else>여기에 악보가 만들어집니다.</span>
-        <span v-if="store.convertedFile?.title">
-          <v-icon @click="openModal">mdi-pencil</v-icon>
-        </span>
       </div>
       <div v-if="store.convertedFile?.title">
-        <button @click="saveSheet" v-if="!goDetail" class="button">저장</button>
         <router-link
-          v-if="goDetail"
+          v-if="store.convertedFile"
           :to="`/main/piano-sheet/${store.convertedFile.id}`"
           class="router"
           >악보 바로가기</router-link
@@ -32,19 +28,6 @@ import { ref, onMounted } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
-const goDetail = ref(false);
-
-const openModal = () => {
-  store.isOpen = true;
-};
-
-// 악보 저장
-const saveSheet = () => {
-  // console.log(store.convertedFile.id);
-  store.saveSheet();
-  // console.log(store.convertedFile.id);
-  goDetail.value = true;
-};
 </script>
 
 <style scoped>

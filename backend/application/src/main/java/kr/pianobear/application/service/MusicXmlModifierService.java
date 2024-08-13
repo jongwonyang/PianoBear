@@ -168,44 +168,88 @@ public class MusicXmlModifierService {
             Document doc = dBuilder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
             doc.getDocumentElement().normalize();
 
-            // <note> 요소 출력 및 수정 (계이름 추가)
-            NodeList noteList = doc.getElementsByTagName("note");
+            // <part-list>에서 <part-name>이 "Voice"인 <score-part> 요소를 찾고 삭제
+            NodeList scorePartList = doc.getElementsByTagName("score-part");
+            String partIdToRemove = null;
 
-            for (int i = 0; i < noteList.getLength(); i++) {
-                Node note = noteList.item(i);
-                if (note.getNodeType() == Node.ELEMENT_NODE) {
-                    Element noteElement = (Element) note;
-
-                    NodeList pitchList = noteElement.getElementsByTagName("pitch");
-                    for (int j = 0; j < pitchList.getLength(); j++) {
-                        Element pitch = (Element) pitchList.item(j);
-                        String step = pitch.getElementsByTagName("step").item(0).getTextContent();
-                        String octave = pitch.getElementsByTagName("octave").item(0).getTextContent();
-                        String syllable = noteToSyllable.get(step);
-
-                        if (syllable != null) {
-                            // <lyric> 요소 생성
-                            Element lyric = doc.createElement("lyric");
-                            lyric.setAttribute("default-y", "-60");
-
-                            // <text> 요소 생성
-                            Element text = doc.createElement("text");
-                            text.setAttribute("font-size", "20");
-                            text.setAttribute("font-weight", "bold");
-                            text.setAttribute("color", "#00FF00");
-                            text.setTextContent(syllable + octave);
-
-                            // <lyric> 요소에 <text> 추가
-                            lyric.appendChild(text);
-
-                            // <note> 요소에 <lyric> 추가
-                            noteElement.appendChild(lyric);
+            for (int i = 0; i < scorePartList.getLength(); i++) {
+                Node scorePart = scorePartList.item(i);
+                if (scorePart.getNodeType() == Node.ELEMENT_NODE) {
+                    Element scorePartElement = (Element) scorePart;
+                    NodeList partNameList = scorePartElement.getElementsByTagName("part-name");
+                    if (partNameList.getLength() > 0) {
+                        String partName = partNameList.item(0).getTextContent();
+                        if (partName.equals("Voice")) {
+                            partIdToRemove = scorePartElement.getAttribute("id");
+                            scorePart.getParentNode().removeChild(scorePart);  // <score-part> 삭제
+                            break;
                         }
                     }
                 }
             }
 
-            // Save the modified XML
+            // <part> 태그에서 해당 id를 가진 요소를 삭제
+            if (partIdToRemove != null) {
+                NodeList partList = doc.getElementsByTagName("part");
+                for (int i = 0; i < partList.getLength(); i++) {
+                    Node part = partList.item(i);
+                    if (part.getNodeType() == Node.ELEMENT_NODE) {
+                        Element partElement = (Element) part;
+                        if (partElement.getAttribute("id").equals(partIdToRemove)) {
+                            part.getParentNode().removeChild(part);  // <part> 삭제
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // <note> 요소 출력 및 수정 (계이름 추가)
+            NodeList noteList = doc.getElementsByTagName("note");
+            for (int i = 0; i < noteList.getLength(); i++) {
+                Node note = noteList.item(i);
+                if (note.getNodeType() == Node.ELEMENT_NODE) {
+                    Element noteElement = (Element) note;
+
+                    // 기존에 <lyric> 태그가 있으면 삭제하고 새로 생성
+                    NodeList existingLyricList = noteElement.getElementsByTagName("lyric");
+                    if (existingLyricList.getLength() > 0) {
+                        noteElement.removeChild(existingLyricList.item(0));
+                    }
+
+                    NodeList pitchList = noteElement.getElementsByTagName("pitch");
+                    if (pitchList.getLength() > 0) {
+                        // 새로운 <lyric> 요소 생성
+                        Element lyric = doc.createElement("lyric");
+                        lyric.setAttribute("default-y", "-60");
+
+                        // 각 pitch 요소에 대해 <text> 태그 생성 및 추가
+                        for (int j = 0; j < pitchList.getLength(); j++) {
+                            Element pitch = (Element) pitchList.item(j);
+                            String step = pitch.getElementsByTagName("step").item(0).getTextContent();
+                            String octave = pitch.getElementsByTagName("octave").item(0).getTextContent();
+                            String syllable = noteToSyllable.get(step);
+
+                            if (syllable != null) {
+                                String syllableText = syllable + octave;
+
+                                // <text> 요소 생성
+                                Element newText = doc.createElement("text");
+                                newText.setAttribute("font-size", "10"); // 폰트 크기 설정
+                                newText.setAttribute("color", "#00FF00"); // 글자 색상 설정
+                                newText.setTextContent(syllableText);
+
+                                // <lyric> 요소에 <text> 추가
+                                lyric.appendChild(newText);
+                            }
+                        }
+
+                        // <note> 요소에 <lyric> 추가
+                        noteElement.appendChild(lyric);
+                    }
+                }
+            }
+
+            // 수정된 XML 저장
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -214,7 +258,7 @@ public class MusicXmlModifierService {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             String modifiedXmlContent = writer.getBuffer().toString();
 
-            // 원래 파일 이름으로 저장 (파일명에 _modified 추가하지 않음)
+            // 원래 파일 이름으로 저장
             StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(new DOMSource(doc), result);
         } catch (Exception e) {
