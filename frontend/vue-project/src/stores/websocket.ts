@@ -6,6 +6,8 @@ import { Client } from "@stomp/stompjs";
 import { useUserStore } from "./user";
 
 const REST_CHAT_API = import.meta.env.VITE_API_BASE_URL + "/ws/";
+const REST_NOTIFICATION_API =
+  import.meta.env.VITE_API_BASE_URL + "/notifications/";
 
 export type MessageDTO = {
   id: number;
@@ -23,13 +25,71 @@ export const useWebSocketStore = defineStore("websocket", () => {
   const messages = ref<MessageDTO[]>([]);
   const userStore = useUserStore();
 
+  const notificationCount = ref(0);
+  const notifications = ref([]);
+
+  const accessToken = ref(userStore.GetAccessToken());
+
+  const GetNotificationList = async () => {
+    try {
+      const response = await apiClient.get(REST_NOTIFICATION_API);
+      console.log("response.data", response.data);
+      for (let i = 0; i < response.data.length; i++) {
+        response.data[i].content = JSON.parse(response.data[i].content);
+      }
+      notifications.value = response.data;
+      console.log("notifications.value", notifications.value);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const GetNotificationCount = async () => {
+    try {
+      const response = await apiClient.get(REST_NOTIFICATION_API + "count");
+      notificationCount.value = response.data;
+    } catch (error) {
+      console.error("Error fetching notification count:", error);
+    }
+  };
+
+  const DeleteNotification = async (id: any) => {
+    try {
+      await apiClient.delete(`${REST_NOTIFICATION_API}${id}`);
+      notifications.value = notifications.value.filter(
+        (notification) => notification.id !== id
+      );
+      notificationCount.value -= 1;
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
+
+  const ClearNotifications = async () => {
+    try {
+      await apiClient.delete(REST_NOTIFICATION_API + "clear");
+      notifications.value = [];
+      notificationCount.value = 0;
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+    }
+  };
+
+  const SendNotification = async () => {
+    try {
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
+
   function connectWebSocket() {
     if (stompClient.value && connected.value) {
       return;
     }
 
     const headers = {
-      Authorization: "Bearer " + sessionStorage.getItem("accessToken"),
+      Authorization: "Bearer " + accessToken.value,
     };
 
     const socket = new SockJS(import.meta.env.VITE_API_BASE_URL + "/ws");
@@ -105,12 +165,17 @@ export const useWebSocketStore = defineStore("websocket", () => {
         senderId: userStore.user.id,
       };
 
+      const headers = {
+        Authorization: "Bearer " + accessToken.value,
+      };
+
       console.log("메시지 전송:", message);
       console.log("제이슨변환:", JSON.stringify(message));
 
       stompClient.value.publish({
         destination: `/app/sendMessage`,
         body: JSON.stringify(message),
+        headers: headers,
       });
 
       // 로컬 메시지 리스트에 바로 추가
@@ -144,6 +209,10 @@ export const useWebSocketStore = defineStore("websocket", () => {
   return {
     stompClient,
     connected,
+    GetNotificationList,
+    GetNotificationCount,
+    DeleteNotification,
+    ClearNotifications,
     connectWebSocket,
     disconnectWebSocket,
     enterChatRoom,

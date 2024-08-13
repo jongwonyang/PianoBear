@@ -18,7 +18,8 @@
             @click="router.push({ name: 'pianoSheetList' })"></v-list-item>
           <v-list-item prepend-icon="mdi-video-account" title="놀이터" value="소통방"
             @click="router.push({ name: 'community' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-bell-outline" title="알림" value="알림" @click="showDialog = true"></v-list-item>
+          <v-list-item prepend-icon="mdi-bell-outline" title="알림" :subtitle="notificationCount" value="알림"
+            @click="handleNotificationClick"></v-list-item>
         </v-list>
       </v-navigation-drawer>
     </v-layout>
@@ -98,16 +99,18 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 // import { useNotificationStore } from '@/stores/notification';
 import { useFriendStore } from "@/stores/friend";
+import { useWebSocketStore } from "@/stores/websocket";
 
 const router = useRouter();
 const userStore = useUserStore();
 // const notificationStore = useNotificationStore();
 const friendStore = useFriendStore();
+const webSocketStore = useWebSocketStore();
 
 const userInfo = ref({
   userEmail: "",
@@ -118,12 +121,17 @@ const userInfo = ref({
 const showDialog = ref(false);
 const showConfirmDeleteDialog = ref(false);
 
-// const notifications = notificationStore.notifications;
-// const notificationCount = notificationStore.notificationCount;
+const notifications = ref([]);
+const notificationCount = ref(0);
 
 const isRail = ref(true);
 import largeLogo from "@/assets/logo.png";
 import smallLogo from "@/assets/characters/thf.png";
+
+const handleNotificationClick = () => {
+  showDialog.value = true;
+  webSocketStore.GetNotificationList();
+};
 
 onMounted(() => {
   userStore
@@ -137,14 +145,28 @@ onMounted(() => {
       console.log(err);
     });
 
-  // 알림 목록과 개수 가져오기
-  // notificationStore.GetNotificationList();
 
-  // notificationStore.GetNotificationCount();
 
   // SSE 연결 설정
   // notificationStore.SubscribeToNotifications();
 });
+
+// watch를 사용하여 webSocketStore.notifications와 notificationCount 변화를 감지
+watch(
+  () => webSocketStore.notifications,
+  (newNotifications) => {
+    notifications.value = newNotifications;
+    console.log("알림 목록이 업데이트되었습니다:", notifications.value);
+  }
+);
+
+watch(
+  () => webSocketStore.notificationCount,
+  (newCount) => {
+    notificationCount.value = newCount;
+    console.log("알림 개수가 업데이트되었습니다:", notificationCount.value);
+  }
+);
 
 // const clearAllNotifications = () => {
 //   notificationStore.ClearNotifications();
