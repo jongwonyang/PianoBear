@@ -159,10 +159,11 @@
       ></div>
       <button
         class="add-to-me-button bg-blue-500 rounded-full p-3 font-medium hover:bg-blue-400 text-white font-bold flex items-center justify-center disabled:bg-zinc-400 mb-4"
-        :disabled="!isCompleted"
+        :disabled="!isCompleted || isAdding"
         @click="handleAddToMe"
       >
         <svg
+          v-if="!isAdding"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -176,6 +177,22 @@
             d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
           />
         </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-6 mr-2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+          />
+        </svg>
+
         내 악보에 추가
       </button>
       <div class="font-bold text-2xl mb-2 flex items-center">
@@ -238,7 +255,10 @@
         />
         <div class="flex flex-row items-center">
           <midi-player sound-font ref="midiPlayer" class="w-100 mr-2" />
-          <button class="rounded-full bg-white/50 !border-2 my-border p-4 hover:bg-white/60" @click="downloadMidi">
+          <button
+            class="rounded-full bg-white/50 !border-2 my-border p-4 hover:bg-white/60"
+            @click="downloadMidi"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -278,11 +298,12 @@ const midiVisualizer = ref(null);
 const isProcessing = ref(false);
 const isCompleted = ref(false);
 const selectedInst = ref(1);
-const pianoMxlPathRef = ref('');
-const allMidiUrl = ref('');
-const pianoMidiUrl = ref('');
-const otherMidiUrl = ref('');
-const saveTitle = ref('');
+const pianoMxlPathRef = ref("");
+const allMidiUrl = ref("");
+const pianoMidiUrl = ref("");
+const otherMidiUrl = ref("");
+const saveTitle = ref("");
+const isAdding = ref(false);
 
 let osmd = null;
 
@@ -335,7 +356,7 @@ const uploadFile = async () => {
   if (!file.value) return;
 
   isProcessing.value = true;
-  saveTitle.value = file.value.name.split('.').slice(0, -1).join('.');
+  saveTitle.value = file.value.name.split(".").slice(0, -1).join(".");
 
   const formData = new FormData();
   formData.append("audioFile", file.value);
@@ -350,7 +371,7 @@ const uploadFile = async () => {
   const otherMidiPath = uploadResp.data["other_inst_midi"];
 
   pianoMxlPathRef.value = pianoMxlPath;
- 
+
   downloadFile(pianoMxlPath)
     .then((res) => JSZip.loadAsync(res.data))
     .then((zip) => {
@@ -410,32 +431,34 @@ const changeInst = (to) => {
 };
 
 const handleAddToMe = () => {
+  isAdding.value = true;
+
   const title = prompt("저장할 제목을 입력하세요.", saveTitle.value);
 
-  addToMe(pianoMxlPathRef.value, title)
-    .then(res => {
-      if (res.status === 200) {
-        alert("내 악보에 추가되었습니다.");
-      }
-    });
-}
+  addToMe(pianoMxlPathRef.value, title).then((res) => {
+    if (res.status === 200) {
+      alert("내 악보에 추가되었습니다.");
+      isAdding.value = false;
+    }
+  });
+};
 
 const downloadMidi = () => {
-  const a = document.createElement('a');
+  const a = document.createElement("a");
 
   if (selectedInst.value === 1) {
     a.href = allMidiUrl.value;
-    a.download = 'all.mid';
+    a.download = "all.mid";
   } else if (selectedInst.value === 2) {
     a.href = pianoMidiUrl.value;
-    a.download = 'piano.mid';
+    a.download = "piano.mid";
   } else if (selectedInst.value === 3) {
     a.href = otherMidiUrl.value;
-    a.download = 'other.mid';
+    a.download = "other.mid";
   }
 
   a.click();
-}
+};
 </script>
 
 <style scoped>
