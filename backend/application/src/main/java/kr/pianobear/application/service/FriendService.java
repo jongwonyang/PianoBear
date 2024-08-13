@@ -70,7 +70,10 @@ public class FriendService {
                 friendRequestRepository.delete(friendRequest);
 
                 // 알림 생성 및 전송
-                String content = String.format("%s 님과 친구가 되었습니다!!", sender.getName());
+                String content = String.format("{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\", \"message\":\"%s\"}",
+                        sender.getId(), sender.getName(),
+                        sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "",
+                        "친구 요청이 수락되었습니다.");
                 notificationService.createNotification(receiver, "FRIEND_ACCEPTED", content);
             }
         }
@@ -90,13 +93,10 @@ public class FriendService {
             if (requestOpt.isPresent()) {
                 FriendRequest friendRequest = requestOpt.get();
                 friendRequestRepository.delete(friendRequest);
-
-                // 알림 생성 및 전송
-                String content = "친구 추가 요청이 거절되었습니다.";
-                notificationService.createNotification(friendRequest.getSender(), "FRIEND_REJECTED", content);
             }
         }
     }
+
 
     public List<FriendDTO> getSentFriendRequests(String senderId) {
         Optional<Member> senderOpt = memberRepository.findById(senderId);

@@ -3,14 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>피아노배어 인증 메일</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+        }
+    </style>
 </head>
 <body>
-<h1>피아노배어 인증 메일입니다.</h1>
-<h2>아래 링크를 클릭해 인증을 진행해주세요.</h2>
-<p>
-    <a th:href="${verificationUrl}">인증 링크</a>
-</p>
-<p>인증 링크는 5분간 유효합니다.</p>
-
+<div class="container">
+    <h1>피아노배어 인증 메일입니다.</h1>
+    <h2>아래 링크를 클릭해 인증을 진행해주세요.</h2>
+    <p>
+        <a th:href="${verificationUrl}">인증 링크</a>
+    </p>
+    <p>인증 링크는 5분간 유효합니다.</p>
+</div>
 </body>
 </html>

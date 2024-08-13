@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div>
-      <button class="prev" @click="downCount" v-if="canGoBack"></button>
+      <button class="prev" @click="downCount" :class="{ disabled: !canGoBack }"></button>
     </div>
     <div class="page">
       <div v-for="pageIndex in 2" :key="pageIndex" class="line">
@@ -17,7 +17,6 @@
             >
               <div class="book">
                 <img src="@/assets/images/blur.png" alt="Book Image" />
-                <!-- <img :src="imageUrl" alt="Music" v-if="imageUrl" /> -->
               </div>
             </router-link>
           </div>
@@ -38,7 +37,7 @@
       </div>
     </div>
     <div>
-      <button class="next" @click="upCount" v-if="canGoForward"></button>
+      <button class="next" @click="upCount" :class="{ disabled: !canGoForward }"></button>
     </div>
   </div>
 </template>
@@ -51,24 +50,6 @@ const store = usePianoSheetStore();
 const bookCount = ref<number>(0);
 const pageCount = ref<number>(0);
 const currentSortOption = ref<number>(0);
-
-const maxCount = computed<number>(() => Math.floor((store.userSheetList.length - 1) / 10));
-const canGoBack = computed<boolean>(() => bookCount.value > 0);
-const canGoForward = computed<boolean>(() => maxCount.value > pageCount.value);
-
-const downCount = (): void => {
-  if (canGoBack.value) {
-    bookCount.value -= 2;
-    pageCount.value -= 1;
-  }
-};
-
-const upCount = (): void => {
-  if (canGoForward.value) {
-    bookCount.value += 2;
-    pageCount.value += 1;
-  }
-};
 
 const basicFavoriteList = computed(() => store.basicFavoriteList);
 const basicPracticeList = computed(() => store.basicPracticeList);
@@ -95,6 +76,29 @@ const currentList = computed(() => {
   return list;
 });
 
+// 최대 페이지 수 계산
+const maxPageCount = computed<number>(() => Math.ceil(currentList.value.length / 10) - 1);
+
+// 이전 버튼 활성화 여부
+const canGoBack = computed<boolean>(() => bookCount.value > 0);
+
+// 다음 버튼 활성화 여부
+const canGoForward = computed<boolean>(() => pageCount.value < maxPageCount.value);
+
+const downCount = (): void => {
+  if (canGoBack.value) {
+    bookCount.value -= 2;
+    pageCount.value -= 1;
+  }
+};
+
+const upCount = (): void => {
+  if (canGoForward.value) {
+    bookCount.value += 2;
+    pageCount.value += 1;
+  }
+};
+
 // props로 전달받은 sortOption
 const props = defineProps<{ sortOption: number }>();
 
@@ -108,71 +112,55 @@ watch(
 
 <style scoped>
 .bookshelf1 {
-  flex-direction: column;
-  width: 70vw;
-  height: 27vh;
   background-color: #d2b48c;
-  padding: 5vh;
 }
 
 .bookshelf2 {
-  flex-direction: column;
-  width: 70vw;
-  height: 27vh;
   background-color: #e8c8a0;
-  padding: 5vh;
 }
 
 .shelf {
-  display: flex;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5개의 열을 생성 */
+  gap: 2vw; /* 책 사이의 간격 */
+  padding-left: 2vw;
+  padding-top: 5vh;
+  width: 70vw;
+  height: 28vh;
 }
 
 .support {
-  display: flex;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5개의 열을 생성 */
+  gap: 2vw; /* 타이틀 사이의 간격 */
+  padding-left: 2vw;
 }
 
 .book {
-  width: 9vw;
-  height: 20.75vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 10vw;
   transition: all 0.3s linear; /* 악보 천천히 커지게 하는 효과 */
-  margin-left: 2vw;
-  margin-right: 2vw;
 }
 
 .title {
-  width: 9vw;
+  width: 10vw;
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin-left: 2vw;
-  margin-right: 2vw;
 }
 
 .book:hover {
-  transform: scale(1.1); /* 악보 키우는 효과 */
+  transform: scale(1.05); /* 악보 키우는 효과 */
 }
 
 .support1 {
   background-color: #e8c8a0;
-  padding: 0.5vh;
-  width: 70vw;
+  padding-top: 0.5vh;
   height: 4vh;
-  flex-direction: column;
-  padding-left: 2.6vw;
 }
 
 .support2 {
   background-color: #d2b48c;
-  padding: 0.5vh;
-  width: 70vw;
+  padding-top: 0.5vh;
   height: 4vh;
-  flex-direction: column;
-  padding-left: 2.6vw;
 }
 
 .router {
@@ -190,19 +178,25 @@ watch(
   box-shadow: 0.1vw 0.4vh 0.8vh gray;
 }
 
-.prev {
-  border-bottom: 3vh solid transparent;
-  border-top: 3vh solid transparent;
-  border-left: 2vw solid transparent;
-  border-right: 2vw solid #a48253;
-  margin-right: 3vw;
-}
-
+.prev,
 .next {
   border-bottom: 3vh solid transparent;
   border-top: 3vh solid transparent;
+  margin: 0 3vw;
+}
+
+.prev {
+  border-left: 2vw solid transparent;
+  border-right: 2vw solid #a48253;
+}
+
+.next {
   border-left: 2vw solid #a48253;
   border-right: 2vw solid transparent;
-  margin-left: 3vw;
+}
+
+.prev.disabled,
+.next.disabled {
+  visibility: hidden;
 }
 </style>
