@@ -12,7 +12,7 @@
       </div>
       <div class="score">
         <div>악보 제목</div>
-        <div>점수(화려하게)</div>
+        <div>{{ result }} 점</div>
       </div>
       <div class="buttons">
         <button @click="share">공유하기</button>
@@ -23,20 +23,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 import { useRoute, useRouter } from "vue-router";
 
 const store = usePianoSheetStore();
 const route = useRoute();
-
+const result = computed(() => {
+  console.log(store.resultChallenge.grade)
+  return store.resultChallenge?.grade;
+});
 const closeModal = () => {
   store.isResultModalOpen = false;
 };
 
 const share = () => {
-  
+
 }
+
+
 </script>
 
 <style scoped>
@@ -45,10 +50,11 @@ const share = () => {
   box-shadow: 0.1vw 0.4vh 0.8vh gray;
   width: 32vw;
   height: 75vh;
-  padding: 10%;
+  padding: 3.6vw;
   display: flex;
   justify-content: center;
-  position: fixed; /* Make modal stay in place */
+  position: fixed;
+  /* Make modal stay in place */
   top: 0;
   left: 0;
   right: 0;
@@ -79,6 +85,7 @@ const share = () => {
   display: grid;
   justify-content: center;
   padding: 7vh;
+  text-align: center;
 }
 
 .buttons {
