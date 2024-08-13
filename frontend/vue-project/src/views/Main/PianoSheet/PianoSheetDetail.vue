@@ -1,10 +1,13 @@
 <template>
   <div>
-    <div>
-      {{ store.detailSheet?.title }}
-    </div>
-    <div>
-      <button @click="makeImg">악보 이미지 만들기</button>
+    <div class="head">
+      <div class="title">
+        {{ store.detailSheet?.title }}
+        <v-icon @click="openModal">mdi-pencil</v-icon>
+      </div>
+      <div class="make">
+        <button @click="makeImg">표지 만들기</button>
+      </div>
     </div>
     <div class="container">
       <div class="left">
@@ -18,6 +21,9 @@
       </div>
     </div>
   </div>
+
+  <!-- 모달이 필요할 때만 표시 -->
+  <EditSheetModal v-if="store.isOpen" />
 </template>
 
 <script setup lang="ts">
@@ -25,6 +31,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import PianoSheet from "@/components/PianoSheet/PianoSheet.vue";
 import DetailPractice from "@/components/PianoSheet/DetailPractice.vue";
+import EditSheetModal from "@/components/PianoSheet/EditSheetModal.vue";
 import Buttons from "@/components/PianoSheet/Buttons.vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
@@ -32,10 +39,12 @@ const route = useRoute();
 const store = usePianoSheetStore();
 const id = ref<number | null>(null);
 
+const openModal = () => {
+  store.isOpen = true;
+};
+
 const makeImg = async () => {
   if (id.value !== null) {
-    console.log("클릭됨");
-    console.log(id.value);
     await store.makeImg(id.value);
   } else {
     console.error("ID is null, cannot make image.");
@@ -71,5 +80,33 @@ onMounted(() => {
 
 .detail {
   margin-bottom: 20px;
+}
+
+.title {
+  background-color: #fffff8;
+  color: #947650;
+  height: 6vh;
+  align-content: center;
+  padding-left: 1vw;
+  padding-right: 1vw;
+  border-radius: 5%;
+}
+
+.make {
+  background-color: #fffff8;
+  color: #947650;
+  height: 6vh;
+  align-content: center;
+  margin-left: 1vw;
+  padding-left: 1vw;
+  padding-right: 1vw;
+  border-radius: 5%;
+}
+
+.head {
+  display: flex;
+  justify-content: start;
+  font-size: larger;
+  font-weight: bold;
 }
 </style>

@@ -21,7 +21,6 @@
       <div class="upload">
         <router-link to="/main/piano-sheet/upload">
           <button>악보업로드</button>
-          <!-- <v-btn variant="tonal" height="7vh" color="#81C784" size="x-large"> 악보 업로드 </v-btn> -->
         </router-link>
       </div>
       <div>
@@ -83,9 +82,9 @@ onMounted(async () => {
   color: #73796e;
   height: 8vh;
   width: 12vw;
-  font-size: large;
+  font-size: 130%;
   font-weight: bold;
-  border-radius: 10%;
+  border-radius: 5%;
   box-shadow: 0.2vw 0.3vh 0.6vh gray;
   margin-top: 1.5vh;
 }

@@ -17,6 +17,7 @@ export interface BasicSheet {
   favoriteP: boolean;
   artistP: string;
   highestScoreP: number;
+  userId: string;
 }
 
 // 사용자 악보
@@ -65,21 +66,28 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 기본 악보 목록을 가져오는 함수
   const basicSheetListfun = async (): Promise<void> => {
     try {
-      const response = await apiClient.get<BasicSheet[]>(REST_PIANOSHEET_API);
+      const response = await apiClient.get<BasicSheet[]>(
+        `${REST_PIANOSHEET_API}/user-or-default`
+      );
       const data = response.data;
 
+      // userId가 존재하는 데이터만 필터링
+      const filteredData = data.filter((sheet) => !sheet.userId);
+
       // 연습량 기준으로 정렬
-      basicPracticeList.value = [...data].sort(
+      basicPracticeList.value = [...filteredData].sort(
         (a, b) => b.practiceCountP - a.practiceCountP
       );
 
       // 즐겨찾기 기준으로 정렬
-      const favorites = data.filter((sheet) => sheet.favoriteP);
-      const nonFavorites = data.filter((sheet) => !sheet.favoriteP);
+      const favorites = filteredData.filter((sheet) => sheet.favoriteP);
+      const nonFavorites = filteredData.filter((sheet) => !sheet.favoriteP);
       basicFavoriteList.value = [...favorites, ...nonFavorites];
 
-      basicSheetList.value = data;
-      console.log("응답 데이터:", data);
+      // 전체 필터링된 리스트를 저장
+      basicSheetList.value = filteredData;
+
+      console.log("필터링된 응답 데이터:", filteredData);
     } catch (error) {
       console.error("악보 목록 가져오기 실패!", error);
     }
@@ -138,22 +146,30 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     }
   };
 
-  // 변환된 악보 저장
-  const saveSheet = async (): Promise<void> => {
-    if (!convertedFile.value) {
-      alert("변환된 악보가 없습니다.");
+  // 변환된 악보 수정
+  const editSheet = async (editTitle: string): Promise<void> => {
+    if (!detailSheet.value) {
       return;
     }
 
     try {
+      const sheetId = detailSheet.value.id;
+      console.log(sheetId);
+      console.log(editTitle);
       const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/save`,
-        convertedFile.value
+        `${REST_PIANOSHEET_API}/${sheetId}/edit`,
+        null,
+        {
+          params: {
+            id: sheetId,
+            title: editTitle,
+          },
+        }
       );
-      console.log("변환된 악보", convertedFile.value);
-      console.log("저장된 정보", response.data);
+      detailSheet.value.title = editTitle;
+      console.log(response.data);
     } catch (error) {
-      console.error("악보 저장 실패ㅠ", error);
+      console.error("악보 수정 실패", error);
     }
   };
 
@@ -234,9 +250,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       for (var i = 0; i < practiceData.value.length; i++) {
         practiceCountSum.value += practiceData.value[i].practiceCount;
       }
-
-      // console.log(practiceData.value);
-      // console.log(practiceCountSum.value);
     } catch (error) {
       console.error("기록 불러오기 실패", error);
     }
@@ -250,7 +263,9 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const userSheetListfun = async (): Promise<void> => {
     try {
-      const response = await apiClient.get<UserSheet[]>(REST_PIANOSHEET_API);
+      const response = await apiClient.get<UserSheet[]>(
+        `${REST_PIANOSHEET_API}/user-or-default`
+      );
       const data = response.data;
 
       // 각 악보의 총 연습량 계산
@@ -283,7 +298,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       // 전체 목록 저장
       userSheetList.value = data;
 
-      console.log("응답 데이터:", data); // 응답 데이터 확인
+      console.log("응답 데이터:", userSheetList.value[0]); // 응답 데이터 확인
     } catch (error) {
       console.error("악보 목록 가져오기 실패!", error);
     }
@@ -359,18 +374,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       throw error;
     }
   };
-  // 썸네일
-  const makeImg = async (id: number) => {
-    try {
-      console.log("요청보냄");
-      const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/${id}/generate-image`
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   // 연습하기
   const practicePostfun = async (id: number): Promise<void> => {
@@ -415,6 +418,30 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 검색어
   const searchText = ref<string>("");
 
+  const makeImg = async (id: number) => {
+    try {
+      console.log("요청보냄");
+      const response = await apiClient.post(
+        `${REST_PIANOSHEET_API}/${id}/generate-image`
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveMakedImg = async (id: number) => {
+    try {
+      const response = await apiClient.get(
+        `${REST_PIANOSHEET_API}/${id}/download-music-img`
+      );
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return {
     basicSheetList,
     basicPracticeList,
@@ -435,7 +462,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     convertFilefun,
     modifySheetForm,
     isOpen,
-    saveSheet,
+    editSheet,
     practiceData,
     practiceDatafun,
     detailSheet,
@@ -450,6 +477,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     challengefun,
     mxlModifiedLoadfun,
     makeImg,
+    saveMakedImg,
     resultChallenge,
     clearResult,
   };
