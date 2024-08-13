@@ -6,7 +6,7 @@
         <div v-if="isLoading.profile" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
-        <img v-else class="profile-image" :src="profileImgSrc" />
+        <img v-else class="profile-image" :src="userProfilePic" />
         <div class="profile-info">
           <!-- 편집 버튼 -->
           <v-dialog v-model="profileDialogOpen" max-width="500">
@@ -267,7 +267,7 @@ onMounted(() => {
   webSocketStore.connectWebSocket();
 });
 
-const profileImgSrc = computed(() => {
+const userProfilePic = computed(() => {
   if (userInfo.value.profileImage) {
     return (
       import.meta.env.VITE_API_BASE_URL +

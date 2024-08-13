@@ -7,24 +7,19 @@
         @update:searchText="updateSort"
       />
     </div>
-    <div class="container">
-      <div class="card">
-        <div class="tabs">
-          <Tabs :currentTab="currentTab" @update:currentTab="setCurrentTab" />
-        </div>
-        <div>
-          <component :is="currentTabComponent" :sortOption="currentSortOption" />
-        </div>
-      </div>
+
+    <div class="tabs">
+      <Tabs :currentTab="currentTab" @update:currentTab="setCurrentTab" />
     </div>
+    <div>
+      <component :is="currentTabComponent" :sortOption="currentSortOption" />
+    </div>
+
     <div>
       <div class="upload">
         <router-link to="/main/piano-sheet/upload">
           <button>악보업로드</button>
         </router-link>
-      </div>
-      <div>
-        <img src="@/assets/characters/토니/토니응원.png" alt="" class="bottom" />
       </div>
     </div>
   </div>
@@ -55,13 +50,6 @@ const currentTabComponent = computed(() => {
   return currentTab.value === "UserSheet" ? UserSheet : BasicSheet;
 });
 
-// const musicImg = computed(() => {
-//   return (
-//     import.meta.env.VITE_API_BASE_URL +
-//     store.userSheetList.musicImg.slice(7, store.userSheetList.musicImg.length)
-//   );
-// });
-
 onMounted(() => {
   const savedSortOption = store.sortOption;
   if (savedSortOption) {
@@ -86,7 +74,7 @@ onMounted(async () => {
   font-weight: bold;
   border-radius: 5%;
   box-shadow: 0.2vw 0.3vh 0.6vh gray;
-  margin-top: 1.5vh;
+  /* margin-top: 0.5vh; */
 }
 
 .searchbar {
@@ -102,10 +90,6 @@ onMounted(async () => {
 }
 
 .tabs {
-  margin-left: 8vw;
-}
-
-.bottom {
-  width: 5vw;
+  margin-left: 10vw;
 }
 </style>

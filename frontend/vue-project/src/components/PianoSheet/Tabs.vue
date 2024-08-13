@@ -52,13 +52,11 @@ const setCurrentTab = (tabName: string) => {
 <style scoped>
 img {
   width: 8vw;
-  /* height: 15vh; */
-  margin-top: 2vw;
+  margin-top: 3vw;
 }
 
 .v-tab.active img {
   margin-top: 0vw;
   width: 8vw;
-  /* height: 15vh; */
 }
 </style>
