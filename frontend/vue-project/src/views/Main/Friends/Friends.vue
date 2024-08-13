@@ -358,7 +358,7 @@ const userProfilePic = computed(() => {
       userInfo.value.profilePic.slice(7, userInfo.value.profilePic.length)
     );
   } else {
-    return "@/assets/characters/토니/토니머리.png ";
+    return "src/assets/characters/토니/토니머리.png ";
   }
 });
 
@@ -370,7 +370,7 @@ const friendProfilePic = computed(() => {
         friends.value[i].profilePic.slice(7, friends.value[i].profilePic.length)
       );
     } else {
-      return "@/assets/characters/토니/토니머리.png ";
+      return "src/assets/characters/토니/토니머리.png ";
     }
   }
 });
