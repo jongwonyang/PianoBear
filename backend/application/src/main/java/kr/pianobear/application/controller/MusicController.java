@@ -85,7 +85,7 @@ public class MusicController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "찜하기", description = "악보를 찜합니다.")
+    @Operation(summary = "찜하기/찜 해제", description = "악보를 찜하거나 찜을 해제합니다.")
     @PostMapping("/{id}/favorite")
     public ResponseEntity<Void> favoriteMusic(@PathVariable int id, @RequestParam boolean favorite) {
         musicService.favoriteMusic(id, favorite);
