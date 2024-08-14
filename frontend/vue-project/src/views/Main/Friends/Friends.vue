@@ -13,7 +13,7 @@
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
               <div class="my-status-message-box">
-                <md-elevation></md-elevation>
+                <mdvation></mdvation>
                 <div class="my-status-message">
                   {{ userInfo.statusMessage }}
                 </div>
@@ -45,6 +45,34 @@
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
         <div v-else class="my-friends-ele">
+          <div
+            class="friend-item"
+            v-for="friend in friends"
+            :key="friend.id"
+            @click="viewFriendInfo(friend.id)"
+          >
+            <div class="my-friends-ele-left">
+              <img :src="friend.profilePic" alt="친구 img" />
+            </div>
+            <div class="my-friends-ele-right">
+              <div class="friend-name">{{ friend.name }}</div>
+              <div class="friend-status-message">
+                <md-elevation></md-elevation>
+                {{ friend.statusMessage }}
+              </div>
+            </div>
+          </div>
+          <v-divider></v-divider>
+        </div>
+      </div>
+    </div>
+    <div class="chat-box">
+      <div class="my-chatting-header">
+        <div class="my-chatting-text">채팅</div>
+      </div>
+      <v-divider></v-divider>
+      <div class="chat-container" v-if="currentChatRoomId">
+        <div class="messages">
           <div
             class="friend-item"
             v-for="friend in friends"
