@@ -255,7 +255,7 @@ const sendMessage = () => {
 
 // 채팅창을 맨 아래로 스크롤하는 함수
 const scrollToBottom = () => {
-  const chatContainer = document.querySelector(".chat-box .messages");
+  const chatContainer = document.querySelector('.chat-box .messages');
   if (chatContainer) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
@@ -523,7 +523,7 @@ const friendProfilePic = computed(() => {
   /* 하단에서의 간격 */
   right: 20px;
   /* 우측에서의 간격 */
-  background-color: #f5e5d1;
+  background-color: #F5E5D1;
   color: #947650;
 }
 
@@ -619,7 +619,7 @@ const friendProfilePic = computed(() => {
 .chat-box {
   flex: 1;
   width: 500px;
-  background: #fff9e0;
+  background: #FFF9E0;
   position: relative;
   border-radius: 30px;
   text-align: center;
@@ -631,6 +631,7 @@ const friendProfilePic = computed(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
+
 }
 
 .messages {
