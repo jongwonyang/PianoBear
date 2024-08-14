@@ -2,6 +2,26 @@
   overflow: auto;
   z-index: 2;
 }
+
+.player-sheet::-webkit-scrollbar {
+  height: 10px;
+  border-radius: 10px;
+}
+
+.player-sheet::-webkit-scrollbar-track {
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(166, 183, 162, 0.621);
+}
+
+.player-sheet::-webkit-scrollbar-thumb {
+  background-color: #e8f5ca;
+  border-radius: 10px;
+  box-shadow: 0 0 5px #888;
+}
+
+.player-sheet::-webkit-scrollbar-thumb:hover {
+  background-color: #c5e3a3;
+}
 .player-cursor {
   z-index: 1;
   width: 17px;
@@ -25,6 +45,31 @@
   position: relative;
   background-color: white;
 }
+
 #osmd-sheet::-webkit-scrollbar {
   display: none;
+}
+
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: rgb(149, 255, 0);
+  border-radius: 5px;
+  /* background-color: rgb(78, 131, 255); */
+  opacity: 0;
+  pointer-events: none;
+  animation: explode 1s ease-out forwards;
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0.5);
+    opacity: 0;
+  }
 }

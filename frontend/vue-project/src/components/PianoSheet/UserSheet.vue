@@ -20,15 +20,11 @@
                 <!-- 이미지가 있을 때 -->
                 <img
                   v-if="book.musicImg"
-                  :src="'http://localhost:7000/api/v1/music/' + book.id + '/download-music-img'"
+                  :src="getMusicImageUrl(book.id) + '/download-music-img'"
                   alt="Book Image"
                 />
                 <!-- 이미지가 없을 때 -->
-                <img
-                  v-else
-                  :src="'http://localhost:7000/api/v1/music/' + 1 + '/download-music-img'"
-                  alt="Default Book Image"
-                />
+                <img v-else src="@/assets/images/blur.png" alt="Default Book Image" />
               </div>
             </router-link>
           </div>
@@ -125,6 +121,10 @@ watch(
     currentSortOption.value = newSortOption;
   }
 );
+
+const getMusicImageUrl = (bookId: number) => {
+  return `${import.meta.env.VITE_API_BASE_URL}/music/${bookId}`;
+};
 </script>
 
 <style scoped>

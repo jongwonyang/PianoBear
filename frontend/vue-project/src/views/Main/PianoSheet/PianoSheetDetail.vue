@@ -9,6 +9,15 @@
         <button @click="makeImg">표지 만들기</button>
       </div>
     </div>
+    <div class="btn">
+      <button class="cursor-pointer duration-200 hover:scale-125 active:scale-100" title="Go Back"
+        @click="router.push('/main/piano-sheet')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24" class="goBack">
+          <path stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" d="M11 6L5 12M5 12L11 18M5 12H19">
+          </path>
+        </svg>
+      </button>
+    </div>
     <div class="container">
       <div class="left">
         <PianoSheet />
@@ -36,7 +45,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import PianoSheet from "@/components/PianoSheet/PianoSheet.vue";
 import DetailPractice from "@/components/PianoSheet/DetailPractice.vue";
 import EditSheetModal from "@/components/PianoSheet/EditSheetModal.vue";
@@ -44,6 +53,7 @@ import Buttons from "@/components/PianoSheet/Buttons.vue";
 import { usePianoSheetStore } from "@/stores/pianosheet";
 
 const route = useRoute();
+const router = useRouter();
 const store = usePianoSheetStore();
 const id = ref<number | null>(null);
 const loading = ref(false);
@@ -133,11 +143,13 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.8); /* 반투명 배경 */
+  background: rgba(255, 255, 255, 0.8);
+  /* 반투명 배경 */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* 다른 요소 위에 오도록 z-index 설정 */
+  z-index: 9999;
+  /* 다른 요소 위에 오도록 z-index 설정 */
 }
 
 .loader {
@@ -178,6 +190,7 @@ onMounted(() => {
 }
 
 @keyframes slide {
+
   0%,
   100% {
     bottom: -35px;
@@ -211,9 +224,22 @@ onMounted(() => {
 
 .loading-container {
   display: flex;
-  align-items: center; /* 세로축 가운데 정렬 */
-  justify-content: center; /* 가로축 가운데 정렬 */
-  height: 100vh; /* 전체 화면 높이 */
+  align-items: center;
+  /* 세로축 가운데 정렬 */
+  justify-content: center;
+  /* 가로축 가운데 정렬 */
+  height: 100vh;
+  /* 전체 화면 높이 */
   text-align: center;
+}
+
+.goBack {
+  stroke: black;
+}
+
+.btn {
+  position: absolute;
+  top: 8vh;
+  left: 18vw;
 }
 </style>
