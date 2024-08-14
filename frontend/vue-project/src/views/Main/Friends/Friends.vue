@@ -8,7 +8,7 @@
         </div>
         <div v-else>
           <div class="my-status-box">
-            <img class="my-status-image" :src="userInfo.profilePic" />
+            <img class="my-status-image" :src="userProfilePic" />
             <div class="my-status-ele">
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
@@ -38,7 +38,7 @@
         <div v-else class="my-friends-ele">
           <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
             <div class="my-friends-ele-left">
-              <img :src="friend.profilePic" alt="친구 img" />
+              <img :src="friendProfilePic" alt="친구 img" />
             </div>
             <div class="my-friends-ele-right">
               <div class="friend-name">{{ friend.name }}</div>
@@ -164,6 +164,7 @@ import { onMounted, ref, nextTick, computed } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useFriendStore } from "@/stores/friend";
 import { useWebSocketStore } from "@/stores/websocket";
+import { useRouter } from "vue-router";
 
 const userInfo = ref({});
 const isLoading = ref({
@@ -179,6 +180,7 @@ const newMessage = ref(""); // 새 메시지 입력 필드
 const userStore = useUserStore();
 const friendStore = useFriendStore();
 const webSocketStore = useWebSocketStore();
+const router = useRouter();
 
 const showDialog = ref(false);
 const friendInfoDialog = ref(false);
@@ -201,6 +203,12 @@ onMounted(() => {
       userInfo.value = userStore.user;
       console.log(userInfo.value);
       isLoading.value.userInfo = false;
+
+      // 쿼리 매개변수를 통해 받은 friendId로 채팅 시작
+      const chatWith = router.currentRoute.value.query.chatWith;
+      if (chatWith) {
+        startChatting(chatWith);
+      }
     })
     .catch((err) => {
       console.log(err);

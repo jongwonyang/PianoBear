@@ -202,7 +202,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
   const subscribeToNotifications = () => {
     if (stompClient.value && connected.value) {
       const subscription = stompClient.value.subscribe(
-        `/topic/queue/notifications`,
+        `/user/queue/notifications`,
         (message) => {
           const notification = JSON.parse(message.body);
           notifications.value.push(notification);
