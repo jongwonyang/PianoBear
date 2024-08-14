@@ -87,13 +87,14 @@ function createRenderer(options) {
     {
       breaks: options.horizontal ? "none" : "smart",
       spacingNonLinear: options.horizontal ? 1.0 : undefined,
-      spacingLinear: options.horizontal ? 0.04 : undefined,
+      spacingLinear: options.horizontal ? 0.1 : undefined,
       fingeringScale: 0.6,
       justificationBracketGroup: 5,
       scale: 60,
     },
     {
       scrollOffset: 100,
+      noTitle: true,
     }
   );
 }

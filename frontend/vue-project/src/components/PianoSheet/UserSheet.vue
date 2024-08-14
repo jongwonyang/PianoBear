@@ -7,42 +7,26 @@
       <div v-for="pageIndex in 2" :key="pageIndex" class="line">
         <div :class="`bookshelf${pageIndex}`">
           <div class="shelf">
-            <router-link
-              v-for="(book, index) in currentList.filter(
-                (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
-              )"
-              :key="index"
-              :to="`/main/piano-sheet/${book.id}`"
-              class="router"
-              :style="{ gridColumn: (index % 5) + 1 }"
-            >
+            <router-link v-for="(book, index) in currentList.filter(
+              (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
+            )" :key="index" :to="`/main/piano-sheet/${book.id}`" class="router"
+              :style="{ gridColumn: (index % 5) + 1 }">
               <div class="book">
                 <!-- 이미지가 있을 때 -->
-                <img
-                  v-if="book.musicImg"
-                  :src="'http://localhost:7000/api/v1/music/' + book.id + '/download-music-img'"
-                  alt="Book Image"
-                />
+                <img v-if="book.musicImg" :src="'http://localhost:7000/api/v1/music/' + book.id + '/download-music-img'"
+                  alt="Book Image" />
                 <!-- 이미지가 없을 때 -->
-                <img
-                  v-else
-                  :src="'http://localhost:7000/api/v1/music/' + 1 + '/download-music-img'"
-                  alt="Default Book Image"
-                />
+                <img v-else :src="'http://localhost:7000/api/v1/music/' + 1 + '/download-music-img'"
+                  alt="Default Book Image" />
               </div>
             </router-link>
           </div>
         </div>
         <div :class="`support${pageIndex}`">
           <div class="support">
-            <div
-              v-for="(book, index) in currentList.filter(
-                (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
-              )"
-              :key="index"
-              class="title"
-              :style="{ gridColumn: (index % 5) + 1 }"
-            >
+            <div v-for="(book, index) in currentList.filter(
+              (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
+            )" :key="index" class="title" :style="{ gridColumn: (index % 5) + 1 }">
               {{ book.title }}
             </div>
           </div>
@@ -56,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { usePianoSheetStore, type UserSheet } from "@/stores/pianosheet";
 
 const store = usePianoSheetStore();
@@ -125,6 +109,7 @@ watch(
     currentSortOption.value = newSortOption;
   }
 );
+
 </script>
 
 <style scoped>
@@ -138,8 +123,10 @@ watch(
 
 .shelf {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5개의 열을 생성 */
-  gap: 2vw; /* 책 사이의 간격 */
+  grid-template-columns: repeat(5, 1fr);
+  /* 5개의 열을 생성 */
+  gap: 2vw;
+  /* 책 사이의 간격 */
   padding-left: 2vw;
   padding-top: 5vh;
   width: 70vw;
@@ -148,8 +135,10 @@ watch(
 
 .support {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5개의 열을 생성 */
-  gap: 2vw; /* 타이틀 사이의 간격 */
+  grid-template-columns: repeat(5, 1fr);
+  /* 5개의 열을 생성 */
+  gap: 2vw;
+  /* 타이틀 사이의 간격 */
   padding-left: 2vw;
 }
 
@@ -164,8 +153,10 @@ watch(
 }
 
 .book:hover {
-  transform: scale(1.05); /* 악보 키우는 효과 */
-  transition: all 0.3s linear; /* 악보 천천히 커지게 하는 효과 */
+  transform: scale(1.05);
+  /* 악보 키우는 효과 */
+  transition: all 0.3s linear;
+  /* 악보 천천히 커지게 하는 효과 */
 }
 
 .support1 {
