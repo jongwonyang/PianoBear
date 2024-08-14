@@ -18,7 +18,7 @@
     <div>
       <div class="upload">
         <router-link to="/main/piano-sheet/upload">
-          <button>악보업로드</button>
+          <button>악보 업로드</button>
         </router-link>
       </div>
     </div>
@@ -66,7 +66,7 @@ onMounted(async () => {
 <style scoped>
 .upload button {
   float: right;
-  background-color: #ecc491;
+  background-color: #fffff8;
   color: #73796e;
   height: 8vh;
   width: 12vw;
