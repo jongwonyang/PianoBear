@@ -90,6 +90,7 @@ import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, st
 import { usePianoSheetStore } from '@/stores/pianosheet';
 import ChallengeModal from '@/components/PianoSheet/ChallengeModal.vue';
 import Piano from './Piano.vue';
+import { isCallChain } from 'typescript';
 
 // osmdLoadCheck
 // vue 변수
@@ -219,11 +220,6 @@ async function stopRecording(isSuccess) {
     // 도전을 완료하기 전 수행.
     if (!isSuccess) {
         dialog.value = true;
-        stream.value.getTracks().forEach((track) => {
-            track.stop();
-            stream.value.removeTrack(track);
-        })
-        recorder.value.stop();
         recorder.value = null;
         stream.value = null;
         stateChange('rewind')
