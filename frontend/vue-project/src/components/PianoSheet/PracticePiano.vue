@@ -36,7 +36,7 @@
             </div>
             <v-sheet v-if="!props.challenge" id="player" :elevation="1" color="#D9F6D9" :height="36" :width="140">
                 <v-btn-toggle v-model="toggle_one" mandatory shaped>
-                    <v-btn icon="mdi-reload" :width="27" :height="27" class="player" id="rewind" variant="text"
+                    <v-btn icon="mdi-rewind" :width="27" :height="27" class="player" id="rewind" variant="text"
                         @click="stateChange('rewind')"></v-btn>
                     <v-btn icon="mdi-pause" :width="27" :height="27" class="player" id="pause" variant="text"
                         @click="stateChange('pause')"></v-btn>

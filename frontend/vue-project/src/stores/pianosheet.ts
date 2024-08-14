@@ -57,6 +57,14 @@ interface PracticeRecord {
   musicId: number;
 }
 
+interface ChallengeResult {
+  id: number;
+  grade: number;
+  testDate: string;
+  userId: string;
+  musicId: number;
+}
+
 export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 기본 악보 리스트
   const basicSheetList = ref<BasicSheet[]>([]);
@@ -394,7 +402,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 결과 모달창
   // 도전 결과
-  const resultChallenge = ref<Promise<void> | null>();
+  const resultChallenge = ref<ChallengeResult>();
   const isResultModalOpen = ref<Boolean>(false);
   const challengeLoading = ref<Boolean>(false);
   const challengefun = async (id: number, audioBlob: Blob): Promise<void> => {
@@ -402,7 +410,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     const formData = new FormData();
     formData.append("audioFile", audioBlob);
     try {
-      const response = await apiClient.post(
+      const response = await apiClient.post<ChallengeResult>(
         `${REST_PIANOSHEET_API}/test/${id}`,
         formData,
         {
@@ -420,7 +428,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   };
 
   const clearResult = function (): void {
-    resultChallenge.value = null;
+    resultChallenge.value = undefined;
   };
 
   // 정렬기준
@@ -450,6 +458,14 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       );
       console.log(response.data);
       return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const shareChallengefun = async (id: number): Promise<string | undefined> => {
+    try {
+      return `${REST_PIANOSHEET_API}/test/${id}/award`;
     } catch (error) {
       console.error(error);
     }
@@ -497,5 +513,6 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     clearResult,
     challengeLoading,
     makeImgLoading,
+    shareChallengefun,
   };
 });

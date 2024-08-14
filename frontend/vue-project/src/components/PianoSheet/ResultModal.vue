@@ -28,16 +28,25 @@ import { useRoute, useRouter } from "vue-router";
 
 const store = usePianoSheetStore();
 const route = useRoute();
+const htmlContent = ref<string | undefined>();
 const result = computed(() => {
-  console.log(store.resultChallenge.grade)
   return store.resultChallenge?.grade;
 });
 const closeModal = () => {
   store.isResultModalOpen = false;
 };
 
-const share = () => {
+const share = async () => {
+  if (store.resultChallenge) {
+    htmlContent.value = await store.shareChallengefun(store.resultChallenge.id);
 
+    if (htmlContent.value) {
+
+      // Blob 객체 생성
+      // URL.createObjectURL로 Blob URL 생성
+      window.open(htmlContent.value, `_blank`, "width=800,height=600");
+    }
+  }
 }
 
 

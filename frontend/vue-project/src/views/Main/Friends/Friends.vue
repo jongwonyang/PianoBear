@@ -1,61 +1,14 @@
 <template>
-    <div class="friend-container">
-        <div class="left-panel">
-            <div class="my-status">
-                <md-elevation></md-elevation>
-                <div v-if="isLoading.userInfo" class="loading-bar">
-                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
-                </div>
-                <div v-else>
-                    <div class="my-status-box">
-                        <img class="my-status-image" :src="userInfo.profilePic">
-                        <div class="my-status-ele">
-                            <div class="my-name">{{ userInfo.name }}</div>
-                            <!-- 상태 메시지 수정 버튼 -->
-                            <div class="my-status-message-box">
-                                <md-elevation></md-elevation>
-                                <div class="my-status-message">
-                                    {{ userInfo.statusMessage }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <v-btn icon="mdi-pencil-outline" class="edit-status-message" @click="editStatusMessage = true"
-                        density="comfortable"></v-btn>
-                </div>
-            </div>
-            <div class="friend-box">
-                <md-elevation></md-elevation>
-                <div class="my-friends-header">
-                    <div class="my-friends-text">친구들</div>
-                    <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn"
-                        @click="showDialog = true">친구 검색</v-btn>
-                </div>
-                <v-divider></v-divider>
-                <div v-if="isLoading.friendList" class="loading-bar">
-                    <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
-                </div>
-                <div v-else class="my-friends-ele">
-                    <div class="friend-item" v-for="friend in friends" :key="friend.id"
-                        @click="viewFriendInfo(friend.id)">
-                        <div class="my-friends-ele-left">
-                            <img :src="friend.profilePic" alt="친구 img">
-                        </div>
-                        <div class="my-friends-ele-right">
-                            <div class="friend-name">{{ friend.name }}</div>
-                            <div class="friend-status-message">
-                                <md-elevation></md-elevation>
-                                {{ friend.statusMessage }}
-                            </div>
-                        </div>
-                    </div>
-                    <v-divider></v-divider>
-                </div>
-            </div>
+  <div class="friend-container">
+    <div class="left-panel">
+      <div class="my-status">
+        <md-elevation></md-elevation>
+        <div v-if="isLoading.userInfo" class="loading-bar">
+          <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
         <div v-else>
           <div class="my-status-box">
-            <img class="my-status-image" :src="userProfilePic" />
+            <img class="my-status-image" :src="userInfo.profilePic">
             <div class="my-status-ele">
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
@@ -67,95 +20,40 @@
               </div>
             </div>
           </div>
-          <v-btn
-            append-icon="mdi-pencil-outline"
-            size="small"
-            class="edit-status-message"
-            @click="editStatusMessage = true"
-            >상태 수정</v-btn
-          >
+          <v-btn icon="mdi-pencil-outline" class="edit-status-message" @click="editStatusMessage = true"
+            density="comfortable"></v-btn>
         </div>
-
-
-        <!-- 친구 정보 다이얼로그 -->
-        <v-dialog v-model="friendInfoDialog" max-width="500px">
-            <v-card class="friend-info-form">
-                <v-card-title class="headline">친구 정보</v-card-title>
-                <v-card-text v-if="friendInfo">
-                    <div class="friend-item">
-                        <div class="my-friends-ele-left">
-                            <img :src="friendProfilePic" alt="친구 img" />
-                        </div>
-                        <div class="my-friends-ele-right">
-                            <div class="friend-name">{{ friendInfo.name }}</div>
-                            <div class="friend-status-message">
-                                <md-elevation></md-elevation>
-                                {{ friendInfo.statusMessage }}
-                            </div>
-                        </div>
-                    </div>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn text @click="removeFriend(friendInfo.id)" color="red">친구 삭제</v-btn>
-                    <v-btn text @click="startChatting(friendInfo.id)">대화하기</v-btn>
-                    <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <!-- 친구 검색 다이얼로그 -->
-        <v-dialog v-model="showDialog" max-width="500px">
-            <v-card class="add-friend-form">
-                <v-card-title class="headline">친구 검색</v-card-title>
-                <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-                <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
-                <v-card-text v-if="searchResult">
-                    <div class="friend-item">
-                        <div class="my-friends-ele-left">
-                            <img :src="searchResult.profilePic" alt="친구 img" />
-                        </div>
-                        <div class="my-friends-ele-right">
-                            <div class="friend-name">{{ searchResult.name }}</div>
-                            <div class="friend-status-message">
-                                <md-elevation></md-elevation>
-                                {{ searchResult.statusMessage }}
-                            </div>
-                            <v-btn v-if="
-                                !isFriend(searchResult.id) &&
-                                searchResult.id != userInfo.id &&
-                                !searchResultSentRequest
-                            " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
-                            <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
-                            <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
-                            <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
-                        </div>
-                    </div>
-                </v-card-text>
-                <v-btn v-else-if="!searchResult" disabled>찾을 수 없습니다</v-btn>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn text @click="showDialog = false">취소</v-btn>
-                    <v-btn text @click="searchFriend">검색</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <!-- 상태메시지 수정 다이얼로그 -->
-        <v-dialog v-model="editStatusMessage" max-width="500px">
-            <v-card class="edit-status-form">
-                <v-card-title class="headline">상태 메시지 수정</v-card-title>
-                <v-card-text>
-                    <v-text-field label="상태 메시지" v-model="newStatusMessage"
-                        @keyup.enter="saveStatusMessage"></v-text-field>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn text @click="editStatusMessage = false">취소</v-btn>
-                    <v-btn text @click="saveStatusMessage">저장</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+      </div>
+      <div class="friend-box">
+        <md-elevation></md-elevation>
+        <div class="my-friends-header">
+          <div class="my-friends-text">친구들</div>
+          <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn" @click="showDialog = true">친구
+            검색</v-btn>
+        </div>
+        <v-divider></v-divider>
+        <div v-if="isLoading.friendList" class="loading-bar">
+          <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
+        </div>
+        <div v-else class="my-friends-ele">
+          <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
+            <div class="my-friends-ele-left">
+              <img :src="friend.profilePic" alt="친구 img">
+            </div>
+            <div class="my-friends-ele-right">
+              <div class="friend-name">{{ friend.name }}</div>
+              <div class="friend-status-message">
+                <md-elevation></md-elevation>
+                {{ friend.statusMessage }}
+              </div>
+            </div>
+          </div>
+          <v-divider></v-divider>
+        </div>
+      </div>
     </div>
+
+
     <div class="chat-box">
       <div class="my-chatting-header">
         <div class="my-chatting-text">채팅</div>
@@ -163,15 +61,11 @@
       <v-divider></v-divider>
       <div class="chat-container" v-if="currentChatRoomId">
         <div class="messages">
-          <div
-            v-for="(message, index) in messages"
-            :key="index"
-            :class="{
-              message: true,
-              sent: message.senderId === userInfo.id,
-              received: message.senderId !== userInfo.id,
-            }"
-          >
+          <div v-for="(message, index) in messages" :key="index" :class="{
+            message: true,
+            sent: message.senderId === userInfo.id,
+            received: message.senderId !== userInfo.id,
+          }">
             <div class="message-header">
               <strong>{{ message.senderId === userInfo.id ? "나" : receiverId }}:</strong>
               <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
@@ -180,11 +74,7 @@
           </div>
         </div>
         <div class="input-area">
-          <input
-            v-model="newMessage"
-            placeholder="메시지를 입력하세요"
-            @keyup.enter="sendMessage"
-          />
+          <input v-model="newMessage" placeholder="메시지를 입력하세요" @keyup.enter="sendMessage" />
           <button @click="sendMessage">전송</button>
         </div>
       </div>
@@ -222,11 +112,7 @@
       <v-card class="add-friend-form">
         <v-card-title class="headline">친구 검색</v-card-title>
         <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-        <v-text-field
-          label="친구 아이디"
-          v-model="searchQuery"
-          @keyup.enter="searchFriend"
-        ></v-text-field>
+        <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
         <v-card-text v-if="searchResult">
           <div class="friend-item">
             <div class="my-friends-ele-left">
@@ -238,19 +124,12 @@
                 <md-elevation></md-elevation>
                 {{ searchResult.statusMessage }}
               </div>
-              <v-btn
-                v-if="
-                  !isFriend(searchResult.id) &&
-                  searchResult.id != userInfo.id &&
-                  !searchResultSentRequest
-                "
-                class="add-friend-btn"
-                @click="addFriend(searchResult.id)"
-                >추가</v-btn
-              >
-              <v-btn v-else-if="searchResult.id == userInfo.id" disabled
-                >자신은 추가할 수 없습니다</v-btn
-              >
+              <v-btn v-if="
+                !isFriend(searchResult.id) &&
+                searchResult.id != userInfo.id &&
+                !searchResultSentRequest
+              " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
+              <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
               <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
               <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
             </div>
@@ -342,19 +221,19 @@ const startChatting = async (friendId) => {
     webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
       messages.value.push(message);
 
-            // 메시지를 추가할 때 채팅창을 맨 아래로 스크롤
-            scrollToBottom();
-        });
+      // 메시지를 추가할 때 채팅창을 맨 아래로 스크롤
+      scrollToBottom();
+    });
 
-        nextTick(() => {
-            scrollToBottom();
-        });
+    nextTick(() => {
+      scrollToBottom();
+    });
 
-        // 채팅창을 표시하기 위해 다이얼로그를 닫음
-        friendInfoDialog.value = false;
-    } catch (error) {
-        console.error("채팅방을 열지 못했습니다:", error);
-    }
+    // 채팅창을 표시하기 위해 다이얼로그를 닫음
+    friendInfoDialog.value = false;
+  } catch (error) {
+    console.error("채팅방을 열지 못했습니다:", error);
+  }
 };
 
 const sendMessage = () => {
@@ -363,12 +242,12 @@ const sendMessage = () => {
     newMessage.value = ""; // 입력 필드 초기화
     console.log("메시지를 보냈습니다:", messages.value);
 
-        // 메시지를 보낸 후에도 채팅창을 맨 아래로 스크롤
+    // 메시지를 보낸 후에도 채팅창을 맨 아래로 스크롤
 
-        nextTick(() => {
-            scrollToBottom();
-        });
-    }
+    nextTick(() => {
+      scrollToBottom();
+    });
+  }
 };
 
 // onBeforeUnmount(() => {
@@ -377,10 +256,10 @@ const sendMessage = () => {
 
 // 채팅창을 맨 아래로 스크롤하는 함수
 const scrollToBottom = () => {
-    const chatContainer = document.querySelector('.chat-box .messages');
-    if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
+  const chatContainer = document.querySelector('.chat-box .messages');
+  if (chatContainer) {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
 };
 
 const formatTimestamp = (timestamp) => {
@@ -587,10 +466,10 @@ const friendProfilePic = computed(() => {
 }
 
 .my-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: #947650;
-    margin-bottom: 5px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #947650;
+  margin-bottom: 5px;
 }
 
 .my-status-message {
@@ -640,13 +519,13 @@ const friendProfilePic = computed(() => {
 }
 
 .edit-status-message {
-    position: absolute;
-    top: 55px;
-    /* 하단에서의 간격 */
-    right: 20px;
-    /* 우측에서의 간격 */
-    background-color: #F5E5D1;
-    color: #947650;
+  position: absolute;
+  top: 55px;
+  /* 하단에서의 간격 */
+  right: 20px;
+  /* 우측에서의 간격 */
+  background-color: #F5E5D1;
+  color: #947650;
 }
 
 .edit-status-form {
@@ -739,34 +618,34 @@ const friendProfilePic = computed(() => {
 }
 
 .chat-box {
-    flex: 1;
-    width: 500px;
-    background: #FFF9E0;
-    position: relative;
-    border-radius: 30px;
-    text-align: center;
+  flex: 1;
+  width: 500px;
+  background: #FFF9E0;
+  position: relative;
+  border-radius: 30px;
+  text-align: center;
 
-    --md-sys-color-shadow: #947650;
+  --md-sys-color-shadow: #947650;
 }
 
 .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 
 }
 
 .messages {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    overflow-y: auto;
-    scrollbar-width: none;
-    /* 스크롤 활성화 */
-    max-height: calc(100% - 60px);
-    /* 스크롤을 위한 고정된 높이 설정 */
-    padding-bottom: 60px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* 스크롤 활성화 */
+  max-height: calc(100% - 60px);
+  /* 스크롤을 위한 고정된 높이 설정 */
+  padding-bottom: 60px;
 }
 
 .message {
