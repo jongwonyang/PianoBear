@@ -10,6 +10,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,11 +55,16 @@ public class MusicController {
         return ResponseEntity.ok(savedMusic);
     }
 
-    @Operation(summary = "Music 저장", description = "Music 데이터를 저장합니다.")
     @PostMapping("/save")
-    public ResponseEntity<MusicDTO> saveMusic(@RequestBody MusicDTO musicDTO) throws IOException {
-        MusicDTO savedMusic = musicService.saveMusic(musicDTO);
-        return ResponseEntity.ok(savedMusic);
+    public ResponseEntity<?> saveMusic(@RequestBody MusicDTO musicDTO) {
+        try {
+            MusicDTO savedMusic = musicService.saveMusic(musicDTO);
+            return ResponseEntity.ok(savedMusic);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 검증 실패 시 400 Bad Request와 함께 메시지 반환
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File processing failed.");
+        }
     }
 
     @Operation(summary = "모든 악보 불러오기", description = "사용자가 가지고 있는 모든 악보를 불러옵니다.")
@@ -139,7 +145,6 @@ public class MusicController {
         String musicImgPath = musicService.getMusicImgPath(id);
         return ResponseEntity.ok(musicImgPath);
     }
-
 
     @GetMapping("/api/v1/music/{id}/download-music-xml")
     public ResponseEntity<Resource> downloadMusicXml(@PathVariable int id) {
