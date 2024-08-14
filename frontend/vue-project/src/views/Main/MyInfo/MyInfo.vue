@@ -11,13 +11,8 @@
           <!-- 편집 버튼 -->
           <v-dialog v-model="profileDialogOpen" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
-                v-tooltip:bottom="'내 정보 수정'"
-                v-bind="activatorProps"
-                icon="mdi-pencil-outline"
-                class="edit-btn"
-                density="comfortable"
-              ></v-btn>
+              <v-btn v-tooltip:bottom="'내 정보 수정'" v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn"
+                density="comfortable"></v-btn>
             </template>
             <template v-slot:default="{ isActive }">
               <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" />
@@ -51,13 +46,8 @@
         </div>
       </div>
       <div>
-        <v-btn
-          v-tooltip:bottom="'로그아웃'"
-          icon="mdi-account-minus"
-          @click="LogOut"
-          class="logout-btn"
-          density="comfortable"
-        ></v-btn>
+        <v-btn v-tooltip:bottom="'로그아웃'" icon="mdi-account-minus" @click="LogOut" class="logout-btn"
+          density="comfortable"></v-btn>
       </div>
     </div>
 
@@ -65,19 +55,9 @@
       <div class="practice-box">
         <md-elevation></md-elevation>
         <div class="practice-header">
-          <v-btn
-            icon="mdi-menu-left-outline"
-            class="pre-month-btn"
-            density="compact"
-            @click="previousMonth"
-          ></v-btn>
+          <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact" @click="previousMonth"></v-btn>
           <div>{{ currentYear }}년 {{ currentMonth }}월 연습 스티커</div>
-          <v-btn
-            icon="mdi-menu-right-outline"
-            class="next-month-btn"
-            density="compact"
-            @click="nextMonth"
-          ></v-btn>
+          <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact" @click="nextMonth"></v-btn>
         </div>
         <div v-if="isLoading.practice" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
@@ -88,20 +68,12 @@
               <template v-slot:activator="{ props: activatorProps }">
                 <button class="honey-button" v-bind="activatorProps">
                   <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀" />
-                  <v-tooltip activator="parent" location="bottom"
-                    >{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip
-                  >
+                  <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
                 </button>
               </template>
               <template v-slot:default="{ isActive }">
-                <DayPracticeDetail
-                  v-if="isActive"
-                  :month="currentMonth"
-                  :day="index + 1"
-                  :year="currentYear"
-                  :closeDialog="closeDialog"
-                  :index="index"
-                />
+                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :year="currentYear"
+                  :closeDialog="closeDialog" :index="index" />
               </template>
             </v-dialog>
           </template>
@@ -118,14 +90,11 @@
         <div v-else class="online-friend">
           <template v-for="friend in topOnlineFriends" :key="friend.id">
             <div class="friend-box">
-              <div
-                class="friend-image"
-                :style="{ backgroundImage: `url(${friend.profilePic.path})` }"
-              ></div>
+              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic})` }"></div>
               <div class="friend-name">{{ friend.name }}</div>
-              <div class="friend-chat">
-                <v-icon aria-hidden="false"> mdi-chat </v-icon>
-                <v-tooltip activator="parent" location="bottom">채팅하기</v-tooltip>
+              <div>
+                <v-btn class="friend-chat" icon="mdi-chat" v-tooltip:bottom="'채팅하기'"
+                  @click="handleChat(friend.id)"></v-btn>
               </div>
             </div>
             <v-divider></v-divider>
@@ -166,10 +135,18 @@ const userInfo = ref({
   most: ["string"],
 });
 
+const handleChat = (friendId) => {
+  router.push({
+    name: 'friends',
+    query: { chatWith: friendId }
+  });
+};
+
+
 const favoriteMusic = ref(["-", "-", "-"]);
 const practiceRecord = ref([]);
-const currentYear = ref(2023);
-const currentMonth = ref(7);
+const currentYear = ref(2024);
+const currentMonth = ref(8);
 const practiceDays = ref([]);
 const dialogState = ref([]);
 const onlineFriends = ref([]);

@@ -151,10 +151,6 @@ onMounted(() => {
       console.log(err);
     });
 
-  webSocketStore.subscribeToNotifications();
-
-  // SSE 연결 설정
-  // notificationStore.SubscribeToNotifications();
 });
 
 // watch를 사용하여 webSocketStore.notifications와 notificationCount 변화를 감지
