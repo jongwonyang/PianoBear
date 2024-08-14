@@ -8,7 +8,7 @@
         </div>
         <div v-else>
           <div class="my-status-box">
-            <img class="my-status-image" :src="userInfo.profilePic" />
+            <img class="my-status-image" :src="userProfilePic" />
             <div class="my-status-ele">
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
@@ -20,25 +20,39 @@
               </div>
             </div>
           </div>
-          <v-btn icon="mdi-pencil-outline" class="edit-status-message" @click="editStatusMessage = true"
-            density="comfortable"></v-btn>
+          <v-btn
+            icon="mdi-pencil-outline"
+            class="edit-status-message"
+            @click="editStatusMessage = true"
+            density="comfortable"
+          ></v-btn>
         </div>
       </div>
       <div class="friend-box">
         <md-elevation></md-elevation>
         <div class="my-friends-header">
           <div class="my-friends-text">친구들</div>
-          <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn" @click="showDialog = true">친구
-            검색</v-btn>
+          <v-btn
+            append-icon="mdi-account-search"
+            size="small"
+            class="add-friend-btn"
+            @click="showDialog = true"
+            >친구 검색</v-btn
+          >
         </div>
         <v-divider></v-divider>
         <div v-if="isLoading.friendList" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
         <div v-else class="my-friends-ele">
-          <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
+          <div
+            class="friend-item"
+            v-for="friend in friends"
+            :key="friend.id"
+            @click="viewFriendInfo(friend.id)"
+          >
             <div class="my-friends-ele-left">
-              <img :src="friend.profilePic" alt="친구 img" />
+              <img :src="getFriendProfile(friend.profilePic)" alt="친구 img" />
             </div>
             <div class="my-friends-ele-right">
               <div class="friend-name">{{ friend.name }}</div>
@@ -59,11 +73,15 @@
       <v-divider></v-divider>
       <div class="chat-container" v-if="currentChatRoomId">
         <div class="messages">
-          <div v-for="(message, index) in messages" :key="index" :class="{
-            message: true,
-            sent: message.senderId === userInfo.id,
-            received: message.senderId !== userInfo.id,
-          }">
+          <div
+            v-for="(message, index) in messages"
+            :key="index"
+            :class="{
+              message: true,
+              sent: message.senderId === userInfo.id,
+              received: message.senderId !== userInfo.id,
+            }"
+          >
             <div class="message-header">
               <strong>{{ message.senderId === userInfo.id ? "나" : receiverId }}:</strong>
               <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
@@ -72,13 +90,16 @@
           </div>
         </div>
         <div class="input-area">
-          <input v-model="newMessage" placeholder="메시지를 입력하세요" @keyup.enter="sendMessage" />
+          <input
+            v-model="newMessage"
+            placeholder="메시지를 입력하세요"
+            @keyup.enter="sendMessage"
+          />
           <button @click="sendMessage">전송</button>
         </div>
       </div>
     </div>
   </div>
-
 
   <!-- 친구 정보 다이얼로그 -->
   <v-dialog v-model="friendInfoDialog" max-width="500px">
@@ -87,7 +108,7 @@
       <v-card-text v-if="friendInfo">
         <div class="friend-item">
           <div class="my-friends-ele-left">
-            <img :src="friendProfilePic" alt="친구 img" />
+            <img :src="getFriendProfile(friendInfo.profilePic)" alt="친구 img" />
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ friendInfo.name }}</div>
@@ -112,11 +133,15 @@
     <v-card class="add-friend-form">
       <v-card-title class="headline">친구 검색</v-card-title>
       <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-      <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
+      <v-text-field
+        label="친구 아이디"
+        v-model="searchQuery"
+        @keyup.enter="searchFriend"
+      ></v-text-field>
       <v-card-text v-if="searchResult">
         <div class="friend-item">
           <div class="my-friends-ele-left">
-            <img :src="friendProfilePic" alt="친구 img" />
+            <img :src="getFriendProfile(searchResult.profilePic)" alt="친구 img" />
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ searchResult.name }}</div>
@@ -124,12 +149,19 @@
               <md-elevation></md-elevation>
               {{ searchResult.statusMessage }}
             </div>
-            <v-btn v-if="
-              !isFriend(searchResult.id) &&
-              searchResult.id != userInfo.id &&
-              !searchResultSentRequest
-            " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
-            <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
+            <v-btn
+              v-if="
+                !isFriend(searchResult.id) &&
+                searchResult.id != userInfo.id &&
+                !searchResultSentRequest
+              "
+              class="add-friend-btn"
+              @click="addFriend(searchResult.id)"
+              >추가</v-btn
+            >
+            <v-btn v-else-if="searchResult.id == userInfo.id" disabled
+              >자신은 추가할 수 없습니다</v-btn
+            >
             <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
             <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
           </div>
@@ -196,7 +228,6 @@ onMounted(() => {
     .GetFriendList()
     .then((res) => {
       friends.value = res.data;
-      console.log(friends.value[0].profilePic);
       isLoading.value.friendList = false;
       userInfo.value = userStore.user;
       console.log(userInfo.value);
@@ -359,15 +390,18 @@ const userProfilePic = computed(() => {
       userInfo.value.profilePic.slice(7, userInfo.value.profilePic.length)
     );
   } else if (userInfo.gender === "M") {
-    return "./assets/characters/토니/토니머리.png ";
+    return "src/assets/characters/토니/토니머리.png ";
   } else {
-    return "./assets/characters/피치/피치머리.png ";
+    return "src/assets/characters/피치/피치머리.png ";
   }
 });
 
-const friendProfilePic = computed(() => {
-  let defaultPic = "@/assets/characters/토니/토니머리.png";
+const getFriendProfile = (profilePic) => {
+  console.log(friends.value);
+  return `${import.meta.env.VITE_API_BASE_URL}` + profilePic.slice(7, profilePic.length);
+};
 
+const friendProfilePic = computed(() => {
   for (let i = 0; i < friends.value.length; i++) {
     if (friends.value[i].profilePic) {
       return (
@@ -376,8 +410,6 @@ const friendProfilePic = computed(() => {
       );
     }
   }
-
-  return defaultPic;
 });
 </script>
 
