@@ -1,106 +1,108 @@
 <template>
-  <div class="text-center pa-4">
-    <v-dialog v-model="isProfileModalOpen" max-width="400" persistent>
-      <template v-slot:activator="{ props: activatorProps }">
-        <v-btn v-bind="activatorProps"> 프로필 사진 변경 </v-btn>
-      </template>
-
-      <v-card title="프로필 사진 변경">
-        <v-card-text>
-          <p>변경할 사진을 선택하세요.</p>
-          <!-- 파일 입력 필드 추가 -->
-          <v-file-input
-            label="프로필 사진 선택"
-            v-model="selectedFile"
-            accept="image/*"
-            prepend-icon="mdi-camera"
-          ></v-file-input>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <!-- 저장 버튼 클릭 시 handleFileUpload 메서드 호출 -->
-          <v-btn color="primary" @click="changeProfileImage"> 저장 </v-btn>
-          <v-btn @click="isProfileModalOpen = false"> 닫기 </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
-
-  <div class="text-center pa-4">
+  <div class="container">
     <div class="text-center pa-4">
-      <v-dialog v-model="isNameModalOpen" max-width="400" persistent>
+      <v-dialog v-model="isProfileModalOpen" max-width="400" persistent>
         <template v-slot:activator="{ props: activatorProps }">
-          <v-btn v-bind="activatorProps"> 이름 변경 </v-btn>
+          <v-btn v-bind="activatorProps"> 프로필 사진 변경 </v-btn>
         </template>
 
-        <v-card title="이름 변경">
+        <v-card title="프로필 사진 변경">
           <v-card-text>
-            <p>변경할 이름을 입력하세요.</p>
+            <p>변경할 사진을 선택하세요.</p>
+            <!-- 파일 입력 필드 추가 -->
+            <v-file-input
+              label="프로필 사진 선택"
+              v-model="selectedFile"
+              accept="image/*"
+              prepend-icon="mdi-camera"
+            ></v-file-input>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <!-- 저장 버튼 클릭 시 handleFileUpload 메서드 호출 -->
+            <v-btn color="primary" @click="changeProfileImage"> 저장 </v-btn>
+            <v-btn @click="isProfileModalOpen = false"> 닫기 </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
+
+    <div class="text-center pa-4">
+      <div class="text-center pa-4">
+        <v-dialog v-model="isNameModalOpen" max-width="400" persistent>
+          <template v-slot:activator="{ props: activatorProps }">
+            <v-btn v-bind="activatorProps"> 이름 변경 </v-btn>
+          </template>
+
+          <v-card title="이름 변경">
+            <v-card-text>
+              <p>변경할 이름을 입력하세요.</p>
+              <v-text-field
+                label="새로운 이름"
+                v-model="newName"
+                prepend-icon="mdi-account"
+                required
+              ></v-text-field>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="changeName"> 저장 </v-btn>
+              <v-btn @click="isNameModalOpen = false"> 닫기 </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </div>
+
+    <div class="text-center pa-4">
+      <v-dialog v-model="isPasswordModalOpen" max-width="400" persistent>
+        <template v-slot:activator="{ props: activatorProps }">
+          <v-btn v-bind="activatorProps"> 비밀번호 변경 </v-btn>
+        </template>
+
+        <v-card title="비밀번호 변경">
+          <v-card-text>
+            <p>변경할 비밀번호를 입력하세요.</p>
+
+            <!-- 현재 비밀번호 입력 필드 -->
             <v-text-field
-              label="새로운 이름"
-              v-model="newName"
-              prepend-icon="mdi-account"
+              label="현재 비밀번호"
+              v-model="oldPassword"
+              type="password"
+              prepend-icon="mdi-lock"
+              required
+            ></v-text-field>
+
+            <!-- 새 비밀번호 입력 필드 -->
+            <v-text-field
+              label="새 비밀번호"
+              v-model="newPassword"
+              type="password"
+              prepend-icon="mdi-lock"
+              required
+            ></v-text-field>
+
+            <!-- 새 비밀번호 확인 입력 필드 -->
+            <v-text-field
+              label="새 비밀번호 확인"
+              v-model="confirmNewPassword"
+              type="password"
+              prepend-icon="mdi-lock-check"
               required
             ></v-text-field>
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="changeName"> 저장 </v-btn>
-            <v-btn @click="isNameModalOpen = false"> 닫기 </v-btn>
+            <!-- 저장 버튼 클릭 시 changePassword 메서드 호출 -->
+            <v-btn color="primary" @click="changePassword"> 저장 </v-btn>
+            <v-btn @click="isPasswordModalOpen = false"> 닫기 </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
     </div>
-  </div>
-
-  <div class="text-center pa-4">
-    <v-dialog v-model="isPasswordModalOpen" max-width="400" persistent>
-      <template v-slot:activator="{ props: activatorProps }">
-        <v-btn v-bind="activatorProps"> 비밀번호 변경 </v-btn>
-      </template>
-
-      <v-card title="비밀번호 변경">
-        <v-card-text>
-          <p>변경할 비밀번호를 입력하세요.</p>
-
-          <!-- 현재 비밀번호 입력 필드 -->
-          <v-text-field
-            label="현재 비밀번호"
-            v-model="oldPassword"
-            type="password"
-            prepend-icon="mdi-lock"
-            required
-          ></v-text-field>
-
-          <!-- 새 비밀번호 입력 필드 -->
-          <v-text-field
-            label="새 비밀번호"
-            v-model="newPassword"
-            type="password"
-            prepend-icon="mdi-lock"
-            required
-          ></v-text-field>
-
-          <!-- 새 비밀번호 확인 입력 필드 -->
-          <v-text-field
-            label="새 비밀번호 확인"
-            v-model="confirmNewPassword"
-            type="password"
-            prepend-icon="mdi-lock-check"
-            required
-          ></v-text-field>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <!-- 저장 버튼 클릭 시 changePassword 메서드 호출 -->
-          <v-btn color="primary" @click="changePassword"> 저장 </v-btn>
-          <v-btn @click="isPasswordModalOpen = false"> 닫기 </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -140,6 +142,7 @@ const changeName = () => {
 };
 
 const changePassword = () => {
+  console.log("ㅇㅇ");
   if (newPassword.value !== confirmNewPassword.value) {
     alert("새 비밀번호가 일치하지 않습니다.");
     return;
@@ -278,4 +281,8 @@ const changePassword = () => {
   justify-content: flex-end;
   padding: 20px;
 }
+
+/* .container {
+  background-color: ;
+} */
 </style>
