@@ -224,6 +224,7 @@ const startChatting = async (friendId) => {
     messages.value = chatRoom.messages;
     receiverId.value = friendId;
 
+
     // 채팅방에 메시지 구독
     webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
       messages.value.push(message);

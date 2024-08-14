@@ -4,6 +4,7 @@ import apiClient from "@/loginController/verification"; // Axios 인스턴스 im
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { useUserStore } from "./user";
+import { he } from "vuetify/locale";
 
 const REST_CHAT_API = import.meta.env.VITE_API_BASE_URL + "/ws/";
 const REST_NOTIFICATION_API =
@@ -93,18 +94,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
         stompClient.value = client;
         connected.value = true;
         console.log("Connected!");
-        // 알림 구독
-        // subscribeToNotifications();
-
-        // 현재 채팅방이 있다면 재연결 시 자동 구독
-        // if (currentChatRoomId.value) {
-        //   subscribeToChatRoom(
-        //     currentChatRoomId.value,
-        //     (message: MessageDTO) => {
-        //       messages.value.push(message);
-        //     }
-        //   );
-        // }
+        subscribeToNotifications();
       },
       onStompError: (error) => {
         console.error("WebSocket 연결 오류:", error);
@@ -200,15 +190,17 @@ export const useWebSocketStore = defineStore("websocket", () => {
 
   // 알림 구독
   const subscribeToNotifications = () => {
+    const headers = {
+      Authorization: "Bearer " + accessToken.value,
+    };
     if (stompClient.value && connected.value) {
       const subscription = stompClient.value.subscribe(
-        `/user/queue/notifications`,
+        `/user/1/queue/notifications`,
         (message) => {
           const notification = JSON.parse(message.body);
-          notifications.value.push(notification);
-          notificationCount.value += 1;
           console.log("New notification:", notification);
-        }
+        },
+        headers
       );
 
       // 구독 해제를 위한 반환 함수
