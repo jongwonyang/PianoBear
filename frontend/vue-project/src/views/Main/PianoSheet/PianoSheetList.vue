@@ -66,7 +66,7 @@ onMounted(async () => {
 <style scoped>
 .upload button {
   float: right;
-  background-color: #d9f6d9;
+  background-color: #ecc491;
   color: #73796e;
   height: 8vh;
   width: 12vw;

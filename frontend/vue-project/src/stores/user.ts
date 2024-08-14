@@ -39,9 +39,7 @@ export const useUserStore = defineStore("user", () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert(
-        "이메일 인증을 완료해야 로그인이 가능합니다. 이메일을 확인해주세요."
-      );
+      alert("이메일 인증을 완료해야 로그인이 가능합니다. 이메일을 확인해주세요.");
       // router.push("/login");
     } catch (e) {
       console.error(e);
@@ -158,15 +156,11 @@ export const useUserStore = defineStore("user", () => {
     formData.append("profilePic", file);
 
     try {
-      const response = await apiClient.put(
-        `${REST_PROFILE_API}photo`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await apiClient.put(`${REST_PROFILE_API}photo`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
     } catch (error) {
       console.error(error);
     }
@@ -186,6 +180,8 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const updatePassword = async (oldPassword: string, newPassword: string) => {
+    console.log(oldPassword);
+    console.log(newPassword);
     try {
       const response = await apiClient.put(`${REST_PROFILE_API}password`, {
         oldPassword: oldPassword,
