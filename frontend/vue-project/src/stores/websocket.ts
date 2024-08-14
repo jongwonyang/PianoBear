@@ -93,8 +93,10 @@ export const useWebSocketStore = defineStore("websocket", () => {
       onConnect: () => {
         stompClient.value = client;
         connected.value = true;
-        console.log("Connected!");
+
+        //알림 구독
         subscribeToNotifications();
+        console.log("Connected!");
       },
       onStompError: (error) => {
         console.error("WebSocket 연결 오류:", error);
@@ -195,7 +197,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
     };
     if (stompClient.value && connected.value) {
       const subscription = stompClient.value.subscribe(
-        `/user/1/queue/notifications`,
+        `/user/queue/notifications`,
         (message) => {
           const notification = JSON.parse(message.body);
           console.log("New notification:", notification);
