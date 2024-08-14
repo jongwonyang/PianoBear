@@ -25,7 +25,7 @@ public class FriendDTO {
         friendDTO.setId(member.getId());
         friendDTO.setName(member.getName());
 
-        String downloadPath = FileDataService.getDownloadPath(member.getProfilePic()).orElse(null);
+        String downloadPath = FileDataService.getDownloadPath(member.getProfilePic()).orElse("/api/v1/static/pitch-head.png");
         friendDTO.setProfilePic(downloadPath);
         friendDTO.setStatusMessage(member.getStatusMessage());
         return friendDTO;

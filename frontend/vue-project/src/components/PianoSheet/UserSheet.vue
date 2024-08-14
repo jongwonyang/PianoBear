@@ -24,7 +24,11 @@
                   alt="Book Image"
                 />
                 <!-- 이미지가 없을 때 -->
-                <img v-else src="@/assets/images/blur.png" alt="Default Book Image" />
+                <img
+                  v-else
+                  :src="'http://localhost:7000/api/v1/music/' + 1 + '/download-music-img'"
+                  alt="Default Book Image"
+                />
               </div>
             </router-link>
           </div>

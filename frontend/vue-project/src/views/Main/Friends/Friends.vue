@@ -8,12 +8,12 @@
         </div>
         <div v-else>
           <div class="my-status-box">
-            <img class="my-status-image" :src="userInfo.profilePic">
+            <img class="my-status-image" :src="userInfo.profilePic" />
             <div class="my-status-ele">
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
               <div class="my-status-message-box">
-                <md-elevation></md-elevation>
+                <mdvation></mdvation>
                 <div class="my-status-message">
                   {{ userInfo.statusMessage }}
                 </div>
@@ -38,7 +38,7 @@
         <div v-else class="my-friends-ele">
           <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
             <div class="my-friends-ele-left">
-              <img :src="friend.profilePic" alt="친구 img">
+              <img :src="friend.profilePic" alt="친구 img" />
             </div>
             <div class="my-friends-ele-right">
               <div class="friend-name">{{ friend.name }}</div>
@@ -52,8 +52,6 @@
         </div>
       </div>
     </div>
-
-
     <div class="chat-box">
       <div class="my-chatting-header">
         <div class="my-chatting-text">채팅</div>
@@ -79,85 +77,86 @@
         </div>
       </div>
     </div>
-
-    <!-- 친구 정보 다이얼로그 -->
-    <v-dialog v-model="friendInfoDialog" max-width="500px">
-      <v-card class="friend-info-form">
-        <v-card-title class="headline">친구 정보</v-card-title>
-        <v-card-text v-if="friendInfo">
-          <div class="friend-item">
-            <div class="my-friends-ele-left">
-              <img :src="friendProfilePic" alt="친구 img" />
-            </div>
-            <div class="my-friends-ele-right">
-              <div class="friend-name">{{ friendInfo.name }}</div>
-              <div class="friend-status-message">
-                <md-elevation></md-elevation>
-                {{ friendInfo.statusMessage }}
-              </div>
-            </div>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="removeFriend(friendInfo.id)" color="red">친구 삭제</v-btn>
-          <v-btn text @click="startChatting(friendInfo.id)">대화하기</v-btn>
-          <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- 친구 검색 다이얼로그 -->
-    <v-dialog v-model="showDialog" max-width="500px">
-      <v-card class="add-friend-form">
-        <v-card-title class="headline">친구 검색</v-card-title>
-        <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-        <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
-        <v-card-text v-if="searchResult">
-          <div class="friend-item">
-            <div class="my-friends-ele-left">
-              <img :src="friendProfilePic" alt="친구 img" />
-            </div>
-            <div class="my-friends-ele-right">
-              <div class="friend-name">{{ searchResult.name }}</div>
-              <div class="friend-status-message">
-                <md-elevation></md-elevation>
-                {{ searchResult.statusMessage }}
-              </div>
-              <v-btn v-if="
-                !isFriend(searchResult.id) &&
-                searchResult.id != userInfo.id &&
-                !searchResultSentRequest
-              " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
-              <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
-              <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
-              <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
-            </div>
-          </div>
-        </v-card-text>
-        <v-btn v-else-if="!searchResult" disabled>찾을 수 없습니다</v-btn>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="showDialog = false">취소</v-btn>
-          <v-btn text @click="searchFriend">검색</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- 상태메시지 수정 다이얼로그 -->
-    <v-dialog v-model="editStatusMessage" max-width="500px">
-      <v-card class="edit-status-form">
-        <v-card-title class="headline">상태 메시지 수정</v-card-title>
-        <v-card-text>
-          <v-text-field label="상태 메시지" v-model="newStatusMessage"></v-text-field>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="editStatusMessage = false">취소</v-btn>
-          <v-btn text @click="saveStatusMessage">저장</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
+
+
+  <!-- 친구 정보 다이얼로그 -->
+  <v-dialog v-model="friendInfoDialog" max-width="500px">
+    <v-card class="friend-info-form">
+      <v-card-title class="headline">친구 정보</v-card-title>
+      <v-card-text v-if="friendInfo">
+        <div class="friend-item">
+          <div class="my-friends-ele-left">
+            <img :src="friendProfilePic" alt="친구 img" />
+          </div>
+          <div class="my-friends-ele-right">
+            <div class="friend-name">{{ friendInfo.name }}</div>
+            <div class="friend-status-message">
+              <md-elevation></md-elevation>
+              {{ friendInfo.statusMessage }}
+            </div>
+          </div>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="removeFriend(friendInfo.id)" color="red">친구 삭제</v-btn>
+        <v-btn text @click="startChatting(friendInfo.id)">대화하기</v-btn>
+        <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- 친구 검색 다이얼로그 -->
+  <v-dialog v-model="showDialog" max-width="500px">
+    <v-card class="add-friend-form">
+      <v-card-title class="headline">친구 검색</v-card-title>
+      <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
+      <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
+      <v-card-text v-if="searchResult">
+        <div class="friend-item">
+          <div class="my-friends-ele-left">
+            <img :src="friendProfilePic" alt="친구 img" />
+          </div>
+          <div class="my-friends-ele-right">
+            <div class="friend-name">{{ searchResult.name }}</div>
+            <div class="friend-status-message">
+              <md-elevation></md-elevation>
+              {{ searchResult.statusMessage }}
+            </div>
+            <v-btn v-if="
+              !isFriend(searchResult.id) &&
+              searchResult.id != userInfo.id &&
+              !searchResultSentRequest
+            " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
+            <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
+            <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
+            <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
+          </div>
+        </div>
+      </v-card-text>
+      <v-btn v-else-if="!searchResult" disabled>찾을 수 없습니다</v-btn>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="showDialog = false">취소</v-btn>
+        <v-btn text @click="searchFriend">검색</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- 상태메시지 수정 다이얼로그 -->
+  <v-dialog v-model="editStatusMessage" max-width="500px">
+    <v-card class="edit-status-form">
+      <v-card-title class="headline">상태 메시지 수정</v-card-title>
+      <v-card-text>
+        <v-text-field label="상태 메시지" v-model="newStatusMessage"></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="editStatusMessage = false">취소</v-btn>
+        <v-btn text @click="saveStatusMessage">저장</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -694,8 +693,6 @@ input {
   border-radius: 10px;
   margin-right: 10px;
 }
-
-
 
 .chat-box {
   flex: 1;

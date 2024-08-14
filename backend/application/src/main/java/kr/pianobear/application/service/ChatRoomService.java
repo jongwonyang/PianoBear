@@ -93,7 +93,7 @@ public class ChatRoomService {
             String notificationContent = String.format(
                     "{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\", \"chatRoomId\":\"%d\"}",
                     sender.getId(), sender.getName(),
-                    sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "",
+                    sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "/api/v1/static/pitch-head.png",
                     chatRoom.getId()
             );
             notificationService.createNotification(receiver, "CHAT", notificationContent);
