@@ -1,6 +1,7 @@
 package kr.pianobear.application.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class Music {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Size(max = 9)
     private String title;
     private String musicXmlRoute;
     private String modifiedMusicXmlRoute;

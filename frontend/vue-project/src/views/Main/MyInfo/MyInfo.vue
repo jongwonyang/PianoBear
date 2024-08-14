@@ -11,54 +11,79 @@
           <!-- 편집 버튼 -->
           <v-dialog v-model="profileDialogOpen" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
-              <v-btn v-tooltip:bottom="'내 정보 수정'" v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn"
-                density="comfortable"></v-btn>
+              <v-btn
+                v-tooltip:bottom="'내 정보 수정'"
+                v-bind="activatorProps"
+                icon="mdi-pencil-outline"
+                class="edit-btn"
+                density="comfortable"
+              ></v-btn>
             </template>
             <template v-slot:default="{ isActive }">
               <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" />
             </template>
           </v-dialog>
           <!-- user name 가져오게 -->
-          <div class="profile-name">{{ userInfo.userName }} 님 반갑습니다!</div>
+          <!-- <div class="profile-name">{{ userInfo.userName }}님 반갑습니다!</div> -->
           <!-- user가 전날까지 연속 연습 날짜를 가져오기 -->
-          <div class="profile-day">{{ userInfo.streak }} 일 째 꾸준히 연습하고 있어요!</div>
-          <div class="favorite-music">
-            <md-elevation></md-elevation>
-            <div class="music-item">
-              <v-icon aria-hidden="false"> mdi-numeric-1-circle-outline </v-icon>
-              <div class="music-name">
-                {{ favoriteMusic[0] }}
+          <div class="best">
+            <span style="font-size: 200%; font-weight: bold">{{ userInfo.userName }}</span>
+            <span class="text"> 님의 연습량 TOP3</span>
+            <div class="favorite-music">
+              <div class="music-item">
+                <img src="@/assets/images/first.png" alt="" />
+                <div class="music-name">
+                  {{ favoriteMusic[0] }}
+                </div>
+              </div>
+              <div class="music-item">
+                <img src="@/assets/images/second.png" alt="" />
+                <div class="music-name">
+                  {{ favoriteMusic[1] }}
+                </div>
+              </div>
+              <div class="music-item">
+                <img src="@/assets/images/third.png" alt="" />
+                <div class="music-name">
+                  {{ favoriteMusic[2] }}
+                </div>
               </div>
             </div>
-            <div class="music-item">
-              <v-icon aria-hidden="false"> mdi-numeric-2-circle-outline </v-icon>
-              <div class="music-name">
-                {{ favoriteMusic[1] }}
-              </div>
-            </div>
-            <div class="music-item">
-              <v-icon aria-hidden="false"> mdi-numeric-3-circle-outline </v-icon>
-              <div class="music-name">
-                {{ favoriteMusic[2] }}
-              </div>
-            </div>
+            <span style="font-size: 200%; font-weight: bold">{{ userInfo.streak }}</span>
+            <span class="profile-day"> 일 째 꾸준히 연습하고 있어요!</span>
           </div>
         </div>
       </div>
       <div>
-        <v-btn v-tooltip:bottom="'로그아웃'" icon="mdi-account-minus" @click="LogOut" class="logout-btn"
-          density="comfortable"></v-btn>
+        <v-btn
+          v-tooltip:bottom="'로그아웃'"
+          icon="mdi-account-minus"
+          @click="LogOut"
+          class="logout-btn"
+          density="comfortable"
+        ></v-btn>
       </div>
     </div>
 
     <div class="practice-online">
       <div class="practice-box">
-        <md-elevation></md-elevation>
-        <div class="practice-header">
-          <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact" @click="previousMonth"></v-btn>
-          <div>{{ currentYear }}년 {{ currentMonth }}월 연습 스티커</div>
-          <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact" @click="nextMonth"></v-btn>
+        <div class="practice-box-container">
+          <v-btn
+            icon="mdi-menu-left-outline"
+            class="pre-month-btn"
+            density="compact"
+            @click="previousMonth"
+          ></v-btn>
+          <div class="practice-date">{{ currentYear }}년 {{ currentMonth }}월</div>
+          <v-btn
+            icon="mdi-menu-right-outline"
+            class="next-month-btn"
+            density="compact"
+            @click="nextMonth"
+          ></v-btn>
         </div>
+        <md-elevation></md-elevation>
+        <div class="practice-header"></div>
         <div v-if="isLoading.practice" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
@@ -68,33 +93,48 @@
               <template v-slot:activator="{ props: activatorProps }">
                 <button class="honey-button" v-bind="activatorProps">
                   <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀" />
-                  <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
+                  <v-tooltip activator="parent" location="bottom"
+                    >{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip
+                  >
                 </button>
               </template>
               <template v-slot:default="{ isActive }">
-                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :year="currentYear"
-                  :closeDialog="closeDialog" :index="index" />
+                <DayPracticeDetail
+                  v-if="isActive"
+                  :month="currentMonth"
+                  :day="index + 1"
+                  :year="currentYear"
+                  :closeDialog="closeDialog"
+                  :index="index"
+                />
               </template>
             </v-dialog>
           </template>
         </div>
         <v-divider style="margin-bottom: 15px"></v-divider>
-        <div class="practice-day">{{ practiceDaysCount }}일 동안 연습했어요!</div>
+        <div class="practice-day">{{ currentMonth }}월에 {{ practiceDaysCount }}일 연습했어요!</div>
       </div>
       <div class="online-friends-box">
+        <div class="online-friend-title">온라인 친구들</div>
         <md-elevation></md-elevation>
-        <div class="online-friend-title">현재 온라인 친구들</div>
         <div v-if="isLoading.friends" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
         <div v-else class="online-friend">
           <template v-for="friend in topOnlineFriends" :key="friend.id">
             <div class="friend-box">
-              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic})` }"></div>
+              <div
+                class="friend-image"
+                :style="{ backgroundImage: `url(${friend.profilePic})` }"
+              ></div>
               <div class="friend-name">{{ friend.name }}</div>
               <div>
-                <v-btn class="friend-chat" icon="mdi-chat" v-tooltip:bottom="'채팅하기'"
-                  @click="handleChat(friend.id)"></v-btn>
+                <v-btn
+                  class="friend-chat"
+                  icon="mdi-chat"
+                  v-tooltip:bottom="'채팅하기'"
+                  @click="handleChat(friend.id)"
+                ></v-btn>
               </div>
             </div>
             <v-divider></v-divider>
@@ -111,8 +151,11 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useDashboardStore } from "@/stores/dashboard";
 import { useWebSocketStore } from "@/stores/websocket";
+import { usePianoSheetStore } from "@/stores/pianosheet";
 import honeyFilledImg from "@/assets/images/채워진 벌꿀.png";
 import honeyEmptyImg from "@/assets/images/빈 벌꿀.png";
+import berryFilledImg from "@/assets/images/가득찬딸기.png";
+import berryEmptyImg from "@/assets/images/빈딸기.png";
 import ProfileEdit from "@/components/MyInfo/ProfileEdit.vue";
 import DayPracticeDetail from "@/components/MyInfo/DayPracticeDetail.vue";
 
@@ -120,6 +163,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const dashboardStore = useDashboardStore();
 const webSocketStore = useWebSocketStore();
+const pianoStore = usePianoSheetStore();
 
 const isLoading = ref({
   profile: true,
@@ -137,11 +181,10 @@ const userInfo = ref({
 
 const handleChat = (friendId) => {
   router.push({
-    name: 'friends',
-    query: { chatWith: friendId }
+    name: "friends",
+    query: { chatWith: friendId },
   });
 };
-
 
 const favoriteMusic = ref(["-", "-", "-"]);
 const practiceRecord = ref([]);
@@ -157,6 +200,9 @@ const practiceDaysCount = computed(() => {
 
 const honeyFilled = honeyFilledImg;
 const honeyEmpty = honeyEmptyImg;
+
+const berryFilled = berryFilledImg;
+const berryEmpty = berryEmptyImg;
 
 const topOnlineFriends = computed(() => {
   return onlineFriends.value.slice(0, 3);
@@ -306,11 +352,12 @@ async function LogOut() {
 .my-profile-box {
   background: #fff9e0;
   position: relative;
-  padding: 50px 55px;
+  /* padding-top: 10vh;
+  padding-bottom: 10vh; */
   border-radius: 30px;
   text-align: center;
-  max-width: 2000px;
-  width: 100%;
+  width: 60vw;
+  height: 45vh;
   margin-bottom: 20px;
   animation: fadeIn 0.5s ease-in-out;
 }
@@ -318,36 +365,35 @@ async function LogOut() {
 .profile-content {
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
+  padding: 3vh;
 }
 
 .profile-image {
-  width: 180px;
-  height: 180px;
-  background-size: cover;
-  background-position: center;
+  width: 19vw;
+  height: 38vh;
   border-radius: 50%;
-  margin-right: 50px;
-  margin-left: 30px;
+  margin-left: 5vw;
+  border: 1px solid black;
 }
 
 .edit-btn {
   position: absolute;
   top: 20px;
-  right: 20px;
+  right: 70px;
   color: #947650;
   background: #f5e5d1;
 }
 
 .profile-info {
   text-align: center;
-  margin: 10px;
+  margin-left: 4vw;
 }
 
 .logout-btn {
   position: absolute;
   top: 20px;
-  right: 70px;
+  right: 20px;
   background: #f5e5d1;
   color: #e31515;
 }
@@ -355,15 +401,23 @@ async function LogOut() {
 .practice-online {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  /* gap: 20px; */
   animation: fadeIn 0.5s ease-in-out;
+  /* border-radius: 30px; */
+}
+
+.practice-date {
+  width: fit-content;
+  font-size: 120%;
+  font-weight: bold;
+  color: black;
 }
 
 .practice-box,
 .online-friends-box {
   background: #fff9e0;
   position: relative;
-  padding: 30px 30px;
+  padding-left: 1vw;
   border-radius: 30px;
   text-align: center;
   color: #947650;
@@ -386,8 +440,8 @@ async function LogOut() {
   flex-wrap: wrap;
   justify-content: left;
   gap: 10px;
-  margin-top: 25px;
-  margin-bottom: 10px;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
 }
 
 .honey-button {
@@ -399,48 +453,55 @@ async function LogOut() {
 }
 
 .honey-button img {
-  width: 32px;
-  height: 35px;
+  width: 43px;
+  height: 45px;
 }
 
 .profile-name {
-  font-size: 22px;
-  font-weight: 500;
-  color: #947650;
+  font-size: 150%;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 2vh;
 }
 
 .profile-day {
-  font-size: 16px;
-  color: #947650;
+  font-size: 120%;
+  font-weight: bold;
+  color: black;
+  text-align: start;
 }
 
 .favorite-music {
-  background: #f5e5d1;
+  background: #e5ccaa;
   display: flex;
   position: relative;
   padding: 20px 10px;
   border-radius: 10px;
   text-align: center;
-  max-width: 2000px;
-  width: 100%;
-  margin-top: 30px;
-  --md-sys-color-shadow: #947650;
+  width: 25vw;
+  height: 25vh;
+  margin-bottom: 1vh;
+  flex-direction: column;
+  gap: 2vh;
 }
 
 .music-item {
   display: flex;
   align-items: center;
-  width: 100px;
-  /* 너비를 고정합니다 */
+  margin-top: 0.3vh;
+  margin-left: 1vw;
 }
 
 .music-name {
-  font-size: 16px;
-  margin-right: 10px;
+  font-size: 120%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  margin-left: 1vw;
+  display: inline-block;
+  text-align: left;
+  /* font-weight: bold; */
 }
 
 .pre-month-btn,
@@ -468,7 +529,7 @@ async function LogOut() {
 .friend-name {
   font-size: 18px;
   font-weight: 500;
-  color: #947650;
+  color: black;
 }
 
 .friend-chat {
@@ -482,6 +543,35 @@ async function LogOut() {
 .online-friend-title {
   font-size: 20px;
   font-weight: 500;
-  color: #947650;
+  color: black;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.text {
+  font-size: 110%;
+  font-weight: bold;
+}
+
+.music-item img {
+  width: 2.5vw;
+}
+
+.best {
+  margin-top: 1vh;
+}
+
+.practice-box-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.practice-day {
+  text-align: end;
+  margin-right: 1.5vw;
+  margin-bottom: 5px;
+  color: black;
+  font-weight: bold;
 }
 </style>

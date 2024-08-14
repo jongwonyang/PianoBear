@@ -168,6 +168,15 @@ public class MusicXmlModifierService {
             Document doc = dBuilder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
             doc.getDocumentElement().normalize();
 
+            // <movement-title> 요소의 텍스트 수정
+            NodeList movementTitleList = doc.getElementsByTagName("movement-title");
+            if (movementTitleList.getLength() > 0) {
+                Node movementTitleNode = movementTitleList.item(0);
+                if (movementTitleNode.getTextContent().contains("[Audiveris detected movement]")) {
+                    movementTitleNode.setTextContent("변환 악보");
+                }
+            }
+
             // <part-list>에서 <part-name>이 "Voice"인 <score-part> 요소를 찾고 삭제
             NodeList scorePartList = doc.getElementsByTagName("score-part");
             String partIdToRemove = null;

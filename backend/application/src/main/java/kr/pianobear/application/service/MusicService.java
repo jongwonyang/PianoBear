@@ -55,7 +55,14 @@ public class MusicService {
 
         // 새로운 Music 엔티티 생성 및 초기화
         Music music = new Music();
-        music.setTitle(pdfFile.getOriginalFilename().replace(".pdf", ""));
+
+        // 파일 이름에서 .pdf 확장자를 제거하고, 첫 9글자만 가져오기
+        String title = pdfFile.getOriginalFilename().replace(".pdf", "");
+        if (title.length() > 9) {
+            title = title.substring(0, 9);
+        }
+        music.setTitle(title);
+
         music.setFavorite(false);
         music.setUploadDate(LocalDate.now());
 
@@ -82,6 +89,8 @@ public class MusicService {
 
     @Transactional
     public MusicDTO saveMusic(MusicDTO musicDTO) throws IOException {
+        validateTitleLength(musicDTO.getTitle());
+
         Music music = new Music();
         music.setTitle(musicDTO.getTitle());
         music.setArtist(musicDTO.getArtist());
@@ -96,15 +105,17 @@ public class MusicService {
         music.setMusicXmlRoute(musicDTO.getMusicXmlRoute());
         music.setModifiedMusicXmlRoute(musicDTO.getModifiedMusicXmlRoute());
 
-        // OpenAI API를 통해 이미지 생성 후 서버에 저장
-//        String imagePath = openAiService.generateImage(musicDTO.getTitle());
-//        music.setMusicImg(imagePath);
-
         music.setMusicImg(null);
 
         Music savedMusic = musicRepository.save(music);
 
         return mapMusicToDTO(savedMusic);
+    }
+
+    private void validateTitleLength(String title) {
+        if (title.length() >= 9) {
+            throw new IllegalArgumentException("Title cannot exceed 9 characters.");
+        }
     }
 
     @Transactional
