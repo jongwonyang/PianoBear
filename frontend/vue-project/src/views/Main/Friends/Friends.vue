@@ -78,11 +78,10 @@
       </div>
     </div>
   </div>
-</template>
 
 
-<!-- 친구 정보 다이얼로그 -->
-<v-dialog v-model="friendInfoDialog" max-width="500px">
+  <!-- 친구 정보 다이얼로그 -->
+  <v-dialog v-model="friendInfoDialog" max-width="500px">
     <v-card class="friend-info-form">
       <v-card-title class="headline">친구 정보</v-card-title>
       <v-card-text v-if="friendInfo">
@@ -108,8 +107,8 @@
     </v-card>
   </v-dialog>
 
-<!-- 친구 검색 다이얼로그 -->
-<v-dialog v-model="showDialog" max-width="500px">
+  <!-- 친구 검색 다이얼로그 -->
+  <v-dialog v-model="showDialog" max-width="500px">
     <v-card class="add-friend-form">
       <v-card-title class="headline">친구 검색</v-card-title>
       <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
@@ -144,8 +143,8 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-<!-- 상태메시지 수정 다이얼로그 -->
-<v-dialog v-model="editStatusMessage" max-width="500px">
+  <!-- 상태메시지 수정 다이얼로그 -->
+  <v-dialog v-model="editStatusMessage" max-width="500px">
     <v-card class="edit-status-form">
       <v-card-title class="headline">상태 메시지 수정</v-card-title>
       <v-card-text>
@@ -158,6 +157,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+</template>
 
 <script setup>
 import { onMounted, ref, nextTick, computed } from "vue";
