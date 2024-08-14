@@ -5,7 +5,7 @@
         {{ store.detailSheet?.title }}
         <v-icon @click="openModal">mdi-pencil</v-icon>
       </div>
-      <div class="make">
+      <div class="make" v-if="!store.detailSheet?.musicImg">
         <button @click="makeImg">표지 만들기</button>
       </div>
     </div>
