@@ -38,7 +38,7 @@ public class DashboardService {
         DashboardSummaryDTO summary = new DashboardSummaryDTO();
         summary.setUserId(member.get().getId());
         summary.setUserName(member.get().getName());
-        summary.setProfileImage(FileDataService.getDownloadPath(member.get().getProfilePic()).orElse(null));
+        summary.setProfileImage(FileDataService.getDownloadPath(member.get().getProfilePic()).orElse("/api/v1/static/pitch-head.png"));
         summary.setStreak(userStreak.getCurrentStreak());
         summary.setMost(top3.stream().map(MusicDTO::getTitle).toList());
 

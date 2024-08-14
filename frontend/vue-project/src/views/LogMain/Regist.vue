@@ -190,6 +190,7 @@ const RegistUser = async () => {
     isLoading.value = true; // 로딩 시작
     try {
         await userStore.RegistUser();
+        router.push("/login");
     } catch (error) {
         console.error(error);
         alert('회원가입에 실패했습니다.');

@@ -57,6 +57,14 @@ interface PracticeRecord {
   musicId: number;
 }
 
+interface ChallengeResult {
+  id: number;
+  grade: number;
+  testDate: string;
+  userId: string;
+  musicId: number;
+}
+
 export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 기본 악보 리스트
   const basicSheetList = ref<BasicSheet[]>([]);
@@ -113,6 +121,8 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 악보 제목, 작곡가 수정을 위한 모달 열기 위한 변수
   const isOpen = ref<boolean>(false);
+  const loading = ref<boolean>(true);
+  const success = ref<boolean>(false);
 
   // pdf 파일 변환 시작 요청
   const convertFilefun = async (file: File): Promise<void> => {
@@ -136,11 +146,17 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
         }
       );
 
+      success.value = true;
       convertedFile.value = response.data;
       modifySheetForm.value.title = convertedFile.value?.title ?? "";
       modifySheetForm.value.artist = convertedFile.value?.artist ?? "";
       console.log("악보 백엔드 전송 성공!", response.data);
-      isOpen.value = true;
+
+      // 변환이 성공한 후에 20초 타이머 시작
+      setTimeout(() => {
+        console.log("Timer expired, setting success to false");
+        success.value = false; // 20초 후에 success를 false로 변경
+      }, 20000);
     } catch (error) {
       console.error("악보 백엔드 전송 실패!", error);
     }
@@ -298,7 +314,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       // 전체 목록 저장
       userSheetList.value = data;
 
-      console.log("응답 데이터:", userSheetList.value[0]); // 응답 데이터 확인
+      console.log("응답 데이터:", userSheetList); // 응답 데이터 확인
     } catch (error) {
       console.error("악보 목록 가져오기 실패!", error);
     }
@@ -386,13 +402,15 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 결과 모달창
   // 도전 결과
-  const resultChallenge = ref();
+  const resultChallenge = ref<ChallengeResult>();
   const isResultModalOpen = ref<Boolean>(false);
+  const challengeLoading = ref<Boolean>(false);
   const challengefun = async (id: number, audioBlob: Blob): Promise<void> => {
+    challengeLoading.value = true;
     const formData = new FormData();
     formData.append("audioFile", audioBlob);
     try {
-      const response = await apiClient.post(
+      const response = await apiClient.post<ChallengeResult>(
         `${REST_PIANOSHEET_API}/test/${id}`,
         formData,
         {
@@ -402,14 +420,15 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
         }
       );
       resultChallenge.value = response.data;
+      challengeLoading.value = false;
       isResultModalOpen.value = true;
     } catch (error) {
       console.log(error);
     }
   };
 
-  const clearResult = function () {
-    resultChallenge.value = null;
+  const clearResult = function (): void {
+    resultChallenge.value = undefined;
   };
 
   // 정렬기준
@@ -417,14 +436,16 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   // 검색어
   const searchText = ref<string>("");
-
+  const makeImgLoading = ref<Boolean>(false);
   const makeImg = async (id: number) => {
     try {
       console.log("요청보냄");
+      makeImgLoading.value = true;
       const response = await apiClient.post(
         `${REST_PIANOSHEET_API}/${id}/generate-image`
       );
       console.log(response.data);
+      makeImgLoading.value = false;
     } catch (error) {
       console.error(error);
     }
@@ -437,6 +458,14 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       );
       console.log(response.data);
       return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const shareChallengefun = async (id: number): Promise<string | undefined> => {
+    try {
+      return `${REST_PIANOSHEET_API}/test/${id}/award`;
     } catch (error) {
       console.error(error);
     }
@@ -462,6 +491,8 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     convertFilefun,
     modifySheetForm,
     isOpen,
+    loading,
+    success,
     editSheet,
     practiceData,
     practiceDatafun,
@@ -480,5 +511,8 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     saveMakedImg,
     resultChallenge,
     clearResult,
+    challengeLoading,
+    makeImgLoading,
+    shareChallengefun,
   };
 });

@@ -45,7 +45,7 @@ public class UserService {
                 member.get().getName(),
                 member.get().getGender(),
                 member.get().getBirthday(),
-                FileDataService.getDownloadPath(member.get().getProfilePic()).orElse(null),
+                FileDataService.getDownloadPath(member.get().getProfilePic()).orElse("/api/v1/static/pitch-head.png"),
                 member.get().getStatusMessage(),
                 member.get().isAuthEmail(),
                 member.get().getRole()

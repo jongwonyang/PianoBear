@@ -1,6 +1,17 @@
 <template>
     <div class="back">
         <div class="sheetback">
+            <div class="preBack">
+                <button class="cursor-pointer duration-200 hover:scale-125 active:scale-100" title="Go Back"
+                    @click="router.push(`/main/piano-sheet/${nowSheet}`)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24"
+                        class="goBack">
+                        <path stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5"
+                            d="M11 6L5 12M5 12L11 18M5 12H19">
+                        </path>
+                    </svg>
+                </button>
+            </div>
             <div class="practice-options" :style="{ visibility: props.challenge ? 'hidden' : 'visible' }">
                 <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
                     <v-btn prepend-icon="mdi-reload" :width="27" :height="27" class="changeSheet" variant="text"
@@ -25,7 +36,7 @@
             </div>
             <v-sheet v-if="!props.challenge" id="player" :elevation="1" color="#D9F6D9" :height="36" :width="140">
                 <v-btn-toggle v-model="toggle_one" mandatory shaped>
-                    <v-btn icon="mdi-reload" :width="27" :height="27" class="player" id="rewind" variant="text"
+                    <v-btn icon="mdi-rewind" :width="27" :height="27" class="player" id="rewind" variant="text"
                         @click="stateChange('rewind')"></v-btn>
                     <v-btn icon="mdi-pause" :width="27" :height="27" class="player" id="pause" variant="text"
                         @click="stateChange('pause')"></v-btn>
@@ -35,7 +46,12 @@
             </v-sheet>
             <v-sheet v-if="props.challenge" id="player" :elevation="1" color="#D9F6D9" :height="40" :width="140">
                 <v-btn v-show="isRecording" prepend-icon="mdi-circle" :width="125" :height="32" class="player record"
-                    id="rewind" variant="text" @click="stopRecording(false)">녹음중..</v-btn>
+                    id="rewind" variant="text" @click="stopRecording(false)">
+                    <template v-slot:prepend>
+                        <v-icon color="red"></v-icon>
+                    </template>
+                    녹음중..
+                </v-btn>
                 <v-btn v-show="!isRecording" prepend-icon="mdi-play" :width="125" :height="32" class="player" id="play"
                     variant="text">도전하기</v-btn>
             </v-sheet>
@@ -47,10 +63,10 @@
                 </div>
                 <div class="strewbery">
                     <img v-for="n in 5" :key="n"
-                        :src="(practiceToday && n <= practiceToday.practiceCount) ? '/src/assets/images/가득찬딸기.png' : '/src/assets/images/빈딸기.png'"
+                        :src="(practiceToday && n <= practiceToday.practiceCount) ? '@/assets/images/가득찬딸기.png' : '@/assets/images/빈딸기.png'"
                         :alt="n" class="practice-image" width="25" />
-                    <v-btn v-if="isPractice" icon="mdi-circle" :width="31" :height="31" style="margin-left: 5px;"
-                        @click="doPractice"></v-btn>
+                    <v-btn v-if="isPractice" icon="mdi-check-bold" :width="31" :height="31" style="margin-left: 5px;"
+                        color="success" @click="doPractice"></v-btn>
                 </div>
             </div>
             <div v-show="status" id="sheet-container" :value="status"></div>
@@ -99,7 +115,6 @@ const isPractice = ref(false);
 const isRecording = ref(false);
 const recorder = ref();
 const audioChunks = ref([]);
-const wavBlobUrl = ref();
 const stream = ref();
 const dialog = ref(true);
 const today = new Date();
@@ -233,10 +248,13 @@ const changeDialog = function () {
     dialog.value = !dialog.value;
 }
 
-const doPractice = async function () {
+// 연습 완료하기
+const doPractice = async function (e) {
+    createFirework(e);
+    console.log(practiceToday.value)
     if (!practiceToday.value || practiceToday.value.practiceCount < 4) {
         await store.practicePostfun(nowSheet.value);
-        await practiceGet();
+        practiceGet();
         isPractice.value = false;
         knowledge.value = 0;
         interval1.value = setInterval(async () => {
@@ -246,10 +264,10 @@ const doPractice = async function () {
                 isPractice.value = true;
                 clearInterval(interval1.value);
             }
-        }, 60)
+        }, 600)
     } else if (practiceToday.value.practiceCount === 4) {
         await store.practicePostfun(nowSheet.value);
-        await practiceGet();
+        practiceGet();
         isPractice.value = false;
     }
 }
@@ -287,7 +305,7 @@ onMounted(async () => {
         audioCon.value = false;
 
         // 연습 갯수 불러오기
-        await practiceGet();
+        practiceGet();
 
         // 1분이 지나면 연습추가
         if (practiceToday.value && practiceToday.value.practiceCount >= 5) {
@@ -300,7 +318,7 @@ onMounted(async () => {
                     isPractice.value = true;
                     clearInterval(interval1.value);
                 }
-            }, 60)
+            }, 600)
         }
     }
 });
@@ -319,8 +337,47 @@ onUnmounted(() => {
     reset();
     stopRecording(false);
     clearInterval(interval1.value);
-})
+});
 
+// 완료 이펙트
+const createFirework = (e) => {
+    const numParticles = 30;
+    const buttonRect = e.target.getBoundingClientRect();
+    const buttonX = buttonRect.left + buttonRect.width / 2;
+    const buttonY = buttonRect.top + buttonRect.height / 2;
+
+    for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+
+        // 각 파티클의 방향과 거리
+        const angle = Math.random() * 360;
+        const radius = Math.random() * 70;
+
+        // --x, --y 변수를 사용하여 방향과 거리 설정
+        particle.style.setProperty('--x', `${radius * Math.cos(angle)}px`);
+        particle.style.setProperty('--y', `${radius * Math.sin(angle)}px`);
+
+        if (i < 7) {
+            particle.style.setProperty('background-color', 'red');
+        } else if (i < 14) {
+            particle.style.setProperty('background-color', 'yellow');
+        } else if (i < 21) {
+            particle.style.setProperty('background-color', 'rgb(78, 131, 255)');
+        }
+
+        // 파티클 위치 설정
+        particle.style.left = `${buttonX}px`;
+        particle.style.top = `${buttonY}px`;
+
+        document.body.appendChild(particle);
+
+        // 애니메이션이 끝난 후 파티클 제거
+        particle.addEventListener('animationend', () => {
+            particle.remove();
+        });
+    }
+};
 </script>
 
 <style scoped>
@@ -441,6 +498,16 @@ h1 {
     font-size: medium;
     font-weight: bold;
     margin-left: 25px;
+}
+
+.goBack {
+    stroke: black;
+}
+
+.preBack {
+    position: absolute;
+    top: 7vh;
+    left: -3vw;
 }
 
 @keyframes showNumber {

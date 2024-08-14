@@ -76,13 +76,6 @@ export const useWebSocketStore = defineStore("websocket", () => {
     }
   };
 
-  const SendNotification = async () => {
-    try {
-    } catch (error) {
-      console.error("Error sending notification:", error);
-    }
-  };
-
   function connectWebSocket() {
     if (stompClient.value && connected.value) {
       return;
@@ -100,6 +93,9 @@ export const useWebSocketStore = defineStore("websocket", () => {
         stompClient.value = client;
         connected.value = true;
         console.log("Connected!");
+        // 알림 구독
+        // subscribeToNotifications();
+
         // 현재 채팅방이 있다면 재연결 시 자동 구독
         // if (currentChatRoomId.value) {
         //   subscribeToChatRoom(
@@ -168,10 +164,6 @@ export const useWebSocketStore = defineStore("websocket", () => {
       const headers = {
         Authorization: "Bearer " + accessToken.value,
       };
-
-      console.log("메시지 전송:", message);
-      console.log("제이슨변환:", JSON.stringify(message));
-
       stompClient.value.publish({
         destination: `/app/sendMessage`,
         body: JSON.stringify(message),
@@ -206,6 +198,24 @@ export const useWebSocketStore = defineStore("websocket", () => {
     }
   };
 
+  // 알림 구독
+  const subscribeToNotifications = () => {
+    if (stompClient.value && connected.value) {
+      const subscription = stompClient.value.subscribe(
+        `/topic/queue/notifications`,
+        (message) => {
+          const notification = JSON.parse(message.body);
+          notifications.value.push(notification);
+          notificationCount.value += 1;
+          console.log("New notification:", notification);
+        }
+      );
+
+      // 구독 해제를 위한 반환 함수
+      return () => subscription.unsubscribe();
+    }
+  };
+
   return {
     stompClient,
     connected,
@@ -218,5 +228,6 @@ export const useWebSocketStore = defineStore("websocket", () => {
     enterChatRoom,
     sendMessage,
     subscribeToChatRoom,
+    subscribeToNotifications,
   };
 });

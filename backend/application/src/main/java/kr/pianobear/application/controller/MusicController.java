@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -152,6 +153,13 @@ public class MusicController {
         return getFileResponse(modifiedMusicXmlRoute);
     }
 
+    @Operation(summary = "음악 이미지 보기", description = "ID로 음악 이미지를 브라우저에서 직접 보여줍니다.")
+    @GetMapping("/{id}/view-music-img")
+    public ResponseEntity<Resource> viewMusicImage(@PathVariable int id) {
+        String musicImgPath = musicService.getMusicImgPath(id);
+        return getInlineFileResponse(musicImgPath);
+    }
+
     @Operation(summary = "음악 이미지 다운로드", description = "ID로 음악 이미지를 다운로드합니다.")
     @GetMapping("/{id}/download-music-img")
     public ResponseEntity<Resource> downloadMusicImage(@PathVariable int id) {
@@ -178,6 +186,29 @@ public class MusicController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM) // MIME 타입 설정
+                    .body(resource);
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    private ResponseEntity<Resource> getInlineFileResponse(String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            Resource resource = new FileSystemResource(path.toFile());
+
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new RuntimeException("Could not read file: " + filePath);
+            }
+
+            String mimeType = Files.probeContentType(path);
+            if (mimeType == null) {
+                mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .contentType(MediaType.parseMediaType(mimeType))
                     .body(resource);
         } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());

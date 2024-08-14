@@ -5,7 +5,7 @@
         <v-icon @click="closeModal">mdi-close</v-icon>
       </div>
       <div class="content">
-        <div class="title">변환된 악보 수정</div>
+        <div class="title">악보 제목 수정</div>
         <div class="form">
           <div class="form-group">
             <label for="title">제목 : </label>
@@ -26,10 +26,7 @@ const store = usePianoSheetStore();
 const title = ref(store.detailSheet?.title || "");
 
 const closeModal = () => {
-  // if (store.convertedFile) {
-  //   store.convertedFile.title = title.value;
-  // }
-  store.isOpen = false; // 모달을 닫도록 설정
+  store.isOpen = false;
 };
 
 const submitChanges = () => {
