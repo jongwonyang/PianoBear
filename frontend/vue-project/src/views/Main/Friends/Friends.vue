@@ -8,7 +8,7 @@
         </div>
         <div v-else>
           <div class="my-status-box">
-            <img class="my-status-image" :src="userInfo.profilePic" />
+            <img class="my-status-image" :src="userProfilePic" />
             <div class="my-status-ele">
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
@@ -38,7 +38,7 @@
         <div v-else class="my-friends-ele">
           <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
             <div class="my-friends-ele-left">
-              <img :src="friend.profilePic" alt="친구 img" />
+              <img :src="getFriendProfile(friend.profilePic)" alt="친구 img" />
             </div>
             <div class="my-friends-ele-right">
               <div class="friend-name">{{ friend.name }}</div>
@@ -79,7 +79,6 @@
     </div>
   </div>
 
-
   <!-- 친구 정보 다이얼로그 -->
   <v-dialog v-model="friendInfoDialog" max-width="500px">
     <v-card class="friend-info-form">
@@ -87,7 +86,7 @@
       <v-card-text v-if="friendInfo">
         <div class="friend-item">
           <div class="my-friends-ele-left">
-            <img :src="friendProfilePic" alt="친구 img" />
+            <img :src="getFriendProfile(friendInfo.profilePic)" alt="친구 img" />
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ friendInfo.name }}</div>
@@ -116,7 +115,7 @@
       <v-card-text v-if="searchResult">
         <div class="friend-item">
           <div class="my-friends-ele-left">
-            <img :src="friendProfilePic" alt="친구 img" />
+            <img :src="getFriendProfile(searchResult.profilePic)" alt="친구 img" />
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ searchResult.name }}</div>
@@ -164,6 +163,7 @@ import { onMounted, ref, nextTick, computed } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useFriendStore } from "@/stores/friend";
 import { useWebSocketStore } from "@/stores/websocket";
+import { useRouter } from "vue-router";
 
 const userInfo = ref({});
 const isLoading = ref({
@@ -179,6 +179,7 @@ const newMessage = ref(""); // 새 메시지 입력 필드
 const userStore = useUserStore();
 const friendStore = useFriendStore();
 const webSocketStore = useWebSocketStore();
+const router = useRouter();
 
 const showDialog = ref(false);
 const friendInfoDialog = ref(false);
@@ -196,11 +197,16 @@ onMounted(() => {
     .GetFriendList()
     .then((res) => {
       friends.value = res.data;
-      console.log(friends.value[0].profilePic);
       isLoading.value.friendList = false;
       userInfo.value = userStore.user;
       console.log(userInfo.value);
       isLoading.value.userInfo = false;
+
+      // 쿼리 매개변수를 통해 받은 friendId로 채팅 시작
+      const chatWith = router.currentRoute.value.query.chatWith;
+      if (chatWith) {
+        startChatting(chatWith);
+      }
     })
     .catch((err) => {
       console.log(err);
@@ -215,6 +221,7 @@ const startChatting = async (friendId) => {
     currentChatRoomId.value = chatRoom.id;
     messages.value = chatRoom.messages;
     receiverId.value = friendId;
+
 
     // 채팅방에 메시지 구독
     webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
@@ -359,15 +366,18 @@ const userProfilePic = computed(() => {
       userInfo.value.profilePic.slice(7, userInfo.value.profilePic.length)
     );
   } else if (userInfo.gender === "M") {
-    return "./assets/characters/토니/토니머리.png ";
+    return "src/assets/characters/토니/토니머리.png ";
   } else {
-    return "./assets/characters/피치/피치머리.png ";
+    return "src/assets/characters/피치/피치머리.png ";
   }
 });
 
-const friendProfilePic = computed(() => {
-  let defaultPic = "@/assets/characters/토니/토니머리.png";
+const getFriendProfile = (profilePic) => {
+  console.log(friends.value);
+  return `${import.meta.env.VITE_API_BASE_URL}` + profilePic.slice(7, profilePic.length);
+};
 
+const friendProfilePic = computed(() => {
   for (let i = 0; i < friends.value.length; i++) {
     if (friends.value[i].profilePic) {
       return (
@@ -376,8 +386,6 @@ const friendProfilePic = computed(() => {
       );
     }
   }
-
-  return defaultPic;
 });
 </script>
 

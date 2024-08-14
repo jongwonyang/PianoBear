@@ -90,11 +90,11 @@
         <div v-else class="online-friend">
           <template v-for="friend in topOnlineFriends" :key="friend.id">
             <div class="friend-box">
-              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic.path})` }"></div>
+              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic})` }"></div>
               <div class="friend-name">{{ friend.name }}</div>
-              <div class="friend-chat">
-                <v-icon aria-hidden="false"> mdi-chat </v-icon>
-                <v-tooltip activator="parent" location="bottom">채팅하기</v-tooltip>
+              <div>
+                <v-btn class="friend-chat" icon="mdi-chat" v-tooltip:bottom="'채팅하기'"
+                  @click="handleChat(friend.id)"></v-btn>
               </div>
             </div>
             <v-divider></v-divider>
@@ -135,10 +135,18 @@ const userInfo = ref({
   most: ["string"],
 });
 
+const handleChat = (friendId) => {
+  router.push({
+    name: 'friends',
+    query: { chatWith: friendId }
+  });
+};
+
+
 const favoriteMusic = ref(["-", "-", "-"]);
 const practiceRecord = ref([]);
-const currentYear = ref(2023);
-const currentMonth = ref(7);
+const currentYear = ref(2024);
+const currentMonth = ref(8);
 const practiceDays = ref([]);
 const dialogState = ref([]);
 const onlineFriends = ref([]);
@@ -251,8 +259,6 @@ const userProfilePic = computed(() => {
       import.meta.env.VITE_API_BASE_URL +
       userInfo.value.profileImage.slice(7, userInfo.value.profileImage.length)
     );
-  } else {
-    return "src/assets/characters/토니/토니머리.png ";
   }
 });
 

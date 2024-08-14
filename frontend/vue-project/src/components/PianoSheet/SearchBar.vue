@@ -5,13 +5,16 @@
     variant="outlined"
     @click:prepend-inner="toggleMenu"
     v-model="store.searchText"
+    bg-color="#ECC491"
+    base-color="#ECC491"
+    color="#73796E"
   >
     <template v-slot:prepend-inner>
       <v-menu v-model:menu="menu" location="start">
         <template v-slot:activator="{ props }">
           <v-icon v-bind="props">mdi-menu</v-icon>
         </template>
-        <v-list class="list" style="background-color: #fff9e0" elevation="2" font-weight="bold">
+        <v-list class="list" style="background-color: #d9f6d9">
           <v-list-item
             v-for="(item, index) in displayedItems"
             :key="index"
@@ -61,6 +64,6 @@ const changeSort = (index: number) => {
 
 <style scoped>
 .list {
-  color: #947650;
+  font-weight: bold;
 }
 </style>

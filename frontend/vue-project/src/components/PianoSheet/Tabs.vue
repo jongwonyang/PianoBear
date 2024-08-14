@@ -5,7 +5,7 @@
       @click="setCurrentTab('UserSheet')"
       :class="{ active: currentTab === 'UserSheet' }"
     >
-      <v-tooltip text="내 악보">
+      <v-tooltip text="내 악보" location="top">
         <template v-slot:activator="{ props }">
           <span>
             <img src="@/assets/characters/토니/토니머리.png" alt="" v-bind="props" />
@@ -18,7 +18,7 @@
       @click="setCurrentTab('BasicSheet')"
       :class="{ active: currentTab === 'BasicSheet' }"
     >
-      <v-tooltip text="기본 악보">
+      <v-tooltip text="기본 악보" location="top">
         <template v-slot:activator="{ props }">
           <span>
             <img src="@/assets/characters/피치/피치머리.png" alt="" v-bind="props" />

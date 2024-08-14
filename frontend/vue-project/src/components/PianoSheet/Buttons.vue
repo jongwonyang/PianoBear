@@ -1,7 +1,7 @@
 <template>
   <div class="button-container">
-    <button @click="navigateTo('practice')" class="btn">연습하기!</button>
-    <button @click="navigateTo('challenge')" class="btn">도전하기!</button>
+    <button @click="navigateTo('practice')" class="btn">연습하기</button>
+    <button @click="navigateTo('challenge')" class="btn">도전하기</button>
     <div class="third-row">
       <button @click="toggleFavorite" class="btn">
         <v-icon>{{ isFavorite ? "mdi-heart" : "mdi-heart-outline" }}</v-icon>
@@ -108,28 +108,24 @@ onMounted(() => {
 }
 
 .third-row button:first-of-type {
-  margin-right: 10px;
-  /* '즐겨찾기' 버튼 오른쪽에 공간 추가 */
+  margin-right: 1vw;
 }
 
 .third-row button:last-of-type {
-  margin-left: 10px;
-  /* '삭제' 버튼 왼쪽에 공간 추가 */
+  margin-left: 1vw;
 }
 
 .btn {
   background-color: #fff9e0;
-  height: 70px;
-  border-radius: 5px;
+  height: 9vh;
+  border-radius: 10px;
   /* 기본 버튼 스타일에 가장 가까운 둥근 모서리 추가 */
   cursor: pointer;
   /* 클릭 가능한 버튼 모양 */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
-  /* 버튼의 좌우 패딩 추가 */
-  font-size: 18px;
+  font-size: 120%;
   /* 버튼 텍스트의 크기 설정 */
   font-weight: bold;
   box-shadow: 2px 2px 2px gray;
@@ -163,23 +159,45 @@ onMounted(() => {
   border-radius: 8px;
   width: 80%;
   /* 부모 요소의 80% 너비로 설정 */
-  width: 800px;
-  height: 500px;
+  width: 50vw;
+  height: 60vh;
 }
 
 .content {
   padding: 100px;
-  padding-top: 110px;
-  padding-bottom: 150px;
-  font-size: x-large;
+  font-size: 150%;
   font-weight: bold;
 }
 
 .modal-actions {
-  margin-top: 100px;
+  margin-top: 13vh;
   display: flex;
   justify-content: center;
-  gap: 50px;
+  gap: 5vw;
+}
+
+.modal-actions button {
+  background-color: #947650;
+  color: black;
+  border-radius: 10em;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 1em 2em;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid black;
+  box-shadow: 0 0 0 0 black;
+  width: 20vw;
+}
+
+.modal-actions button:hover {
+  transform: translateY(-4px) translateX(-2px);
+  box-shadow: 2px 5px 0 0 black;
+}
+
+.modal-actions button:active {
+  transform: translateY(2px) translateX(1px);
+  box-shadow: 0 0 0 0 black;
 }
 
 .text {
