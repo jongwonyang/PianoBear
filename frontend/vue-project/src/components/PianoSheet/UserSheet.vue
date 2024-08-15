@@ -1,19 +1,35 @@
 <template>
   <div class="container">
     <div>
-      <button class="prev" @click="downCount" :class="{ disabled: !canGoBack }"></button>
+      <img
+        src="@/assets/images/prev.png"
+        alt="이전"
+        class="prev"
+        @click="downCount"
+        :class="{ disabled: !canGoBack }"
+      />
+      <!-- <button class="prev" @click="downCount" :class="{ disabled: !canGoBack }"></button> -->
     </div>
     <div class="page">
       <div v-for="pageIndex in 2" :key="pageIndex" class="line">
         <div :class="`bookshelf${pageIndex}`">
           <div class="shelf">
-            <router-link v-for="(book, index) in currentList.filter(
-              (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
-            )" :key="index" :to="`/main/piano-sheet/${book.id}`" class="router"
-              :style="{ gridColumn: (index % 5) + 1 }">
+            <router-link
+              v-for="(book, index) in currentList.filter(
+                (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
+              )"
+              :key="index"
+              :to="`/main/piano-sheet/${book.id}`"
+              class="router"
+              :style="{ gridColumn: (index % 5) + 1 }"
+            >
               <div class="book">
                 <!-- 이미지가 있을 때 -->
-                <img v-if="book.musicImg" :src="getMusicImageUrl(book.id) + '/download-music-img'" alt="Book Image" />
+                <img
+                  v-if="book.musicImg"
+                  :src="getMusicImageUrl(book.id) + '/download-music-img'"
+                  alt="Book Image"
+                />
                 <!-- 이미지가 없을 때 -->
                 <img v-else src="@/assets/images/blur.png" alt="Default Book Image" />
               </div>
@@ -22,9 +38,14 @@
         </div>
         <div :class="`support${pageIndex}`">
           <div class="support">
-            <div v-for="(book, index) in currentList.filter(
-              (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
-            )" :key="index" class="title" :style="{ gridColumn: (index % 5) + 1 }">
+            <div
+              v-for="(book, index) in currentList.filter(
+                (_, i) => bookCount + pageIndex - 1 <= i / 5 && i / 5 < bookCount + pageIndex
+              )"
+              :key="index"
+              class="title"
+              :style="{ gridColumn: (index % 5) + 1 }"
+            >
               {{ book.title }}
             </div>
           </div>
@@ -32,7 +53,14 @@
       </div>
     </div>
     <div>
-      <button class="next" @click="upCount" :class="{ disabled: !canGoForward }"></button>
+      <img
+        src="@/assets/images/next.png"
+        alt="다음"
+        class="next"
+        @click="upCount"
+        :class="{ disabled: !canGoForward }"
+      />
+      <!-- <button class="next" @click="upCount" :class="{ disabled: !canGoForward }"></button> -->
     </div>
   </div>
 </template>
@@ -189,19 +217,31 @@ const getMusicImageUrl = (bookId: number) => {
 
 .prev,
 .next {
-  border-bottom: 3vh solid transparent;
+  /* border-bottom: 3vh solid transparent;
   border-top: 3vh solid transparent;
-  margin: 0 3vw;
+  margin: 0 3vw; */
 }
 
 .prev {
-  border-left: 2vw solid transparent;
-  border-right: 2vw solid #a48253;
+  /* border-left: 2vw solid transparent;
+  border-right: 2vw solid #a48253; */
+  margin-right: 20px;
+  transition: all 0.1s linear;
 }
 
 .next {
-  border-left: 2vw solid #a48253;
-  border-right: 2vw solid transparent;
+  /* border-left: 2vw solid #a48253;
+  border-right: 2vw solid transparent; */
+  margin-left: 25px;
+  transition: all 0.1s linear;
+}
+
+.prev:hover {
+  transform: scale(1.4);
+}
+
+.next:hover {
+  transform: scale(1.4);
 }
 
 .prev.disabled,
