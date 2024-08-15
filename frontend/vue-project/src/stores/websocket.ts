@@ -20,8 +20,10 @@ export type MessageDTO = {
 };
 
 export const useWebSocketStore = defineStore("websocket", () => {
-  const stompClient = ref<Client | null>(null);
+  let stompClient: Client | null = null;
   const connected = ref(false);
+  const connecting = ref(false);
+  let connectPromise: Promise<Client> | null = null;
   const currentChatRoomId = ref<number | null>(null);
   const messages = ref<MessageDTO[]>([]);
   const userStore = useUserStore();
@@ -77,46 +79,58 @@ export const useWebSocketStore = defineStore("websocket", () => {
     }
   };
 
-  function connectWebSocket() {
-    if (stompClient.value && connected.value) {
-      return;
+  async function connectWebSocket() {
+    if (connected.value) {
+      return Promise.resolve(stompClient);
+    }
+
+    if (connecting.value) {
+      return connectPromise;
     }
 
     const headers = {
       Authorization: "Bearer " + accessToken.value,
     };
 
-    const socket = new SockJS(import.meta.env.VITE_API_BASE_URL + "/ws");
-    const client = new Client({
-      webSocketFactory: () => socket,
-      connectHeaders: headers,
-      onConnect: () => {
-        stompClient.value = client;
-        connected.value = true;
+    connectPromise = new Promise((resolve, reject) => {
+      connecting.value = true;
+      const socket = new SockJS(import.meta.env.VITE_API_BASE_URL + "/ws");
+      const client = new Client({
+        webSocketFactory: () => socket,
+        connectHeaders: headers,
+        onConnect: () => {
+          stompClient = client;
+          connected.value = true;
+          connecting.value = false;
 
-        //알림 구독
-        subscribeToNotifications();
-        console.log("Connected!");
-      },
-      onStompError: (error) => {
-        console.error("WebSocket 연결 오류:", error);
-      },
-      onWebSocketClose: () => {
-        console.log("WebSocket 연결이 종료되었습니다.");
-        connected.value = false;
-      },
+          //알림 구독
+          subscribeToNotifications();
+          console.log("Connected!");
+          resolve(stompClient);
+        },
+        onStompError: (error) => {
+          console.error("WebSocket 연결 오류:", error);
+          connecting.value = false;
+          connected.value = false;
+          reject(error.headers["message"]);
+        },
+        onWebSocketClose: () => {
+          console.log("WebSocket 연결이 종료되었습니다.");
+          connected.value = false;
+        },
+      });
+
+      client.activate();
     });
-
-    client.activate();
   }
 
   function disconnectWebSocket() {
-    console.log(stompClient.value);
-    if (stompClient.value !== null) {
+    console.log(stompClient);
+    if (stompClient !== null) {
       console.log("LETS DISCONNECT!!!!!!!!!!!!!!!!!!!!!!!");
-      stompClient.value.deactivate().then(() => {
+      stompClient.deactivate().then(() => {
         connected.value = false;
-        stompClient.value = null;
+        stompClient = null;
         console.log("Disconnected");
       });
     }
@@ -130,7 +144,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
 
       // 웹소켓 연결 후 구독
       if (!connected.value) {
-        connectWebSocket();
+        await connectWebSocket();
       }
 
       // subscribeToChatRoom(currentChatRoomId.value, (message: MessageDTO) => {
@@ -146,7 +160,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
 
   // 메시지 전송
   const sendMessage = (receiverId: string, content: string) => {
-    if (stompClient.value && connected.value) {
+    if (stompClient && connected.value) {
       const message: Partial<MessageDTO> = {
         content: content,
         receiverId: receiverId,
@@ -156,7 +170,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
       const headers = {
         Authorization: "Bearer " + accessToken.value,
       };
-      stompClient.value.publish({
+      stompClient.publish({
         destination: `/app/sendMessage`,
         body: JSON.stringify(message),
         headers: headers,
@@ -176,8 +190,8 @@ export const useWebSocketStore = defineStore("websocket", () => {
     chatRoomId: number,
     callback: (message: MessageDTO) => void
   ) => {
-    if (stompClient.value && connected.value) {
-      const subscription = stompClient.value.subscribe(
+    if (stompClient && connected.value) {
+      const subscription = stompClient.subscribe(
         `/topic/chat/${chatRoomId}`,
         (message) => {
           const receivedMessage = JSON.parse(message.body) as MessageDTO;
@@ -192,17 +206,15 @@ export const useWebSocketStore = defineStore("websocket", () => {
 
   // 알림 구독
   const subscribeToNotifications = () => {
-    const headers = {
-      Authorization: "Bearer " + accessToken.value,
-    };
-    if (stompClient.value && connected.value) {
-      const subscription = stompClient.value.subscribe(
+    if (stompClient && connected.value) {
+      const subscription = stompClient.subscribe(
         `/user/queue/notifications`,
         (message) => {
           const notification = JSON.parse(message.body);
+          GetNotificationList();
+          GetNotificationCount();
           console.log("New notification:", notification);
-        },
-        headers
+        }
       );
 
       // 구독 해제를 위한 반환 함수
@@ -211,8 +223,9 @@ export const useWebSocketStore = defineStore("websocket", () => {
   };
 
   return {
-    stompClient,
     connected,
+    notifications,
+    notificationCount,
     GetNotificationList,
     GetNotificationCount,
     DeleteNotification,
