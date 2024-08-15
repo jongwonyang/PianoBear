@@ -4,6 +4,7 @@ import axios from "axios";
 import apiClient from "@/loginController/verification";
 import type { promises } from "dns";
 import { createModuleResolutionCache } from "typescript";
+import router from "@/router";
 
 const REST_PIANOSHEET_API = `${import.meta.env.VITE_API_BASE_URL}/music`;
 
@@ -220,13 +221,13 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     try {
       const response = await apiClient.delete(`${REST_PIANOSHEET_API}/${id}`);
       if (response.status >= 200 && response.status < 300) {
+        router.push("/main");
       } else {
         console.error("악보 삭제 실패! 상태 코드:", response.status);
       }
     } catch (error) {
       console.error("Error deleting sheet", error);
     }
-    // 매개변수 필요할듯?
   };
 
   // 연습 기록 데이터
