@@ -7,7 +7,7 @@
         color="#D9F6D9"
         @mouseenter="isRail = false"
         @mouseleave="isRail = true"
-        mobile-breakpoint="xs"
+        :mobile="false"
       >
         <v-list>
           <v-list-item>
@@ -19,45 +19,50 @@
           </v-list-item>
         </v-list>
         <v-divider></v-divider>
-        <v-list density="compact" nav>
+        <v-list density="comfortable" nav>
           <v-list-item
             prepend-icon="mdi-home-variant-outline"
             title="메인"
             value="내 정보"
-            @click="router.push({ name: 'myInfo' })"
+            link
+            :to="{ name: 'myInfoView' }"
           ></v-list-item>
           <v-list-item
             prepend-icon="mdi-account-multiple-outline"
             title="친구들"
             value="친구들"
-            @click="router.push({ name: 'friends' })"
+            link
+            :to="{ name: 'friends' }"
           ></v-list-item>
           <v-list-item
             prepend-icon="mdi-music-box-multiple"
             title="내 악보"
             value="악보목록"
-            @click="router.push({ name: 'pianoSheetList' })"
+            link
+            :to="{ name: 'pianoSheetList' }"
           ></v-list-item>
           <v-list-item
             prepend-icon="mdi-video-account"
             title="놀이터"
             value="소통방"
-            @click="router.push({ name: 'community' })"
+            link
+            :to="{ name: 'community' }"
           ></v-list-item>
           <v-list-item
-            v-if="notificationCount == 0"
-            prepend-icon="mdi-bell-outline"
+            :prepend-icon="
+              webSocketStore.notificationCount == 0
+                ? 'mdi-bell-outline'
+                : 'mdi-bell-badge-outline'
+            "
             title="알림"
             value="알림"
+            :active="false"
             @click="handleNotificationClick"
-          ></v-list-item>
-          <v-list-item
-            v-if="notificationCount != 0"
-            prepend-icon="mdi-bell-badge-outline"
-            title="알림"
-            value="알림"
-            @click="handleNotificationClick"
-          ></v-list-item>
+          >
+            <v-list-item-subtitle v-if="webSocketStore.notificationCount != 0"
+              >{{ webSocketStore.notificationCount }} 개</v-list-item-subtitle
+            >
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
     </v-layout>
@@ -79,7 +84,7 @@
         <v-card-text>
           <v-list class="notification-list">
             <v-list-item
-              v-for="(notification, index) in notifications"
+              v-for="(notification, index) in webSocketStore.notifications"
               :key="index"
             >
               <v-list-item-content>
@@ -90,15 +95,16 @@
                     보냈습니다!</v-list-item-subtitle
                   >
                 </template>
-                <template v-else-if="notification.type === 'PLAYGROUND'">
+                <template v-else-if="notification.type === 'INVITATION'">
                   <v-list-item-title>놀이터 초대</v-list-item-title>
-                  <v-list-item-subtitle
-                    >{{ notification.content.senderName }} 님이 놀이터에
-                    초대하였습니다!</v-list-item-subtitle
-                  >
+                  <v-list-item-subtitle class="mb-2"
+                    >{{ notification.content.inviterName }} 님이
+                    {{ notification.content.sessionTitle }}&nbsp;놀이터에
+                    초대하였습니다!
+                  </v-list-item-subtitle>
                 </template>
                 <template v-else-if="notification.type === 'CHAT'">
-                  <v-list-item-title>친구 요청</v-list-item-title>
+                  <v-list-item-title>채팅</v-list-item-title>
                   <v-list-item-subtitle
                     >{{ notification.content.senderName }} 님이 채팅을
                     보냈습니다!</v-list-item-subtitle
@@ -122,7 +128,7 @@
                     >거절</v-btn
                   >
                 </template>
-                <template v-else-if="notification.type === 'PLAYGROUND'">
+                <template v-else-if="notification.type === 'INVITATION'">
                   <v-btn
                     class="yes-btn"
                     small
@@ -161,7 +167,7 @@
                 </template>
               </v-list-item-action>
             </v-list-item>
-            <v-list-item v-if="notifications.length === 0">
+            <v-list-item v-if="webSocketStore.notifications.length === 0">
               <v-list-item-content>
                 <v-list-item-title>알림이 비어있습니다!</v-list-item-title>
               </v-list-item-content>
@@ -215,19 +221,12 @@ const userInfo = ref({
 const showDialog = ref(false);
 const showConfirmDeleteDialog = ref(false);
 
-const notifications = ref([]);
-const notificationCount = ref(0);
-
 const isRail = ref(true);
 import largeLogo from "@/assets/logo.png";
 import smallLogo from "@/assets/characters/thf.png";
 
 const handleNotificationClick = () => {
-  webSocketStore.GetNotificationList().then((res) => {
-    notifications.value = res;
-    notificationCount.value = res.length;
-    console.log("알림 목록: ", notifications.value);
-  });
+  webSocketStore.GetNotificationList();
   showDialog.value = true;
 };
 
@@ -243,28 +242,11 @@ onMounted(() => {
     .catch((err) => {
       console.log(err);
     });
+  webSocketStore.GetNotificationCount();
 });
-
-// watch를 사용하여 webSocketStore.notifications와 notificationCount 변화를 감지
-watch(
-  () => webSocketStore.notifications,
-  (newNotifications) => {
-    notifications.value = newNotifications;
-    console.log("알림 목록이 업데이트되었습니다:", notifications.value);
-  }
-);
-
-watch(
-  () => webSocketStore.notificationCount,
-  (newCount) => {
-    notificationCount.value = newCount;
-    console.log("알림 개수가 업데이트되었습니다:", notificationCount.value);
-  }
-);
 
 const clearAllNotifications = () => {
   webSocketStore.ClearNotifications();
-  notifications.value.splice(0, notifications.value.length);
   // notifications.value = [];
   // notificationCount.value = 0;
 };
@@ -276,47 +258,55 @@ const confirmDeleteAllNotifications = () => {
 
 const acceptFriendRequest = (index) => {
   // 친구 요청 수락 API 호출
-  friendStore.AcceptFriendRequest(notifications.value[index].content.senderId);
+  friendStore.AcceptFriendRequest(
+    webSocketStore.notifications[index].content.senderId
+  );
 
-  console.log("친구 추가 요청 수락:", notifications.value[index].message);
+  console.log("친구 추가 요청 수락:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(notifications.value[index].id);
-  notifications.value.splice(index, 1);
+  webSocketStore.DeleteNotification(webSocketStore.notifications[index].id);
 };
 
 const declineFriendRequest = (index) => {
-  console.log("친구 추가 요청 거절:", notifications.value[index].message);
+  console.log("친구 추가 요청 거절:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(notifications.value[index].id);
-  notifications.value.splice(index, 1);
+  webSocketStore.DeleteNotification(webSocketStore.notifications[index].id);
 };
 
 const acceptMeetingInvite = (index) => {
-  console.log("회의실 초대 수락:", notifications.value[index].message);
+  console.log("회의실 초대 수락:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(notifications.value[index].id);
-  notifications.value.splice(index, 1);
+  webSocketStore.DeleteNotification(webSocketStore.notifications[index].id);
+  router.push({
+    name: "communityJoin",
+    params: { id: webSocketStore.notifications[index].content.sessionId },
+  });
+  showDialog.value = false;
 };
 
 const declineMeetingInvite = (index) => {
-  console.log("회의실 초대 거절:", notifications.value[index].message);
+  console.log("회의실 초대 거절:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(notifications.value[index].id);
-  notifications.value.splice(index, 1);
+  webSocketStore.DeleteNotification(
+    webSocketStore.notifications.value[index].id
+  );
 };
 
 const goToChat = (index) => {
-  console.log("채팅으로 이동:", notifications.value[index].message);
+  console.log("채팅으로 이동:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(notifications.value[index].id);
-  notifications.value.splice(index, 1);
+  webSocketStore.DeleteNotification(webSocketStore.notifications[index].id);
+  router.push({
+    name: "friends",
+    query: { chatWith: webSocketStore.notifications[index].content.senderId },
+  });
+  showDialog.value = false;
 };
 
 const deleteChatMessage = (index) => {
-  console.log("채팅 메시지 삭제:", notifications.value[index].message);
+  console.log("채팅 메시지 삭제:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(notifications.value[index].id);
-  notifications.value.splice(index, 1);
+  webSocketStore.DeleteNotification(webSocketStore.notifications[index].id);
 };
 
 // const goToSheet = (index) => {

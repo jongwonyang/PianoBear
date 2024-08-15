@@ -111,13 +111,13 @@ public class OpenViduService {
         sessionData.getParticipants().add(targetUserId);
 
         String notificationContent = String.format(
-                "{\"inviterId\":\"%s\", \"inviterName\":\"%s\", \"sessionTitle\":\"%s\", \"invitationMessage\":\"%s\", \"description\":\"%s\"}",
+                "{\"inviterId\":\"%s\", \"inviterName\":\"%s\", \"sessionTitle\":\"%s\", \"invitationMessage\":\"%s\", \"description\":\"%s\", \"sessionId\":\"%s\"}",
                 currentUser.getId(),
                 currentUser.getName(),
                 sessionData.getSessionTitle(),
                 sessionData.getInvitationMessage(),
-                sessionData.getDescription()
-        );
+                sessionData.getDescription(),
+                sessionId);
 
         notificationService.createNotification(targetUser, "INVITATION", notificationContent);
     }
