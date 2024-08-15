@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="head">
-      <div class="title">
-        {{ store.detailSheet?.title }}
-        <v-icon @click="openModal">mdi-pencil</v-icon>
-      </div>
-      <div class="make">
-        <button @click="makeImg">표지 만들기</button>
-      </div>
-    </div>
+    <div class="head"></div>
     <div class="btn">
       <button
         class="cursor-pointer duration-200 hover:scale-125 active:scale-100"
@@ -33,6 +25,13 @@
     </div>
     <div class="container">
       <div class="left">
+        <div class="title">
+          {{ store.detailSheet?.title }}
+          <v-icon @click="openModal">mdi-pencil</v-icon>
+        </div>
+        <div class="make">
+          <button @click="makeImg">표지 만들기</button>
+        </div>
         <PianoSheet />
       </div>
       <div class="right">
@@ -110,6 +109,8 @@ onMounted(() => {
 .left {
   flex: 1;
   margin-right: 20px;
+  position: relative;
+  top: -49px;
 }
 
 .right {
@@ -127,10 +128,13 @@ onMounted(() => {
   color: #947650;
   height: 6vh;
   align-content: center;
+  text-align: center;
   padding-left: 1vw;
   padding-right: 1vw;
   border: 2px solid #f5e5d1;
   border-radius: 5%;
+  width: 200px;
+  margin-bottom: 5px;
 }
 
 .make {
@@ -138,21 +142,25 @@ onMounted(() => {
   color: #947650;
   height: 6vh;
   align-content: center;
-  margin-left: 1vw;
+  text-align: center;
   padding-left: 1vw;
   padding-right: 1vw;
-  position: fixed;
-  left: 574px;
   border: 2px solid #f5e5d1;
   border-radius: 5%;
+  width: 150px;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .head {
-  display: flex;
-  justify-content: start;
+  position: relative;
+  justify-content: space-between;
   font-size: larger;
   font-weight: bold;
   margin-bottom: 1vh;
+  padding-right: 51.5%;
+  height: 100px;
 }
 
 .loader-overlay {
