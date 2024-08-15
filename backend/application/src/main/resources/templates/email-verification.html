@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url('/static/pianoBG.jpg');
+            background-image: url('/api/v1/static/pianoBG.jpg');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -60,10 +60,11 @@
         #result {
             margin-top: 20px;
             font-size: 1.1em;
+            color: #fff; /* 초기 글씨 색깔 설정 */
         }
 
         #goto-main a {
-            color: #FFD700;
+            color: #a89375;
             text-decoration: none;
             font-size: 1.2em;
             margin-top: 20px;
@@ -86,19 +87,29 @@
     <div id="goto-main" style="display:none;"><a href="/">피아노배어 메인으로 가기</a></div>
 </div>
 
-<div id="server-data" style="display:none;" th:attr="data-uuid=${uuid}"></div>
+<div id="server-data" style="display:none; " th:attr="data-uuid=${uuid}"></div>
 
 <script type="text/javascript">
     function handleSuccess() {
         const result = document.getElementById("result");
         result.innerText = "인증이 성공했습니다.";
+        result.style.color = "#a89375";
+        result.style.fontWeight = "bold";
         const gotoMain = document.getElementById("goto-main");
         gotoMain.style.display = "block";
+
+        const btnVerify = document.getElementById('btn-verify');
+        btnVerify.style.display = "none";
     }
 
     function handleError(msg) {
         const result = document.getElementById("result");
         result.innerText = "인증이 실패했습니다: " + msg;
+        result.style.fontWeight = "bold";
+        result.style.color = "#a89375";
+
+        const btnVerify = document.getElementById('btn-verify');
+        btnVerify.style.display = "none";
     }
 
     window.onload = function() {

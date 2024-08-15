@@ -61,27 +61,25 @@ onMounted(() => {
 
 <style scoped>
 .prev {
-  position: absolute;
   left: 0px;
   border-bottom: 1.5vh solid transparent;
   border-top: 1.5vh solid transparent;
   border-left: 1vw solid transparent;
   border-right: 1vw solid #947650;
-  z-index: 2;
+  /* z-index: 2; */
 }
 
 .next {
-  position: absolute;
   right: 0px;
   border-bottom: 1.5vh solid transparent;
   border-top: 1.5vh solid transparent;
   border-left: 1vw solid #947650;
   border-right: 1vw solid transparent;
-  z-index: 2;
+  /* z-index: 2; */
 }
 
 .slider {
-  position: relative;
+  /* position: relative; */
   width: 100%;
   overflow: hidden;
   background-color: white;
@@ -96,6 +94,6 @@ button {
   position: absolute;
   top: 50%;
   cursor: pointer;
-  z-index: 10;
+  /* z-index: 10; */
 }
 </style>

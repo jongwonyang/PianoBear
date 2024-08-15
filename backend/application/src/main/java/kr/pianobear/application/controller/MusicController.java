@@ -220,11 +220,17 @@ public class MusicController {
         }
     }
 
-    @Operation(summary = "사용자별 악보 불러오기", description = "사용자 ID에 따라 악보를 필터링하여 불러옵니다. 기본 악보도 포함됩니다.")
-    @GetMapping("/user-or-default")
-    public ResponseEntity<List<MusicDTO>> getMusicByUserOrDefault() {
-        String userId = SecurityUtil.getCurrentUserId();
-        List<MusicDTO> musicList = musicService.getMusicByUserOrNull(userId);
-        return ResponseEntity.ok(musicList);
+    @Operation(summary = "Admin 사용자가 올린 악보 불러오기", description = "Admin 사용자가 올린 악보를 불러옵니다.")
+    @GetMapping("/admin")
+    public ResponseEntity<List<MusicDTO>> getAdminMusic() {
+        List<MusicDTO> adminMusicList = musicService.getAdminMusic();
+        return ResponseEntity.ok(adminMusicList);
+    }
+
+    @Operation(summary = "본인이 올린 악보 불러오기", description = "로그인한 사용자가 올린 악보를 불러옵니다.")
+    @GetMapping("/user")
+    public ResponseEntity<List<MusicDTO>> getUserMusic() {
+        List<MusicDTO> userMusicList = musicService.getUserMusic();
+        return ResponseEntity.ok(userMusicList);
     }
 }
