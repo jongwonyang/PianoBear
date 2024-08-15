@@ -259,7 +259,7 @@ const doPractice = async function (e) {
                 isPractice.value = true;
                 clearInterval(interval1.value);
             }
-        }, 600)
+        }, 300)
     } else if (practiceToday.value.practiceCount === 4) {
         await store.practicePostfun(nowSheet.value);
         practiceGet();
@@ -313,7 +313,7 @@ onMounted(async () => {
                     isPractice.value = true;
                     clearInterval(interval1.value);
                 }
-            }, 600)
+            }, 300)
         }
     }
 });
