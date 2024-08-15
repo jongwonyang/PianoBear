@@ -62,7 +62,6 @@ public class MusicService {
             title = title.substring(0, 9);
         }
         music.setTitle(title);
-
         music.setFavorite(false);
         music.setUploadDate(LocalDate.now());
 

@@ -74,13 +74,14 @@ onMounted(async () => {
   font-weight: bold;
   border-radius: 5%;
   box-shadow: 0.2vw 0.3vh 0.6vh gray;
-  /* margin-top: 0.5vh; */
+  margin-right: 5vw;
 }
 
 .searchbar {
   width: 20vw;
   margin-left: auto;
-  margin-bottom: -5vh;
+  margin-bottom: -6vh;
+  margin-right: 5vw;
 }
 
 .container {
@@ -90,6 +91,6 @@ onMounted(async () => {
 }
 
 .tabs {
-  margin-left: 10vw;
+  margin-left: 6vw;
 }
 </style>

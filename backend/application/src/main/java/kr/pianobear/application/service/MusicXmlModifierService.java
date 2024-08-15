@@ -30,7 +30,7 @@ public class MusicXmlModifierService {
 
     static {
         noteToSyllable.put("C", "도");
-        noteToSyllable.put("D", "ㄹㅔ");
+        noteToSyllable.put("D", "레");
         noteToSyllable.put("E", "미");
         noteToSyllable.put("F", "파");
         noteToSyllable.put("G", "솔");

@@ -12,12 +12,14 @@
         <span v-else>여기에 악보가 만들어집니다.</span>
       </div>
       <div v-if="store.convertedFile?.title">
-        <router-link
-          v-if="store.convertedFile"
-          :to="`/main/piano-sheet/${store.convertedFile.id}`"
-          class="router"
-          >악보 바로가기</router-link
-        >
+        <button>
+          <router-link
+            v-if="store.convertedFile"
+            :to="`/main/piano-sheet/${store.convertedFile.id}`"
+            class="router"
+            >악보 바로가기</router-link
+          >
+        </button>
       </div>
     </div>
   </div>
@@ -32,7 +34,7 @@ const store = usePianoSheetStore();
 
 <style scoped>
 .container {
-  border: 2px solid #f5e5d1;
+  /* border: 2px solid #947650; */
   background-color: #fffff8;
   color: #947650;
   width: 350px;
@@ -42,7 +44,7 @@ const store = usePianoSheetStore();
 }
 
 .filebox {
-  border: 2px dashed #f5e5d1;
+  border: 2px dashed #947650;
   width: 350;
   height: 530px;
   padding-left: 70px;
@@ -73,10 +75,32 @@ const store = usePianoSheetStore();
 
 .button {
   font-weight: bold;
-  background-color: #947650;
+  background-color: #f5e5d1;
   color: white;
   width: 80px;
   height: 40px;
   border-radius: 15%;
+}
+
+button {
+  outline: none;
+  color: #947650;
+  padding: 10px;
+  border: 2px dashed #947650;
+  border-radius: 15px;
+  background-color: #f3ebe0;
+  box-shadow:
+    0 0 0 4px #fffff8,
+    2px 2px 4px 2px rgba(0, 0, 0, 0.5);
+  transition:
+    0.1s ease-in-out,
+    0.4s color;
+}
+
+button:active {
+  transform: translateX(0.1em) translateY(0.1em);
+  box-shadow:
+    0 0 0 4px #fffff8,
+    1.5px 1.5px 2.5px 1.5px rgba(0, 0, 0, 0.5);
 }
 </style>

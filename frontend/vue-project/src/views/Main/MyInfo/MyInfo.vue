@@ -11,23 +11,18 @@
           <!-- 편집 버튼 -->
           <v-dialog v-model="profileDialogOpen" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
-                v-tooltip:bottom="'내 정보 수정'"
-                v-bind="activatorProps"
-                icon="mdi-pencil-outline"
-                class="edit-btn"
-                density="comfortable"
-              ></v-btn>
+              <v-btn v-tooltip:bottom="'내 정보 수정'" v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn"
+                density="comfortable"></v-btn>
             </template>
             <template v-slot:default="{ isActive }">
-              <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" />
+              <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" @getUser="getUser" />
             </template>
           </v-dialog>
           <!-- user name 가져오게 -->
           <!-- <div class="profile-name">{{ userInfo.userName }}님 반갑습니다!</div> -->
           <!-- user가 전날까지 연속 연습 날짜를 가져오기 -->
           <div class="best">
-            <span style="font-size: 200%; font-weight: bold">{{ userInfo.userName }}</span>
+            <span style="font-size: 200%; font-weight: bold">{{ userInfo?.userName }}</span>
             <span class="text"> 님의 연습량 TOP3</span>
             <div class="favorite-music">
               <div class="music-item">
@@ -49,38 +44,23 @@
                 </div>
               </div>
             </div>
-            <span style="font-size: 200%; font-weight: bold">{{ userInfo.streak }}</span>
+            <span style="font-size: 200%; font-weight: bold">{{ userInfo?.streak }}</span>
             <span class="profile-day"> 일 째 꾸준히 연습하고 있어요!</span>
           </div>
         </div>
       </div>
       <div>
-        <v-btn
-          v-tooltip:bottom="'로그아웃'"
-          icon="mdi-account-minus"
-          @click="LogOut"
-          class="logout-btn"
-          density="comfortable"
-        ></v-btn>
+        <v-btn v-tooltip:bottom="'로그아웃'" icon="mdi-account-minus" @click="LogOut" class="logout-btn"
+          density="comfortable"></v-btn>
       </div>
     </div>
 
     <div class="practice-online">
       <div class="practice-box">
         <div class="practice-box-container">
-          <v-btn
-            icon="mdi-menu-left-outline"
-            class="pre-month-btn"
-            density="compact"
-            @click="previousMonth"
-          ></v-btn>
+          <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact" @click="previousMonth"></v-btn>
           <div class="practice-date">{{ currentYear }}년 {{ currentMonth }}월</div>
-          <v-btn
-            icon="mdi-menu-right-outline"
-            class="next-month-btn"
-            density="compact"
-            @click="nextMonth"
-          ></v-btn>
+          <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact" @click="nextMonth"></v-btn>
         </div>
         <md-elevation></md-elevation>
         <div class="practice-header"></div>
@@ -93,25 +73,17 @@
               <template v-slot:activator="{ props: activatorProps }">
                 <button class="honey-button" v-bind="activatorProps">
                   <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀" />
-                  <v-tooltip activator="parent" location="bottom"
-                    >{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip
-                  >
+                  <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
                 </button>
               </template>
               <template v-slot:default="{ isActive }">
-                <DayPracticeDetail
-                  v-if="isActive"
-                  :month="currentMonth"
-                  :day="index + 1"
-                  :year="currentYear"
-                  :closeDialog="closeDialog"
-                  :index="index"
-                />
+                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :year="currentYear"
+                  :closeDialog="closeDialog" :index="index" />
               </template>
             </v-dialog>
           </template>
         </div>
-        <v-divider style="margin-bottom: 15px"></v-divider>
+        <v-divider style="margin-bottom: 5px"></v-divider>
         <div class="practice-day">{{ currentMonth }}월에 {{ practiceDaysCount }}일 연습했어요!</div>
       </div>
       <div class="online-friends-box">
@@ -123,18 +95,11 @@
         <div v-else class="online-friend">
           <template v-for="friend in topOnlineFriends" :key="friend.id">
             <div class="friend-box">
-              <div
-                class="friend-image"
-                :style="{ backgroundImage: `url(${friend.profilePic})` }"
-              ></div>
+              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic})` }"></div>
               <div class="friend-name">{{ friend.name }}</div>
               <div>
-                <v-btn
-                  class="friend-chat"
-                  icon="mdi-chat"
-                  v-tooltip:bottom="'채팅하기'"
-                  @click="handleChat(friend.id)"
-                ></v-btn>
+                <v-btn class="friend-chat" icon="mdi-chat" v-tooltip:bottom="'채팅하기'"
+                  @click="handleChat(friend.id)"></v-btn>
               </div>
             </div>
             <v-divider></v-divider>
@@ -171,13 +136,7 @@ const isLoading = ref({
   friends: true,
 });
 
-const userInfo = ref({
-  userId: "string",
-  userName: "string",
-  profileImage: "string",
-  streak: 0,
-  most: ["string"],
-});
+const userInfo = ref();
 
 const handleChat = (friendId) => {
   router.push({
@@ -254,27 +213,16 @@ const nextMonth = () => {
   fetchPracticeRecords(currentYear.value, currentMonth.value);
 };
 
-onMounted(() => {
-  // 유저 정보 가져오기
-  dashboardStore
-    .GetSummary()
-    .then((res) => {
-      console.log(res);
-      isLoading.value.profile = false;
-      userInfo.value.userId = res.data.userId;
-      userInfo.value.userName = res.data.userName;
-      userInfo.value.profileImage = res.data.profileImage;
-      userInfo.value.streak = res.data.streak;
-      userInfo.value.most = res.data.most;
+const getUser = async () => {
+  userInfo.value = await dashboardStore.GetSummary().then((res) => {
+    return res.data
+  })
+}
 
-      // favoriteMusic 배열 업데이트
-      for (let i = 0; i < favoriteMusic.value.length; i++) {
-        favoriteMusic.value[i] = userInfo.value.most[i] || "-";
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+onMounted(async () => {
+  // 유저 정보 가져오기
+  await getUser()
+  isLoading.value.profile = false;
 
   // 초기 연습 기록 가져오기
   updatePracticeDays(currentYear.value, currentMonth.value);
@@ -472,7 +420,7 @@ async function LogOut() {
 }
 
 .favorite-music {
-  background: #e5ccaa;
+  background: #d9f6d9;
   display: flex;
   position: relative;
   padding: 20px 10px;
@@ -545,7 +493,7 @@ async function LogOut() {
   font-weight: 500;
   color: black;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .text {
@@ -564,7 +512,7 @@ async function LogOut() {
 .practice-box-container {
   display: flex;
   justify-content: space-around;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .practice-day {
