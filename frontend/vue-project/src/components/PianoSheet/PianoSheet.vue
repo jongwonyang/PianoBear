@@ -66,7 +66,7 @@ onMounted(() => {
   border-bottom: 1.5vh solid transparent;
   border-top: 1.5vh solid transparent;
   border-left: 1vw solid transparent;
-  border-right: 1vw solid #78c078;
+  border-right: 1vw solid #947650;
   z-index: 2;
 }
 
@@ -75,7 +75,7 @@ onMounted(() => {
   right: 0px;
   border-bottom: 1.5vh solid transparent;
   border-top: 1.5vh solid transparent;
-  border-left: 1vw solid #78c078;
+  border-left: 1vw solid #947650;
   border-right: 1vw solid transparent;
   z-index: 2;
 }
