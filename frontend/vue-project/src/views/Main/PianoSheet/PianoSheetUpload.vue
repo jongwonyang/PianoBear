@@ -3,7 +3,9 @@
     <v-tabs-window v-model="tab">
       <v-tabs-window-item :value="1">
         <div>
-          <div class="text">PDF로 악보 만들기</div>
+          <div class="text">
+            <div style="border: 2px dashed #947650">PDF로 악보 만들기</div>
+          </div>
           <div class="_container">
             <div class="component">
               <PDFtoMXL />
@@ -44,10 +46,10 @@
     <div class="tab">
       <v-tabs v-model="tab" align-tabs="center" color="#D2B48C" hide-slider height="40px">
         <v-tab :value="1" @click="setCurrentTab('UserSheet')">
-          <div>PDF -> MXL</div>
+          <div class="convert">PDF -> MXL</div>
         </v-tab>
         <v-tab :value="2" @click="setCurrentTab('BasicSheet')">
-          <div>음성 파일 -> MXL</div>
+          <div class="convert">음성 파일 -> MXL</div>
         </v-tab>
       </v-tabs>
     </div>
@@ -107,15 +109,25 @@ watch(
   margin-bottom: 20px;
   margin-left: 50px;
   margin-right: 50px;
+  padding: 5px;
 }
 
 .tab div {
   margin-top: 10px;
   font-size: 20px;
   font-weight: bold;
+  /* background-color: #fffff8; */
+  /* width: 1000px; */
 }
 
 .trans {
   margin-top: 230px;
+}
+
+.convert {
+  /* margin-bottom: 40px; */
+  background-color: #fffff8;
+  width: 15vw;
+  border: 2px double #947650;
 }
 </style>

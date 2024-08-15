@@ -1,7 +1,14 @@
 <template>
   <div class="container">
     <div>
-      <button class="prev" @click="downCount" :class="{ disabled: !canGoBack }"></button>
+      <img
+        src="@/assets/images/prev.png"
+        alt="이전"
+        class="prev"
+        @click="downCount"
+        :class="{ disabled: !canGoBack }"
+      />
+      <!-- <button class="prev" @click="downCount" :class="{ disabled: !canGoBack }"></button> -->
     </div>
     <div class="page">
       <div v-for="pageIndex in 2" :key="pageIndex" class="line">
@@ -37,7 +44,14 @@
       </div>
     </div>
     <div>
-      <button class="next" @click="upCount" :class="{ disabled: !canGoForward }"></button>
+      <img
+        src="@/assets/images/next.png"
+        alt="다음"
+        class="next"
+        @click="upCount"
+        :class="{ disabled: !canGoForward }"
+      />
+      <!-- <button class="next" @click="upCount" :class="{ disabled: !canGoForward }"></button> -->
     </div>
   </div>
 </template>
@@ -178,21 +192,33 @@ watch(
   box-shadow: 0.1vw 0.4vh 0.8vh gray;
 }
 
-.prev,
+/* .prev,
 .next {
   border-bottom: 3vh solid transparent;
   border-top: 3vh solid transparent;
   margin: 0 3vw;
-}
+} */
 
 .prev {
-  border-left: 2vw solid transparent;
-  border-right: 2vw solid #a48253;
+  /* border-left: 2vw solid transparent;
+  border-right: 2vw solid #a48253; */
+  margin-right: 20px;
+  transition: all 0.1s linear;
 }
 
 .next {
-  border-left: 2vw solid #a48253;
-  border-right: 2vw solid transparent;
+  /* border-left: 2vw solid #a48253;
+  border-right: 2vw solid transparent; */
+  margin-left: 25px;
+  transition: all 0.1s linear;
+}
+
+.prev:hover {
+  transform: scale(1.4);
+}
+
+.next:hover {
+  transform: scale(1.4);
 }
 
 .prev.disabled,

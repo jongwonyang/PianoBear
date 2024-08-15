@@ -8,6 +8,7 @@
     bg-color="#fffff8"
     base-color="#fffff8"
     color="#73796E"
+    height="1000px"
   >
     <template v-slot:prepend-inner>
       <v-menu v-model:menu="menu" location="start">
@@ -65,5 +66,11 @@ const changeSort = (index: number) => {
 <style scoped>
 .list {
   font-weight: bold;
+}
+
+.v-text-field .v-input__control .v-input__slot {
+  min-height: auto !important;
+  display: flex !important;
+  align-items: center !important;
 }
 </style>

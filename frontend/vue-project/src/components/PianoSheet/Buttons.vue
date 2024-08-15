@@ -5,13 +5,13 @@
     <div class="third-row">
       <button @click="toggleFavorite" class="btn">
         <v-icon>{{ isFavorite ? "mdi-heart" : "mdi-heart-outline" }}</v-icon>
-        <span style="color: darkkhaki">즐겨찾기</span>
+        <span style="color: darkkhaki">&nbsp;즐겨찾기</span>
       </button>
       <button @click="openModal" class="btn">
         <span>
           <v-icon>mdi-trash-can-outline</v-icon>
         </span>
-        <span style="color: darkred">삭제</span>
+        <span style="color: darkred">&nbsp;삭제</span>
       </button>
     </div>
   </div>

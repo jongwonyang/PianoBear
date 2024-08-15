@@ -55,7 +55,10 @@
             </div>
             <div class="my-friends-ele-right">
               <div class="friend-name">{{ friend.name }}</div>
-              <div class="friend-status-message">
+              <div
+                class="friend-status-message"
+                v-if="friend.statusMessage != ''"
+              >
                 <md-elevation></md-elevation>
                 {{ friend.statusMessage }}
               </div>
@@ -131,7 +134,10 @@
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ friendInfo.name }}</div>
-            <div class="friend-status-message">
+            <div
+              class="friend-status-message"
+              v-if="friendInfo.statusMessage != ''"
+            >
               <md-elevation></md-elevation>
               {{ friendInfo.statusMessage }}
             </div>
@@ -143,7 +149,7 @@
         <v-btn text @click="removeFriend(friendInfo.id)" color="red"
           >친구 삭제</v-btn
         >
-        <v-btn text @click="startChatting(friendInfo.id)">대화하기</v-btn>
+        <v-btn text @click="chatButtonPressed(friendInfo.id)">대화하기</v-btn>
         <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
       </v-card-actions>
     </v-card>
@@ -151,7 +157,7 @@
 
   <!-- 친구 검색 다이얼로그 -->
   <v-dialog v-model="showDialog" max-width="500px">
-    <v-card class="add-friend-form">
+    <v-card class="add-friend-form pa-5">
       <v-card-title class="headline">친구 검색</v-card-title>
       <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
       <v-text-field
@@ -169,7 +175,10 @@
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ searchResult.name }}</div>
-            <div class="friend-status-message">
+            <div
+              class="friend-status-message"
+              v-if="searchResult.statusMessage != ''"
+            >
               <md-elevation></md-elevation>
               {{ searchResult.statusMessage }}
             </div>
@@ -254,6 +263,8 @@ const searchResultSentRequest = ref(false);
 const friendInfo = ref(null);
 const receiver = ref(null);
 
+let unSubscribeLastChat = null;
+
 const editStatusMessage = ref(false); // 상태 메시지 수정 다이얼로그 상태
 const newStatusMessage = ref(""); // 새로운 상태 메시지
 
@@ -273,27 +284,38 @@ onMounted(() => {
       if (chatWith) {
         router.push({
           name: "friends",
-          query: { chatWith: receiver.value.id },
+          query: { chatWith: router.currentRoute.value.query.chatWith },
         });
       }
     })
     .catch((err) => {
       console.log(err);
     });
-  watch(
-    () => route.query,
-    (newQuery, oldQuery) => {
-      // 쿼리 매개변수를 통해 받은 friendId로 채팅 시작
-      const chatWith = newQuery.chatWith;
-      if (chatWith) {
-        startChatting(chatWith);
-      }
-    },
-    { immediate: true }
-  );
 });
 
-const startChatting = async (friendId) => {
+watch(
+  () => route.query,
+  (newQuery, oldQuery) => {
+    // 쿼리 매개변수를 통해 받은 friendId로 채팅 시작
+    const chatWith = newQuery.chatWith;
+    if (chatWith) {
+      startChatting(chatWith);
+    }
+  },
+  { immediate: true }
+);
+
+function chatButtonPressed(friendId) {
+  router.push({
+    name: "friends",
+    query: { chatWith: friendId },
+  });
+
+  // 채팅창을 표시하기 위해 다이얼로그를 닫음
+  friendInfoDialog.value = false;
+}
+
+async function startChatting(friendId) {
   try {
     // 채팅방 열기
     const chatRoom = await webSocketStore.enterChatRoom(friendId);
@@ -304,17 +326,22 @@ const startChatting = async (friendId) => {
       currentChatRoomId.value = chatRoom.id;
     });
 
-    // 채팅방에 메시지 구독
-    webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
-      messages.value.push(message);
-    });
+    if (unSubscribeLastChat != null) {
+      unSubscribeLastChat();
+      unSubscribeLastChat = null;
+    }
 
-    // 채팅창을 표시하기 위해 다이얼로그를 닫음
-    friendInfoDialog.value = false;
+    // 채팅방에 메시지 구독
+    unSubscribeLastChat = webSocketStore.subscribeToChatRoom(
+      chatRoom.id,
+      (message) => {
+        messages.value.push(message);
+      }
+    );
   } catch (error) {
     console.error("채팅방을 열지 못했습니다:", error);
   }
-};
+}
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== "") {
@@ -626,15 +653,19 @@ const friendProfilePic = computed(() => {
 
 .friend-item {
   display: flex;
-  padding: 10px 0;
+  margin: 3px 0;
+  padding: 10px;
   border-bottom: 0.5px solid #947650;
-  opacity: 0.6;
+  opacity: 1;
   -webkit-transition: 0.2s ease-in-out;
   transition: 0.2s ease-in-out;
+  border-radius: 10px;
+
+  background-color: #9476500c;
 }
 
 .friend-item:hover {
-  opacity: 1;
+  background-color: #9476504e;
 }
 
 .add-friend-btn {
@@ -643,8 +674,10 @@ const friendProfilePic = computed(() => {
 }
 
 .my-friends-ele-left {
-  flex: 0 0 auto;
-  margin-right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
 }
 
 .my-friends-ele-left img {
@@ -676,8 +709,7 @@ const friendProfilePic = computed(() => {
   font-size: 15px;
   font-weight: 500;
   color: #947650;
-  width: 330px;
-  height: 60px;
+  width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   /* 원하는 줄 수 */
