@@ -8,6 +8,7 @@ import kr.pianobear.application.model.Music;
 import kr.pianobear.application.repository.MemberRepository;
 import kr.pianobear.application.repository.MusicPracticeRepository;
 import kr.pianobear.application.repository.MusicRepository;
+import kr.pianobear.application.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -328,10 +329,15 @@ public class MusicService {
         return musicDTO;
     }
 
-    public List<MusicDTO> getMusicByUserOrNull(String userId) {
-        // 사용자 ID 또는 null 사용자에 해당하는 악보들을 불러옴
-        List<Music> musicList = musicRepository.findByUser_IdOrUserIsNull(userId);
-        return musicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
+    public List<MusicDTO> getAdminMusic() {
+        List<Music> adminMusicList = musicRepository.findByUser_Id("admin");
+        return adminMusicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
+    }
+
+    public List<MusicDTO> getUserMusic() {
+        String userId = SecurityUtil.getCurrentUserId();  // 수정된 부분
+        List<Music> userMusicList = musicRepository.findByUser_IdAndUserIsNotNull(userId);
+        return userMusicList.stream().map(this::mapMusicToDTO).collect(Collectors.toList());
     }
 
 }

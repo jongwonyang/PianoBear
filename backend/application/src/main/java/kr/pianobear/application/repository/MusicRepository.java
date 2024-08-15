@@ -21,5 +21,7 @@ public interface MusicRepository extends JpaRepository<Music, Integer> {
 
     List<Music> findByUserIdOrderByFavoriteDesc(String userId);
 
-    List<Music> findByUser_IdOrUserIsNull(String userId);
+    List<Music> findByUser_Id(String userId);
+
+    List<Music> findByUser_IdAndUserIsNotNull(String userId);
 }
