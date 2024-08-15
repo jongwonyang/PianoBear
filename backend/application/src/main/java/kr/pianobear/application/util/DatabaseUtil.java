@@ -119,7 +119,7 @@ public class DatabaseUtil {
             String title;
             int attempt = 0;
             do {
-                title = "Music Title " + (random.nextInt(1000) + 1);
+                title = "M" + (random.nextInt(1000) + 1);
                 attempt++;
             } while (existingTitles.contains(title) && attempt < 100);  // 최대 100번 시도
 

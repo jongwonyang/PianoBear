@@ -86,15 +86,16 @@ public class ChatRoomService {
 
             chatRoom.getMessages().add(message);
 
-            // 메시지를 DB에 저장
             Message savedMessage = messageRepository.save(message);
 
-            // 알림 생성 및 전송 - JSON 형식으로 필요한 정보 포함
             String notificationContent = String.format(
-                    "{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\", \"chatRoomId\":\"%d\"}",
-                    sender.getId(), sender.getName(),
+                    "{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\", \"chatRoomId\":\"%d\", \"messageContent\":\"%s\", \"timestamp\":\"%s\"}",
+                    sender.getId(),
+                    sender.getName(),
                     sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "/api/v1/static/pitch-head.png",
-                    chatRoom.getId()
+                    chatRoom.getId(),
+                    content,
+                    message.getTimestamp().toString()
             );
             notificationService.createNotification(receiver, "CHAT", notificationContent);
 
@@ -103,6 +104,7 @@ public class ChatRoomService {
             throw new RuntimeException("Sender or Receiver not found");
         }
     }
+
 
     // 새 채팅방을 생성하는 메서드
     private ChatRoom createChatRoom(Member member1, Member member2) {

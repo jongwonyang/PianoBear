@@ -252,7 +252,7 @@ onMounted(() => {
 
 .btn {
   position: absolute;
-  top: 8vh;
+  top: 10vh;
   left: 18vw;
 }
 </style>

@@ -15,7 +15,7 @@
             <div class="practice-options" :style="{ visibility: props.challenge ? 'hidden' : 'visible' }">
                 <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
                     <v-btn prepend-icon="mdi-reload" :width="27" :height="27" class="changeSheet" variant="text"
-                        @click="changeSheet()">{{ isBaby ? "원본악보" : "애기악보" }}</v-btn>
+                        @click="changeSheet()">{{ isBaby ? "원본악보" : "변환악보" }}</v-btn>
                 </v-sheet>
                 <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
                     <label for="velocity"> 속도 </label>
@@ -63,8 +63,8 @@
                 </div>
                 <div class="strewbery">
                     <img v-for="n in 5" :key="n"
-                        :src="(practiceToday && n <= practiceToday.practiceCount) ? '@/assets/images/가득찬딸기.png' : '@/assets/images/빈딸기.png'"
-                        :alt="n" class="practice-image" width="25" />
+                        :src="(practiceToday && n <= practiceToday.practiceCount) ? '/가득찬딸기.png' : '/빈딸기.png'" :alt="n"
+                        class="practice-image" width="25" />
                     <v-btn v-if="isPractice" icon="mdi-check-bold" :width="31" :height="31" style="margin-left: 5px;"
                         color="success" @click="doPractice"></v-btn>
                 </div>
@@ -121,7 +121,7 @@ const today = new Date();
 const date = (today.getFullYear().toString() + (today.getMonth() + 1).toString() + today.getDate().toString())
 
 // 모달 변수
-const text = ref("* 도전하기를 위해 마이크 권한을 허용해주세요.");
+const text = ref("\n\n* 도전하기를 위해 마이크 권한을 허용해주세요.");
 const audioCon = ref(false);
 const afterChallenge = ref(false);
 const interval1 = ref();
@@ -289,10 +289,10 @@ onMounted(async () => {
         try {
             stream.value = await navigator.mediaDevices.getUserMedia({ audio: true });
             audioCon.value = true;
-            text.value = "* 도전하기를 눌러 시작하세요!\n * 노래가 끝나면 점수가 나와요!\n * '녹음중'을 누르면 다시 시작해요!";
+            text.value = "\n* 도전하기를 눌러 시작하세요!\n * 노래가 끝나면 점수가 나와요!\n * '녹음중'을 누르면 다시 시작해요!";
         } catch {
             audioCon.value = false;
-            text.value = "* 마이크 기능 없이 도전할 수 없어요.\n * 주소창 오른쪽의 마이크 모양을 누르세요.\n * 권한을 허용 해주세요.\n * 새로고침 F5 를 눌러주세요."
+            text.value = "* 마이크 기능 없이 도전할 수 없어요.\n * 주소창의 왼쪽 버튼을 누르세요.\n * 마이크 권한을 허용 해주세요.\n * 새로고침 F5 를 눌러주세요."
         }
         // 연습모드일때 실행되는 메서드
     } else {

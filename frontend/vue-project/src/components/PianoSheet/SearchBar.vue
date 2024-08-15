@@ -5,8 +5,8 @@
     variant="outlined"
     @click:prepend-inner="toggleMenu"
     v-model="store.searchText"
-    bg-color="#ECC491"
-    base-color="#ECC491"
+    bg-color="#fffff8"
+    base-color="#fffff8"
     color="#73796E"
   >
     <template v-slot:prepend-inner>
@@ -14,7 +14,7 @@
         <template v-slot:activator="{ props }">
           <v-icon v-bind="props">mdi-menu</v-icon>
         </template>
-        <v-list class="list" style="background-color: #d9f6d9">
+        <v-list class="list" style="background-color: #fffff8">
           <v-list-item
             v-for="(item, index) in displayedItems"
             :key="index"

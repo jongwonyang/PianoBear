@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { onBeforeUnmount, onMounted, watch } from 'vue';
-import { useUserStore } from '@/stores/user';
-import { useWebSocketStore } from '@/stores/websocket';
-import { storeToRefs } from 'pinia';
+import { RouterView } from "vue-router";
+import { onBeforeUnmount, onMounted, watch } from "vue";
+import { useUserStore } from "@/stores/user";
+import { useWebSocketStore } from "@/stores/websocket";
+import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
 const webSocketStore = useWebSocketStore();
@@ -20,7 +20,8 @@ onMounted(() => {
 
   if (token !== null) {
     userStore.isLoggedIn = true;
-    userStore.GetUserInfo()
+    userStore
+      .GetUserInfo()
       .then((response) => {
         userStore.user = response;
       })
@@ -34,7 +35,7 @@ onMounted(() => {
   }
 
   // 브라우저 종료시 접속 여부 오프라인으로 설정
-  window.addEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 });
 
 watch(isLoggedIn, (newVal, _) => {
@@ -55,17 +56,30 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 
 // 컴포넌트가 파괴될 때 이벤트 리스너 제거
 onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
-import backgroundImage from '@/assets/images/bg12.jpg';
+import backgroundImage from "@/assets/images/bg12.jpg";
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
 
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: "CookieRun-Regular";
+}
+
+:root {
+  --md-ref-typeface-brand: "CookieRun-Regular";
+  --md-ref-typeface-plain: "CookieRun-Regular";
+}
+
+@font-face {
+  font-family: "CookieRun-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
 html,
@@ -77,14 +91,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'Arial', sans-serif;
-  --md-sys-color-outline: #FFFFFF;
+  font-family: "Arial", sans-serif;
+  --md-sys-color-outline: #ffffff;
   --md-sys-color-on-surface: #947650;
   --md-sys-color-primary: #947650;
   --md-elevation-level: 5;
   --md-sys-color-shadow: #d2b659;
 
-  background-image: url('@/assets/images/bg13.webp');
+  background-image: url("@/assets/images/bg13.webp");
   background-size: cover;
   z-index: -1;
 }

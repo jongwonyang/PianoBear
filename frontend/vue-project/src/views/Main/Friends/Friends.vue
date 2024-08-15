@@ -13,30 +13,43 @@
               <div class="my-name">{{ userInfo.name }}</div>
               <!-- 상태 메시지 수정 버튼 -->
               <div class="my-status-message-box">
-                <mdvation></mdvation>
                 <div class="my-status-message">
                   {{ userInfo.statusMessage }}
                 </div>
               </div>
             </div>
           </div>
-          <v-btn icon="mdi-pencil-outline" class="edit-status-message" @click="editStatusMessage = true"
-            density="comfortable"></v-btn>
+          <v-btn
+            icon="mdi-pencil-outline"
+            class="edit-status-message"
+            @click="editStatusMessage = true"
+            density="comfortable"
+          ></v-btn>
         </div>
       </div>
       <div class="friend-box">
         <md-elevation></md-elevation>
         <div class="my-friends-header">
           <div class="my-friends-text">친구들</div>
-          <v-btn append-icon="mdi-account-search" size="small" class="add-friend-btn" @click="showDialog = true">친구
-            검색</v-btn>
+          <v-btn
+            append-icon="mdi-account-search"
+            size="small"
+            class="add-friend-btn"
+            @click="showDialog = true"
+            >친구 검색</v-btn
+          >
         </div>
         <v-divider></v-divider>
         <div v-if="isLoading.friendList" class="loading-bar">
           <v-progress-linear indeterminate color="#C69C67"></v-progress-linear>
         </div>
         <div v-else class="my-friends-ele">
-          <div class="friend-item" v-for="friend in friends" :key="friend.id" @click="viewFriendInfo(friend.id)">
+          <div
+            class="friend-item"
+            v-for="friend in friends"
+            :key="friend.id"
+            @click="viewFriendInfo(friend.id)"
+          >
             <div class="my-friends-ele-left">
               <img :src="getFriendProfile(friend.profilePic)" alt="친구 img" />
             </div>
@@ -52,28 +65,53 @@
         </div>
       </div>
     </div>
-    <div class="chat-box">
-      <div class="my-chatting-header">
-        <div class="my-chatting-text">채팅</div>
-      </div>
-      <v-divider></v-divider>
-      <div class="chat-container" v-if="currentChatRoomId">
-        <div class="messages">
-          <div v-for="(message, index) in messages" :key="index" :class="{
-            message: true,
-            sent: message.senderId === userInfo.id,
-            received: message.senderId !== userInfo.id,
-          }">
-            <div class="message-header">
-              <strong>{{ message.senderId === userInfo.id ? "나" : receiverId }}:</strong>
-              <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
-            </div>
-            <div class="message-content">{{ message.content }}</div>
+    <div style="padding: 20px; display: flex">
+      <div class="chat-box">
+        <div class="my-chatting-header">
+          <div class="my-chatting-text" v-if="currentChatRoomId">
+            채팅 - {{ receiver.name }}
           </div>
         </div>
-        <div class="input-area">
-          <input v-model="newMessage" placeholder="메시지를 입력하세요" @keyup.enter="sendMessage" />
-          <button @click="sendMessage">전송</button>
+        <v-divider></v-divider>
+        <div class="chat-container" v-if="currentChatRoomId">
+          <div class="messages">
+            <div
+              v-for="(message, index) in messages.slice().reverse()"
+              :key="index"
+              :class="{
+                message: true,
+                sent: message.senderId === userInfo.id,
+                received: message.senderId !== userInfo.id,
+              }"
+            >
+              <div class="message-header">
+                <strong
+                  >{{
+                    message.senderId === userInfo.id ? "나" : receiver.name
+                  }}&nbsp; : &nbsp;
+                </strong>
+                <span class="timestamp">{{
+                  formatTimestamp(message.timestamp)
+                }}</span>
+              </div>
+              <div class="message-content">{{ message.content }}</div>
+            </div>
+          </div>
+          <div class="input-area">
+            <input
+              v-model="newMessage"
+              placeholder="메시지를 입력하세요"
+              @keyup.enter="sendMessage"
+            />
+            <button @click="sendMessage">전송</button>
+          </div>
+        </div>
+        <div
+          v-if="!currentChatRoomId"
+          style="margin: auto"
+          class="my-chatting-text"
+        >
+          친구 목록에서 친구와 대화를 시작하세요!
         </div>
       </div>
     </div>
@@ -86,7 +124,10 @@
       <v-card-text v-if="friendInfo">
         <div class="friend-item">
           <div class="my-friends-ele-left">
-            <img :src="getFriendProfile(friendInfo.profilePic)" alt="친구 img" />
+            <img
+              :src="getFriendProfile(friendInfo.profilePic)"
+              alt="친구 img"
+            />
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ friendInfo.name }}</div>
@@ -99,7 +140,9 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="removeFriend(friendInfo.id)" color="red">친구 삭제</v-btn>
+        <v-btn text @click="removeFriend(friendInfo.id)" color="red"
+          >친구 삭제</v-btn
+        >
         <v-btn text @click="startChatting(friendInfo.id)">대화하기</v-btn>
         <v-btn text @click="friendInfoDialog = false">닫기</v-btn>
       </v-card-actions>
@@ -111,11 +154,18 @@
     <v-card class="add-friend-form">
       <v-card-title class="headline">친구 검색</v-card-title>
       <v-card-text>친구의 이름이나 아이디를 입력하세요!</v-card-text>
-      <v-text-field label="친구 아이디" v-model="searchQuery" @keyup.enter="searchFriend"></v-text-field>
+      <v-text-field
+        label="친구 아이디"
+        v-model="searchQuery"
+        @keyup.enter="searchFriend"
+      ></v-text-field>
       <v-card-text v-if="searchResult">
         <div class="friend-item">
           <div class="my-friends-ele-left">
-            <img :src="getFriendProfile(searchResult.profilePic)" alt="친구 img" />
+            <img
+              :src="getFriendProfile(searchResult.profilePic)"
+              alt="친구 img"
+            />
           </div>
           <div class="my-friends-ele-right">
             <div class="friend-name">{{ searchResult.name }}</div>
@@ -123,14 +173,25 @@
               <md-elevation></md-elevation>
               {{ searchResult.statusMessage }}
             </div>
-            <v-btn v-if="
-              !isFriend(searchResult.id) &&
-              searchResult.id != userInfo.id &&
-              !searchResultSentRequest
-            " class="add-friend-btn" @click="addFriend(searchResult.id)">추가</v-btn>
-            <v-btn v-else-if="searchResult.id == userInfo.id" disabled>자신은 추가할 수 없습니다</v-btn>
-            <v-btn v-else-if="searchResultSentRequest" disabled>친구 수락 대기중..</v-btn>
-            <v-btn v-else class="add-friend-btn" disabled>이미 친구입니다</v-btn>
+            <v-btn
+              v-if="
+                !isFriend(searchResult.id) &&
+                searchResult.id != userInfo.id &&
+                !searchResultSentRequest
+              "
+              class="add-friend-btn"
+              @click="addFriend(searchResult.id)"
+              >추가</v-btn
+            >
+            <v-btn v-else-if="searchResult.id == userInfo.id" disabled
+              >자신은 추가할 수 없습니다</v-btn
+            >
+            <v-btn v-else-if="searchResultSentRequest" disabled
+              >친구 수락 대기중..</v-btn
+            >
+            <v-btn v-else class="add-friend-btn" disabled
+              >이미 친구입니다</v-btn
+            >
           </div>
         </div>
       </v-card-text>
@@ -147,7 +208,10 @@
     <v-card class="edit-status-form">
       <v-card-title class="headline">상태 메시지 수정</v-card-title>
       <v-card-text>
-        <v-text-field label="상태 메시지" v-model="newStatusMessage"></v-text-field>
+        <v-text-field
+          label="상태 메시지"
+          v-model="newStatusMessage"
+        ></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -159,11 +223,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, nextTick, computed } from "vue";
+import { onMounted, ref, nextTick, computed, watch } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useFriendStore } from "@/stores/friend";
 import { useWebSocketStore } from "@/stores/websocket";
-import { useRouter } from "vue-router";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 
 const userInfo = ref({});
 const isLoading = ref({
@@ -180,6 +244,7 @@ const userStore = useUserStore();
 const friendStore = useFriendStore();
 const webSocketStore = useWebSocketStore();
 const router = useRouter();
+const route = useRoute();
 
 const showDialog = ref(false);
 const friendInfoDialog = ref(false);
@@ -187,7 +252,8 @@ const searchQuery = ref("");
 const searchResult = ref(null);
 const searchResultSentRequest = ref(false);
 const friendInfo = ref(null);
-const receiverId = ref(null);
+const receiver = ref(null);
+
 const editStatusMessage = ref(false); // 상태 메시지 수정 다이얼로그 상태
 const newStatusMessage = ref(""); // 새로운 상태 메시지
 
@@ -205,12 +271,26 @@ onMounted(() => {
       // 쿼리 매개변수를 통해 받은 friendId로 채팅 시작
       const chatWith = router.currentRoute.value.query.chatWith;
       if (chatWith) {
-        startChatting(chatWith);
+        router.push({
+          name: "friends",
+          query: { chatWith: receiver.value.id },
+        });
       }
     })
     .catch((err) => {
       console.log(err);
     });
+  watch(
+    () => route.query,
+    (newQuery, oldQuery) => {
+      // 쿼리 매개변수를 통해 받은 friendId로 채팅 시작
+      const chatWith = newQuery.chatWith;
+      if (chatWith) {
+        startChatting(chatWith);
+      }
+    },
+    { immediate: true }
+  );
 });
 
 const startChatting = async (friendId) => {
@@ -218,21 +298,15 @@ const startChatting = async (friendId) => {
     // 채팅방 열기
     const chatRoom = await webSocketStore.enterChatRoom(friendId);
     console.log("채팅방을 열었습니다:", chatRoom);
-    currentChatRoomId.value = chatRoom.id;
-    messages.value = chatRoom.messages;
-    receiverId.value = friendId;
-
+    friendStore.GetFriendInfo(friendId).then((result) => {
+      receiver.value = result.data;
+      messages.value = chatRoom.messages;
+      currentChatRoomId.value = chatRoom.id;
+    });
 
     // 채팅방에 메시지 구독
     webSocketStore.subscribeToChatRoom(chatRoom.id, (message) => {
       messages.value.push(message);
-
-      // 메시지를 추가할 때 채팅창을 맨 아래로 스크롤
-      scrollToBottom();
-    });
-
-    nextTick(() => {
-      scrollToBottom();
     });
 
     // 채팅창을 표시하기 위해 다이얼로그를 닫음
@@ -244,7 +318,7 @@ const startChatting = async (friendId) => {
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== "") {
-    webSocketStore.sendMessage(receiverId.value, newMessage.value);
+    webSocketStore.sendMessage(receiver.value.id, newMessage.value);
     newMessage.value = ""; // 입력 필드 초기화
     console.log("메시지를 보냈습니다:", messages.value);
 
@@ -262,7 +336,7 @@ const sendMessage = () => {
 
 // 채팅창을 맨 아래로 스크롤하는 함수
 const scrollToBottom = () => {
-  const chatContainer = document.querySelector('.chat-box .messages');
+  const chatContainer = document.querySelector(".chat-box .messages");
   if (chatContainer) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
@@ -373,8 +447,10 @@ const userProfilePic = computed(() => {
 });
 
 const getFriendProfile = (profilePic) => {
-  console.log(friends.value);
-  return `${import.meta.env.VITE_API_BASE_URL}` + profilePic.slice(7, profilePic.length);
+  return (
+    `${import.meta.env.VITE_API_BASE_URL}` +
+    profilePic.slice(7, profilePic.length)
+  );
 };
 
 const friendProfilePic = computed(() => {
@@ -531,7 +607,7 @@ const friendProfilePic = computed(() => {
   /* 하단에서의 간격 */
   right: 20px;
   /* 우측에서의 간격 */
-  background-color: #F5E5D1;
+  background-color: #f5e5d1;
   color: #947650;
 }
 
@@ -627,7 +703,7 @@ const friendProfilePic = computed(() => {
 .chat-box {
   flex: 1;
   width: 500px;
-  background: #FFF9E0;
+  background: #fff9e0;
   position: relative;
   border-radius: 30px;
   text-align: center;
@@ -639,13 +715,12 @@ const friendProfilePic = computed(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-
 }
 
 .messages {
   flex-grow: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   padding: 10px;
   overflow-y: auto;
   scrollbar-width: none;

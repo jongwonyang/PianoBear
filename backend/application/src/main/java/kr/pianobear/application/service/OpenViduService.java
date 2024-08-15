@@ -110,14 +110,15 @@ public class OpenViduService {
         SessionData sessionData = sessionDataMap.get(sessionId);
         sessionData.getParticipants().add(targetUserId);
 
-        // 초대된 사용자에게 알림 전송
         String notificationContent = String.format(
-                "%s님이 %s 세션에 초대했습니다.\n초대 메시지: %s\n놀이터 설명: %s",
+                "{\"inviterId\":\"%s\", \"inviterName\":\"%s\", \"sessionTitle\":\"%s\", \"invitationMessage\":\"%s\", \"description\":\"%s\", \"sessionId\":\"%s\"}",
+                currentUser.getId(),
                 currentUser.getName(),
                 sessionData.getSessionTitle(),
                 sessionData.getInvitationMessage(),
-                sessionData.getDescription()
-        );
+                sessionData.getDescription(),
+                sessionId);
+
         notificationService.createNotification(targetUser, "INVITATION", notificationContent);
     }
 

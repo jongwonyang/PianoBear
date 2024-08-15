@@ -1,5 +1,7 @@
 <template>
-  <div id="osmd-sheet">
+  <div class="slider">
+    <div id="osmd-sheet" class="slides">
+    </div>
     <button class="prev" @click="prev()" v-if="pageNum"></button>
     <button class="next" @click="next()" v-if="pageNum < (pages ? pages.length - 1 : 0)"></button>
   </div>
@@ -18,39 +20,41 @@ const musicXml = ref<ArrayBuffer>();
 const nowSheet = ref<number>(Number(route.params['id']));
 const pages = ref<NodeListOf<Element>>();
 const pageNum = ref<number>(0);
+const slidesContainer = ref<HTMLDivElement | null>();
 
 const loadMxl = async function (id: number) {
   musicXml.value = await store.mxlLoadfun(id);
 };
 
-const pageLoad = function () {
-  pages.value?.forEach((e, i) => {
-    if (i !== pageNum.value) {
-      e.setAttribute('hidden', 'true');
-    } else {
-      e.removeAttribute('hidden');
-    }
-  });
-};
+
 
 const prev = function () {
   if (pageNum.value > 0) {
     pageNum.value -= 1;
-    pageLoad();
+    updateSlidePosition();
   }
 }
 const next = function () {
   if (pages.value && pageNum.value < pages.value.length - 1) {
     pageNum.value += 1;
-    pageLoad();
+    updateSlidePosition();
   };
 }
-
+const updateSlidePosition = () => {
+  const offset = -pageNum.value * 100;
+  if (slidesContainer.value) {
+    slidesContainer.value.style.transform = `translateX(${offset}%)`;
+  }
+};
 onMounted(() => {
   loadMxl(nowSheet.value).then(() => {
     osmd('osmd-sheet', musicXml.value).then(() => {
       pages.value = document.querySelectorAll('#osmd-sheet > div');
-      pageLoad();
+      pages.value.forEach((e) => {
+        e.setAttribute('class', 'slide');
+      })
+    }).then(() => {
+      slidesContainer.value = document.querySelector('.slides') as HTMLDivElement;
     })
   });
 
@@ -60,8 +64,7 @@ onMounted(() => {
 <style scoped>
 .prev {
   position: absolute;
-  top: 52%;
-  left: -3%;
+  left: 0px;
   border-bottom: 1.5vh solid transparent;
   border-top: 1.5vh solid transparent;
   border-left: 1vw solid transparent;
@@ -71,12 +74,30 @@ onMounted(() => {
 
 .next {
   position: absolute;
-  top: 52%;
-  left: 96%;
+  right: 0px;
   border-bottom: 1.5vh solid transparent;
   border-top: 1.5vh solid transparent;
   border-left: 1vw solid #a48253;
   border-right: 1vw solid transparent;
   z-index: 2;
+}
+
+.slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: white;
+}
+
+.slides {
+  display: flex;
+  transition: transform 0.3s ease;
+}
+
+button {
+  position: absolute;
+  top: 50%;
+  cursor: pointer;
+  z-index: 10;
 }
 </style>
