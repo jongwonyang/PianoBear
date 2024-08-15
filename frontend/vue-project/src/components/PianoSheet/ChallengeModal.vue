@@ -1,11 +1,12 @@
 <template>
     <div>
         <div class="text-center pa-4">
-            <v-dialog v-model="props.dialog" :width="450" :height="250" persistent>
+            <v-dialog v-model="props.dialog" :width="500" :height="305" persistent>
                 <v-card max-width="600" :height="400" v-show="props.playChallenge && cardCheck" color="#FFF9E0">
-                    <v-card-title class="text" prepend-icon="mdi-update">도전하기!</v-card-title>
+                    <v-card-title class="text" prepend-icon="mdi-update"
+                        style="font-size: xx-large; font-weight: bold;">도전하기!</v-card-title>
                     <v-divider :thickness="2" class="border-opacity-25" color="#947650"></v-divider>
-                    <v-card-text class="text" :style="{ whiteSpace: 'pre-line' }">
+                    <v-card-text class="text" :style="[{ whiteSpace: 'pre-line' }, { 'font-size': 'x-large' }]">
                         {{ props.text }}
                     </v-card-text>
                     <template v-slot:actions>
@@ -72,7 +73,6 @@ const start = async function () {
 </script>
 <style scoped>
 .text {
-    font-weight: bold;
     color: #947650;
 }
 

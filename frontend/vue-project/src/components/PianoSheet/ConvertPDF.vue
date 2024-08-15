@@ -74,7 +74,7 @@ button:active {
 
 /* From Uiverse.io by mrpumps31232 */
 .loading-wave {
-  width: 132px;
+  width: 129px;
   height: 100px;
   display: flex;
   justify-content: center;

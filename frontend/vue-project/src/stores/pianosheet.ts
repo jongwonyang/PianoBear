@@ -74,9 +74,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 기본 악보 목록을 가져오는 함수
   const basicSheetListfun = async (): Promise<void> => {
     try {
-      const response = await apiClient.get<BasicSheet[]>(
-        `${REST_PIANOSHEET_API}/user-or-default`
-      );
+      const response = await apiClient.get<BasicSheet[]>(`${REST_PIANOSHEET_API}/user-or-default`);
       const data = response.data;
 
       // userId가 존재하는 데이터만 필터링
@@ -136,15 +134,11 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
     try {
       console.log("변환시작");
-      const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/process`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/process`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       success.value = true;
       convertedFile.value = response.data;
@@ -168,20 +162,21 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
       return;
     }
 
+    if (editTitle.length > 9) {
+      alert("악보 제목은 9글자를 초과할 수 없습니다.");
+      return;
+    }
+
     try {
       const sheetId = detailSheet.value.id;
       console.log(sheetId);
       console.log(editTitle);
-      const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/${sheetId}/edit`,
-        null,
-        {
-          params: {
-            id: sheetId,
-            title: editTitle,
-          },
-        }
-      );
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${sheetId}/edit`, null, {
+        params: {
+          id: sheetId,
+          title: editTitle,
+        },
+      });
       detailSheet.value.title = editTitle;
       console.log(response.data);
     } catch (error) {
@@ -194,9 +189,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const checkFavorite = async (id: number): Promise<void> => {
     try {
-      const response = await apiClient.get(
-        `${REST_PIANOSHEET_API}/${id}/favorite`
-      );
+      const response = await apiClient.get(`${REST_PIANOSHEET_API}/${id}/favorite`);
       isFavorite.value = response.data;
       // console.log("즐겨찾기 여부 " + response.data);
     } catch (error) {
@@ -205,20 +198,13 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   };
 
   // 즐겨찾기 요청
-  const handleFavorite = async (
-    id: number,
-    favorite: boolean
-  ): Promise<void> => {
+  const handleFavorite = async (id: number, favorite: boolean): Promise<void> => {
     try {
-      const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/${id}/favorite`,
-        null,
-        {
-          params: {
-            favorite: favorite,
-          },
-        }
-      );
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/favorite`, null, {
+        params: {
+          favorite: favorite,
+        },
+      });
 
       if (response.status >= 200 && response.status < 300) {
         isFavorite.value = favorite;
@@ -279,9 +265,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const userSheetListfun = async (): Promise<void> => {
     try {
-      const response = await apiClient.get<UserSheet[]>(
-        `${REST_PIANOSHEET_API}/user-or-default`
-      );
+      const response = await apiClient.get<UserSheet[]>(`${REST_PIANOSHEET_API}/user-or-default`);
       const data = response.data;
 
       // 각 악보의 총 연습량 계산
@@ -302,8 +286,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
       // 악보등록 기준으로 정렬
       userUploadList.value = [...data].sort(
-        (a, b) =>
-          new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+        (a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
       );
 
       // 즐겨찾기 기준으로 정렬
@@ -326,9 +309,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   const detailSheetfun = async (id: number): Promise<void> => {
     try {
       // console.log("악보상세");
-      const response = await apiClient.get<UserSheet>(
-        `${REST_PIANOSHEET_API}/${id}`
-      );
+      const response = await apiClient.get<UserSheet>(`${REST_PIANOSHEET_API}/${id}`);
       detailSheet.value = response.data;
       console.log(detailSheet.value);
     } catch (error) {
@@ -341,9 +322,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const thumbnail = async (id: number): Promise<void> => {
     try {
-      const response = await apiClient.get<string>(
-        `${REST_PIANOSHEET_API}/${id}/music-img`
-      );
+      const response = await apiClient.get<string>(`${REST_PIANOSHEET_API}/${id}/music-img`);
       thumbnailImg.value = response.data;
       console.log(thumbnailImg.value);
     } catch (error) {
@@ -441,9 +420,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
     try {
       console.log("요청보냄");
       makeImgLoading.value = true;
-      const response = await apiClient.post(
-        `${REST_PIANOSHEET_API}/${id}/generate-image`
-      );
+      const response = await apiClient.post(`${REST_PIANOSHEET_API}/${id}/generate-image`);
       console.log(response.data);
       makeImgLoading.value = false;
     } catch (error) {
@@ -453,9 +430,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const saveMakedImg = async (id: number) => {
     try {
-      const response = await apiClient.get(
-        `${REST_PIANOSHEET_API}/${id}/download-music-img`
-      );
+      const response = await apiClient.get(`${REST_PIANOSHEET_API}/${id}/download-music-img`);
       console.log(response.data);
       return response.data;
     } catch (error) {
