@@ -247,25 +247,24 @@ const changeDialog = function () {
 // 연습 완료하기
 const doPractice = async function (e) {
     createFirework(e);
-    // console.log(practiceToday.value)
-    // if (!practiceToday.value || practiceToday.value.practiceCount < 4) {
-    //     await store.practicePostfun(nowSheet.value);
-    //     practiceGet();
-    //     isPractice.value = false;
-    //     knowledge.value = 0;
-    //     interval1.value = setInterval(async () => {
-    //         if (knowledge.value < 100) {
-    //             knowledge.value += 1;
-    //         } else if (knowledge.value === 100) {
-    //             isPractice.value = true;
-    //             clearInterval(interval1.value);
-    //         }
-    //     }, 600)
-    // } else if (practiceToday.value.practiceCount === 4) {
-    //     await store.practicePostfun(nowSheet.value);
-    //     practiceGet();
-    //     isPractice.value = false;
-    // }
+    if (!practiceToday.value || practiceToday.value.practiceCount < 4) {
+        await store.practicePostfun(nowSheet.value);
+        practiceGet();
+        isPractice.value = false;
+        knowledge.value = 0;
+        interval1.value = setInterval(async () => {
+            if (knowledge.value < 100) {
+                knowledge.value += 1;
+            } else if (knowledge.value === 100) {
+                isPractice.value = true;
+                clearInterval(interval1.value);
+            }
+        }, 600)
+    } else if (practiceToday.value.practiceCount === 4) {
+        await store.practicePostfun(nowSheet.value);
+        practiceGet();
+        isPractice.value = false;
+    }
 }
 
 // 악보 불러오기
@@ -314,7 +313,7 @@ onMounted(async () => {
                     isPractice.value = true;
                     clearInterval(interval1.value);
                 }
-            }, 10)
+            }, 600)
         }
     }
 });
@@ -336,14 +335,23 @@ onUnmounted(() => {
 });
 
 // 완료 이펙트
-const createFirework = (e) => {
+const createFirework = () => {
     const currImg = document.querySelector('.curr-image');
-
     const numParticles = 60;
-    const buttonRect = e.target.getBoundingClientRect();
+    const buttonRect = currImg.getBoundingClientRect();
     const buttonX = buttonRect.left + buttonRect.width / 2;
     const buttonY = buttonRect.top + buttonRect.height / 2;
 
+    const bigStrew = document.createElement('img');
+    bigStrew.classList.add('bigStrew');
+    bigStrew.src = '/가득찬딸기.png';
+    bigStrew.alt = '큰딸기';
+    bigStrew.style.left = `${buttonX}px`;
+    bigStrew.style.top = `${buttonY}px`;
+    document.body.appendChild(bigStrew);
+    bigStrew.addEventListener('animationend', () => {
+        bigStrew.remove();
+    });
     for (let i = 0; i < numParticles; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
@@ -519,7 +527,6 @@ h1 {
     height: 30px;
 }
 
-
 @keyframes showNumber {
     0% {
         opacity: 0;
@@ -531,23 +538,6 @@ h1 {
 
     100% {
         opacity: 0;
-    }
-}
-
-@keyframes image {
-    0% {
-        position: absolute;
-    }
-
-    50% {
-        position: absolute;
-        width: 200px;
-        height: 200px;
-    }
-
-    100% {
-        width: 30px;
-        height: 30px;
     }
 }
 </style>

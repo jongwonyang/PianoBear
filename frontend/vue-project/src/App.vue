@@ -1,4 +1,5 @@
 <template>
+  <div id="background-image"></div>
   <RouterView />
 </template>
 
@@ -58,8 +59,6 @@ function handleBeforeUnload(event: BeforeUnloadEvent) {
 onBeforeUnmount(() => {
   window.removeEventListener("beforeunload", handleBeforeUnload);
 });
-
-import backgroundImage from "@/assets/images/bg12.jpg";
 </script>
 
 <style>
@@ -76,8 +75,7 @@ import backgroundImage from "@/assets/images/bg12.jpg";
 
 @font-face {
   font-family: "CookieRun-Regular";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff")
-    format("woff");
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -98,9 +96,21 @@ body {
   --md-elevation-level: 5;
   --md-sys-color-shadow: #d2b659;
 
-  background-image: url("@/assets/images/bg13.webp");
-  background-size: cover;
+  background: none;
   z-index: -1;
+}
+
+#background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("@/assets/images/bg40.webp");
+  background-size: cover;
+  opacity: 0.3;
+  /* 여기서 opacity 값을 설정합니다 */
+  z-index: -2;
 }
 
 body::-webkit-scrollbar {
