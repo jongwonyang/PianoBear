@@ -4,7 +4,7 @@
       <v-tabs-window-item :value="1">
         <div>
           <div class="text">
-            <div style="border: 2px dashed #947650">PDF로 악보 만들기</div>
+            <div style="border: 2px dashed #947650">PDF 올리기</div>
           </div>
           <div class="_container">
             <div class="component">
@@ -128,6 +128,6 @@ watch(
   /* margin-bottom: 40px; */
   background-color: #fffff8;
   width: 15vw;
-  border: 2px double #947650;
+  /* border: 2px double #947650; */
 }
 </style>

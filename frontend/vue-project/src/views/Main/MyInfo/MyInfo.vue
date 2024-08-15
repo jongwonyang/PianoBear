@@ -353,8 +353,8 @@ async function LogOut() {
 }
 
 .profile-image {
-  width: 19vw;
-  height: 38vh;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   margin-left: 5vw;
   border: 1px solid black;
