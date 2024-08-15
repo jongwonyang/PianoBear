@@ -19,6 +19,7 @@ export interface BasicSheet {
   artistP: string;
   highestScoreP: number;
   userId: string;
+  musicImg: string;
 }
 
 // 사용자 악보
