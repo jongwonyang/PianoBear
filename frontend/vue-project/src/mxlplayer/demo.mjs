@@ -91,10 +91,10 @@ function createRenderer(options) {
       fingeringScale: 0.6,
       justificationBracketGroup: 5,
       scale: 60,
+      header: "none",
     },
     {
       scrollOffset: 100,
-      noTitle: true,
     }
   );
 }
@@ -132,7 +132,6 @@ function createOutput(output) {
 function handlePlayPauseKey(e) {
   e.stopPropagation();
   if (!challenge.value && e.key === " " && g_state.player) {
-    e.preventDefault();
     if (g_state.player.state === PLAYER_PLAYING) {
       g_state.timingObject?.update({ velocity: 0 });
       if (pitchShow.value) {
@@ -140,7 +139,7 @@ function handlePlayPauseKey(e) {
       }
     } else {
       g_state.timingObject?.update({
-        velocity: Number(document.getElementById("velocity").value),
+        velocity: Number(document.getElementById("velocity")?.value),
       });
       pitchShow.value = setInterval(() => {
         currPitch();
@@ -235,6 +234,7 @@ export function currPitch() {
 
 export function reset() {
   g_state.player?._midiPlayerStop();
+  g_state.player = null;
   window.localStorage.removeItem(LOCALSTORAGE_KEY);
 }
 
