@@ -21,9 +21,17 @@
               :key="index"
               :to="`/main/piano-sheet/${book.id}`"
               class="router"
+              :style="{ gridColumn: (index % 5) + 1 }"
             >
               <div class="book">
-                <img src="@/assets/images/blur.png" alt="Book Image" />
+                <!-- 이미지가 있을 때 -->
+                <img
+                  v-if="book.musicImg"
+                  :src="getMusicImageUrl(book.id) + '/download-music-img'"
+                  alt="Book Image"
+                />
+                <!-- 이미지가 없을 때 -->
+                <img v-else src="@/assets/images/blur.png" alt="Default Book Image" />
               </div>
             </router-link>
           </div>
@@ -122,6 +130,10 @@ watch(
     currentSortOption.value = newSortOption;
   }
 );
+
+const getMusicImageUrl = (bookId: number) => {
+  return `${import.meta.env.VITE_API_BASE_URL}/music/${bookId}`;
+};
 </script>
 
 <style scoped>
