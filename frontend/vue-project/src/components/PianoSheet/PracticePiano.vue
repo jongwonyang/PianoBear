@@ -19,13 +19,13 @@
                 </v-sheet>
                 <v-sheet :elevation="1" color="#D9F6D9" :height="40" :width="135" class="setOption">
                     <label for="velocity"> 속도 </label>
-                    <input type="number" id="velocity" name="velocity" :value="velo" min="0.25" max="2" step="0.25"
-                        readonly style="width: 50px; position: relative; left: 5px;" />
+                    <input type="number" id="velocity" name="velocity" :value="velo.toFixed(1)" min="0.5" max="2"
+                        step="0.1" readonly style="width: 50px; position: relative; left: 5px;" />
 
                     <div class="btns">
-                        <v-btn icon="mdi-triangle-small-up" class="velo" @click="velo <= 1.75 ? velo += 0.25 : null"
+                        <v-btn icon="mdi-triangle-small-up" class="velo" @click="velo < 2 ? velo += 0.1 : null"
                             size="small" :width="15" :height="15" variant="tonal"></v-btn>
-                        <v-btn icon="mdi-triangle-small-down" class="velo" @click="velo >= 0.5 ? velo -= 0.25 : null"
+                        <v-btn icon="mdi-triangle-small-down" class="velo" @click="velo > 0.51 ? velo -= 0.1 : null"
                             size="small" :width="15" :height="15" variant="tonal"></v-btn>
                     </div>
                 </v-sheet>
@@ -103,7 +103,7 @@ const props = defineProps({
 
 // mxl-player 변수
 const knowledge = ref(0);
-const velo = ref(1);
+const velo = ref(1.0);
 const status = ref(false);
 const toggle_one = ref(1);
 const musicXml = ref();
@@ -407,6 +407,7 @@ const createFirework = () => {
 }
 
 #sheet-container {
+    margin-top: 5%;
     width: 150vh;
     height: 100%;
     border: 5px solid #bde7bd7d;
