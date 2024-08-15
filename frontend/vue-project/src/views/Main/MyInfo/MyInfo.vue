@@ -11,8 +11,13 @@
           <!-- 편집 버튼 -->
           <v-dialog v-model="profileDialogOpen" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
-              <v-btn v-tooltip:bottom="'내 정보 수정'" v-bind="activatorProps" icon="mdi-pencil-outline" class="edit-btn"
-                density="comfortable"></v-btn>
+              <v-btn
+                v-tooltip:bottom="'내 정보 수정'"
+                v-bind="activatorProps"
+                icon="mdi-pencil-outline"
+                class="edit-btn"
+                density="comfortable"
+              ></v-btn>
             </template>
             <template v-slot:default="{ isActive }">
               <ProfileEdit v-if="isActive" :closeDialog="closeProfileDialog" @getUser="getUser" />
@@ -50,17 +55,32 @@
         </div>
       </div>
       <div>
-        <v-btn v-tooltip:bottom="'로그아웃'" icon="mdi-account-minus" @click="LogOut" class="logout-btn"
-          density="comfortable"></v-btn>
+        <v-btn
+          v-tooltip:bottom="'로그아웃'"
+          icon="mdi-account-minus"
+          @click="LogOut"
+          class="logout-btn"
+          density="comfortable"
+        ></v-btn>
       </div>
     </div>
 
     <div class="practice-online">
       <div class="practice-box">
         <div class="practice-box-container">
-          <v-btn icon="mdi-menu-left-outline" class="pre-month-btn" density="compact" @click="previousMonth"></v-btn>
+          <v-btn
+            icon="mdi-menu-left-outline"
+            class="pre-month-btn"
+            density="compact"
+            @click="previousMonth"
+          ></v-btn>
           <div class="practice-date">{{ currentYear }}년 {{ currentMonth }}월</div>
-          <v-btn icon="mdi-menu-right-outline" class="next-month-btn" density="compact" @click="nextMonth"></v-btn>
+          <v-btn
+            icon="mdi-menu-right-outline"
+            class="next-month-btn"
+            density="compact"
+            @click="nextMonth"
+          ></v-btn>
         </div>
         <md-elevation></md-elevation>
         <div class="practice-header"></div>
@@ -73,12 +93,20 @@
               <template v-slot:activator="{ props: activatorProps }">
                 <button class="honey-button" v-bind="activatorProps">
                   <img :src="day ? honeyFilled : honeyEmpty" alt="벌꿀" />
-                  <v-tooltip activator="parent" location="bottom">{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip>
+                  <v-tooltip activator="parent" location="bottom"
+                    >{{ currentMonth }}월 {{ index + 1 }}일 연습기록</v-tooltip
+                  >
                 </button>
               </template>
               <template v-slot:default="{ isActive }">
-                <DayPracticeDetail v-if="isActive" :month="currentMonth" :day="index + 1" :year="currentYear"
-                  :closeDialog="closeDialog" :index="index" />
+                <DayPracticeDetail
+                  v-if="isActive"
+                  :month="currentMonth"
+                  :day="index + 1"
+                  :year="currentYear"
+                  :closeDialog="closeDialog"
+                  :index="index"
+                />
               </template>
             </v-dialog>
           </template>
@@ -95,11 +123,18 @@
         <div v-else class="online-friend">
           <template v-for="friend in topOnlineFriends" :key="friend.id">
             <div class="friend-box">
-              <div class="friend-image" :style="{ backgroundImage: `url(${friend.profilePic})` }"></div>
+              <div
+                class="friend-image"
+                :style="{ backgroundImage: `url(${friend.profilePic})` }"
+              ></div>
               <div class="friend-name">{{ friend.name }}</div>
               <div>
-                <v-btn class="friend-chat" icon="mdi-chat" v-tooltip:bottom="'채팅하기'"
-                  @click="handleChat(friend.id)"></v-btn>
+                <v-btn
+                  class="friend-chat"
+                  icon="mdi-chat"
+                  v-tooltip:bottom="'채팅하기'"
+                  @click="handleChat(friend.id)"
+                ></v-btn>
               </div>
             </div>
             <v-divider></v-divider>
@@ -215,13 +250,13 @@ const nextMonth = () => {
 
 const getUser = async () => {
   userInfo.value = await dashboardStore.GetSummary().then((res) => {
-    return res.data
-  })
-}
+    return res.data;
+  });
+};
 
 onMounted(async () => {
   // 유저 정보 가져오기
-  await getUser()
+  await getUser();
   isLoading.value.profile = false;
 
   // 초기 연습 기록 가져오기
@@ -420,7 +455,7 @@ async function LogOut() {
 }
 
 .favorite-music {
-  background: #d9f6d9;
+  background: #f5e5d1;
   display: flex;
   position: relative;
   padding: 20px 10px;
@@ -429,6 +464,7 @@ async function LogOut() {
   width: 25vw;
   height: 25vh;
   margin-bottom: 1vh;
+  margin-top: 1vh;
   flex-direction: column;
   gap: 2vh;
 }
@@ -503,10 +539,6 @@ async function LogOut() {
 
 .music-item img {
   width: 2.5vw;
-}
-
-.best {
-  margin-top: 1vh;
 }
 
 .practice-box-container {
