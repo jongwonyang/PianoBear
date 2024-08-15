@@ -111,7 +111,7 @@
             </v-dialog>
           </template>
         </div>
-        <v-divider style="margin-bottom: 15px"></v-divider>
+        <v-divider style="margin-bottom: 5px"></v-divider>
         <div class="practice-day">{{ currentMonth }}월에 {{ practiceDaysCount }}일 연습했어요!</div>
       </div>
       <div class="online-friends-box">
@@ -472,7 +472,7 @@ async function LogOut() {
 }
 
 .favorite-music {
-  background: #e5ccaa;
+  background: #d9f6d9;
   display: flex;
   position: relative;
   padding: 20px 10px;
@@ -545,7 +545,7 @@ async function LogOut() {
   font-weight: 500;
   color: black;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .text {
@@ -564,7 +564,7 @@ async function LogOut() {
 .practice-box-container {
   display: flex;
   justify-content: space-around;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .practice-day {
