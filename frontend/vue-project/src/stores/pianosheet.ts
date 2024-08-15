@@ -75,26 +75,24 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
   // 기본 악보 목록을 가져오는 함수
   const basicSheetListfun = async (): Promise<void> => {
     try {
-      const response = await apiClient.get<BasicSheet[]>(`${REST_PIANOSHEET_API}/user-or-default`);
+      const response = await apiClient.get<BasicSheet[]>(`${REST_PIANOSHEET_API}/admin`);
       const data = response.data;
 
-      // userId가 존재하는 데이터만 필터링
-      const filteredData = data.filter((sheet) => !sheet.userId);
+      // // userId가 존재하는 데이터만 필터링
+      // const filteredData = data.filter((sheet) => !sheet.userId);
 
       // 연습량 기준으로 정렬
-      basicPracticeList.value = [...filteredData].sort(
-        (a, b) => b.practiceCountP - a.practiceCountP
-      );
+      basicPracticeList.value = [...data].sort((a, b) => b.practiceCountP - a.practiceCountP);
 
       // 즐겨찾기 기준으로 정렬
-      const favorites = filteredData.filter((sheet) => sheet.favoriteP);
-      const nonFavorites = filteredData.filter((sheet) => !sheet.favoriteP);
+      const favorites = data.filter((sheet) => sheet.favoriteP);
+      const nonFavorites = data.filter((sheet) => !sheet.favoriteP);
       basicFavoriteList.value = [...favorites, ...nonFavorites];
 
       // 전체 필터링된 리스트를 저장
-      basicSheetList.value = filteredData;
+      basicSheetList.value = data;
 
-      console.log("필터링된 응답 데이터:", filteredData);
+      console.log("필터링된 응답 데이터:", data);
     } catch (error) {
       console.error("악보 목록 가져오기 실패!", error);
     }
@@ -266,7 +264,7 @@ export const usePianoSheetStore = defineStore("pianosheet", () => {
 
   const userSheetListfun = async (): Promise<void> => {
     try {
-      const response = await apiClient.get<UserSheet[]>(`${REST_PIANOSHEET_API}/user-or-default`);
+      const response = await apiClient.get<UserSheet[]>(`${REST_PIANOSHEET_API}/user`);
       const data = response.data;
 
       // 각 악보의 총 연습량 계산
