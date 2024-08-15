@@ -120,7 +120,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, ref, computed } from "vue";
+import { defineProps, defineEmits, onMounted, ref, computed } from "vue";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
@@ -156,14 +156,20 @@ const props = defineProps({
   closeDialog: Function,
 });
 
+const emit = defineEmits([
+  'getUser',
+])
+
 const changeProfileImage = async () => {
   await userStore.updateProfile(selectedFile.value);
+  emit('getUser');
   userInfo.value = await userStore.GetUserInfo();
   isProfileModalOpen.value = false
 };
 
 const changeName = async () => {
   await userStore.updateName(newName.value);
+  emit('getUser');
   userInfo.value = await userStore.GetUserInfo();
   isNameModalOpen.value = false
 };

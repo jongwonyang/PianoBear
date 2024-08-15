@@ -61,13 +61,14 @@
                         <strong>연습량 {{ Math.ceil(knowledge) }}%</strong>
                     </v-progress-linear>
                 </div>
-                <div class="strewbery">
+                <v-sheet :elevation="1" color="#D9F6D9" :height="36" class="strewbery">
                     <img v-for="n in 5" :key="n"
                         :src="(practiceToday && n <= practiceToday.practiceCount) ? '/가득찬딸기.png' : '/빈딸기.png'" :alt="n"
-                        class="practice-image" width="25" />
-                    <v-btn v-if="isPractice" icon="mdi-check-bold" :width="31" :height="31" style="margin-left: 5px;"
-                        color="success" @click="doPractice"></v-btn>
-                </div>
+                        :class="(!practiceToday && n === 1) || (practiceToday && n === practiceToday.practiceCount + 1) ? 'practice-image curr-image' : 'practice-image'" />
+                    <v-btn icon="mdi-check-bold" :width="25" size="small" :height="25"
+                        :style="[{ 'margin-left': '10px' }, isPractice ? {} : { visibility: 'hidden' }]" color="success"
+                        @click="doPractice"></v-btn>
+                </v-sheet>
             </div>
             <div v-show="status" id="sheet-container" :value="status"></div>
             <div v-if="!status" class="loading">
@@ -246,25 +247,25 @@ const changeDialog = function () {
 // 연습 완료하기
 const doPractice = async function (e) {
     createFirework(e);
-    console.log(practiceToday.value)
-    if (!practiceToday.value || practiceToday.value.practiceCount < 4) {
-        await store.practicePostfun(nowSheet.value);
-        practiceGet();
-        isPractice.value = false;
-        knowledge.value = 0;
-        interval1.value = setInterval(async () => {
-            if (knowledge.value < 100) {
-                knowledge.value += 1;
-            } else if (knowledge.value === 100) {
-                isPractice.value = true;
-                clearInterval(interval1.value);
-            }
-        }, 600)
-    } else if (practiceToday.value.practiceCount === 4) {
-        await store.practicePostfun(nowSheet.value);
-        practiceGet();
-        isPractice.value = false;
-    }
+    // console.log(practiceToday.value)
+    // if (!practiceToday.value || practiceToday.value.practiceCount < 4) {
+    //     await store.practicePostfun(nowSheet.value);
+    //     practiceGet();
+    //     isPractice.value = false;
+    //     knowledge.value = 0;
+    //     interval1.value = setInterval(async () => {
+    //         if (knowledge.value < 100) {
+    //             knowledge.value += 1;
+    //         } else if (knowledge.value === 100) {
+    //             isPractice.value = true;
+    //             clearInterval(interval1.value);
+    //         }
+    //     }, 600)
+    // } else if (practiceToday.value.practiceCount === 4) {
+    //     await store.practicePostfun(nowSheet.value);
+    //     practiceGet();
+    //     isPractice.value = false;
+    // }
 }
 
 // 악보 불러오기
@@ -313,7 +314,7 @@ onMounted(async () => {
                     isPractice.value = true;
                     clearInterval(interval1.value);
                 }
-            }, 600)
+            }, 10)
         }
     }
 });
@@ -336,7 +337,9 @@ onUnmounted(() => {
 
 // 완료 이펙트
 const createFirework = (e) => {
-    const numParticles = 30;
+    const currImg = document.querySelector('.curr-image');
+
+    const numParticles = 60;
     const buttonRect = e.target.getBoundingClientRect();
     const buttonX = buttonRect.left + buttonRect.width / 2;
     const buttonY = buttonRect.top + buttonRect.height / 2;
@@ -347,17 +350,17 @@ const createFirework = (e) => {
 
         // 각 파티클의 방향과 거리
         const angle = Math.random() * 360;
-        const radius = Math.random() * 70;
+        const radius = Math.random() * 300;
 
         // --x, --y 변수를 사용하여 방향과 거리 설정
         particle.style.setProperty('--x', `${radius * Math.cos(angle)}px`);
         particle.style.setProperty('--y', `${radius * Math.sin(angle)}px`);
 
-        if (i < 7) {
+        if (i < 14) {
             particle.style.setProperty('background-color', 'red');
-        } else if (i < 14) {
+        } else if (i < 28) {
             particle.style.setProperty('background-color', 'yellow');
-        } else if (i < 21) {
+        } else if (i < 42) {
             particle.style.setProperty('background-color', 'rgb(78, 131, 255)');
         }
 
@@ -472,21 +475,27 @@ h1 {
 .practiceLoading {
     background-color: #fffed28d;
     width: 200px;
+    height: 100%;
+    border-radius: 5px;
 }
 
 .practiceLodingBack {
     position: absolute;
-    left: 2vw;
-    top: 7vh;
-    width: 370px;
+    left: 1vw;
+    top: 5.5vh;
+    width: 420px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
 }
 
 .strewbery {
     display: flex;
-    width: 160px;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    border-radius: 20px;
 }
 
 .changeSheet {
@@ -505,6 +514,12 @@ h1 {
     left: -3vw;
 }
 
+.practice-image {
+    width: 30px;
+    height: 30px;
+}
+
+
 @keyframes showNumber {
     0% {
         opacity: 0;
@@ -516,6 +531,23 @@ h1 {
 
     100% {
         opacity: 0;
+    }
+}
+
+@keyframes image {
+    0% {
+        position: absolute;
+    }
+
+    50% {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+    }
+
+    100% {
+        width: 30px;
+        height: 30px;
     }
 }
 </style>
