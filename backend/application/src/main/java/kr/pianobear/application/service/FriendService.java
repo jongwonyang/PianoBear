@@ -47,7 +47,8 @@ public class FriendService {
             // 알림 생성 및 전송
             String content = String.format("{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\"}",
                     sender.getId(), sender.getName(),
-                    sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "/api/v1/static/pitch-head.png");
+                    sender.getProfilePic() != null ? sender.getProfilePic().getFilePath()
+                            : "/api/v1/static/pitch-head.png");
             notificationService.createNotification(receiver, "FRIEND_REQUEST", content);
         }
     }
@@ -70,11 +71,13 @@ public class FriendService {
                 friendRequestRepository.delete(friendRequest);
 
                 // 알림 생성 및 전송
-                String content = String.format("{\"senderId\":\"%s\", \"senderName\":\"%s\", \"senderProfilePic\":\"%s\", \"message\":\"%s\"}",
-                        sender.getId(), sender.getName(),
-                        sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() : "/api/v1/static/pitch-head.png",
-                        "친구 요청이 수락되었습니다.");
-                notificationService.createNotification(receiver, "FRIEND_ACCEPTED", content);
+                // String content = String.format("{\"senderId\":\"%s\", \"senderName\":\"%s\",
+                // \"senderProfilePic\":\"%s\", \"message\":\"%s\"}",
+                // receiver.getId(), receiver.getName(),
+                // sender.getProfilePic() != null ? sender.getProfilePic().getFilePath() :
+                // "/api/v1/static/pitch-head.png",
+                // "친구 요청이 수락되었습니다.");
+                // notificationService.createNotification(sender, "FRIEND_ACCEPTED", content);
             }
         }
     }
@@ -96,7 +99,6 @@ public class FriendService {
             }
         }
     }
-
 
     public List<FriendDTO> getSentFriendRequests(String senderId) {
         Optional<Member> senderOpt = memberRepository.findById(senderId);
