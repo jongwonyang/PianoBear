@@ -35,7 +35,7 @@ const onFileChange = (event: Event): void => {
 
 <style scoped>
 .container {
-  border: 2px solid #f5e5d1;
+  /* border: 2px solid #947650; */
   color: #947650;
   background-color: #fffff8;
   width: 350px;
@@ -45,7 +45,7 @@ const onFileChange = (event: Event): void => {
 }
 
 .filebox {
-  border: 2px dashed #f5e5d1;
+  border: 2px dashed #947650;
   width: 350;
   height: 530px;
   padding-left: 70px;

@@ -129,6 +129,7 @@ onMounted(() => {
   align-content: center;
   padding-left: 1vw;
   padding-right: 1vw;
+  border: 2px solid #f5e5d1;
   border-radius: 5%;
 }
 
@@ -140,6 +141,9 @@ onMounted(() => {
   margin-left: 1vw;
   padding-left: 1vw;
   padding-right: 1vw;
+  position: fixed;
+  left: 574px;
+  border: 2px solid #f5e5d1;
   border-radius: 5%;
 }
 

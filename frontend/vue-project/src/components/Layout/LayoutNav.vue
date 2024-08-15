@@ -50,9 +50,7 @@
           ></v-list-item>
           <v-list-item
             :prepend-icon="
-              webSocketStore.notificationCount == 0
-                ? 'mdi-bell-outline'
-                : 'mdi-bell-badge-outline'
+              webSocketStore.notificationCount == 0 ? 'mdi-bell-outline' : 'mdi-bell-badge-outline'
             "
             title="알림"
             value="알림"
@@ -72,21 +70,14 @@
       <v-card class="notification-box">
         <v-card-title class="headline">
           <div>알림</div>
-          <v-btn
-            class="delete-all"
-            icon
-            @click="showConfirmDeleteDialog = true"
-          >
+          <v-btn class="delete-all" icon @click="showConfirmDeleteDialog = true">
             <v-icon>mdi-delete-outline</v-icon>
           </v-btn>
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
           <v-list class="notification-list">
-            <v-list-item
-              v-for="(notification, index) in webSocketStore.notifications"
-              :key="index"
-            >
+            <v-list-item v-for="(notification, index) in webSocketStore.notifications" :key="index">
               <v-list-item-content>
                 <template v-if="notification.type === 'FRIEND_REQUEST'">
                   <v-list-item-title>친구 요청</v-list-item-title>
@@ -99,8 +90,7 @@
                   <v-list-item-title>놀이터 초대</v-list-item-title>
                   <v-list-item-subtitle class="mb-2"
                     >{{ notification.content.inviterName }} 님이
-                    {{ notification.content.sessionTitle }}&nbsp;놀이터에
-                    초대하였습니다!
+                    {{ notification.content.sessionTitle }}&nbsp;놀이터에 초대하였습니다!
                   </v-list-item-subtitle>
                 </template>
                 <template v-else-if="notification.type === 'CHAT'">
@@ -113,55 +103,19 @@
               </v-list-item-content>
               <v-list-item-action class="notification-actions">
                 <template v-if="notification.type === 'FRIEND_REQUEST'">
-                  <v-btn
-                    class="yes-btn"
-                    small
-                    text
-                    @click="acceptFriendRequest(index)"
-                    >수락</v-btn
-                  >
-                  <v-btn
-                    class="no-btn"
-                    small
-                    text
-                    @click="declineFriendRequest(index)"
-                    >거절</v-btn
-                  >
+                  <v-btn class="yes-btn" small text @click="acceptFriendRequest(index)">수락</v-btn>
+                  <v-btn class="no-btn" small text @click="declineFriendRequest(index)">거절</v-btn>
                 </template>
                 <template v-else-if="notification.type === 'INVITATION'">
-                  <v-btn
-                    class="yes-btn"
-                    small
-                    text
-                    @click="acceptMeetingInvite(index)"
-                    >수락</v-btn
-                  >
-                  <v-btn
-                    class="no-btn"
-                    small
-                    text
-                    @click="declineMeetingInvite(index)"
-                    >거절</v-btn
-                  >
+                  <v-btn class="yes-btn" small text @click="acceptMeetingInvite(index)">수락</v-btn>
+                  <v-btn class="no-btn" small text @click="declineMeetingInvite(index)">거절</v-btn>
                 </template>
                 <template v-else-if="notification.type === 'CHAT'">
-                  <v-btn class="yes-btn" small text @click="goToChat(index)"
-                    >이동</v-btn
-                  >
-                  <v-btn
-                    class="no-btn"
-                    small
-                    text
-                    @click="deleteChatMessage(index)"
-                    >삭제</v-btn
-                  >
+                  <v-btn class="yes-btn" small text @click="goToChat(index)">이동</v-btn>
+                  <v-btn class="no-btn" small text @click="deleteChatMessage(index)">삭제</v-btn>
                 </template>
                 <template v-else-if="notification.type === 'sheetTranslation'">
-                  <v-btn
-                    class="yes-btn"
-                    small
-                    text
-                    @click="goToSheet(index), (showDialog = false)"
+                  <v-btn class="yes-btn" small text @click="goToSheet(index), (showDialog = false)"
                     >이동</v-btn
                   >
                 </template>
@@ -188,9 +142,7 @@
         <v-card-text>알림을 전체 삭제하시겠습니까?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="confirmDeleteAllNotifications" style="color: red"
-            >삭제</v-btn
-          >
+          <v-btn text @click="confirmDeleteAllNotifications" style="color: red">삭제</v-btn>
           <v-btn text @click="showConfirmDeleteDialog = false">닫기</v-btn>
         </v-card-actions>
       </v-card>
@@ -258,9 +210,7 @@ const confirmDeleteAllNotifications = () => {
 
 const acceptFriendRequest = (index) => {
   // 친구 요청 수락 API 호출
-  friendStore.AcceptFriendRequest(
-    webSocketStore.notifications[index].content.senderId
-  );
+  friendStore.AcceptFriendRequest(webSocketStore.notifications[index].content.senderId);
 
   console.log("친구 추가 요청 수락:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
@@ -287,9 +237,7 @@ const acceptMeetingInvite = (index) => {
 const declineMeetingInvite = (index) => {
   console.log("회의실 초대 거절:", webSocketStore.notifications[index]);
   // 특정 알림 삭제
-  webSocketStore.DeleteNotification(
-    webSocketStore.notifications.value[index].id
-  );
+  webSocketStore.DeleteNotification(webSocketStore.notifications.value[index].id);
 };
 
 const goToChat = (index) => {
@@ -364,5 +312,17 @@ const deleteChatMessage = (index) => {
 .delete-box {
   background: #fff9e0;
   color: #947650;
+}
+
+.v-list-item-title {
+  font-size: 1rem !important; /* 네비게이션 항목의 제목 글씨 크기 */
+}
+
+.v-list-item-subtitle {
+  font-size: 50px; /* 네비게이션 항목의 부제목 글씨 크기 */
+}
+
+.v-list-item {
+  font-size: 18px; /* 네비게이션 항목 전체에 대한 기본 글씨 크기 */
 }
 </style>
