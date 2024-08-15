@@ -4,7 +4,7 @@
       <v-tabs-window-item :value="1">
         <div>
           <div class="text">
-            <div style="border: 2px dashed #947650">PDF 올리기</div>
+            <div style="border: 2px dashed #947650">PDF로 악보 만들기</div>
           </div>
           <div class="_container">
             <div class="component">
@@ -46,10 +46,10 @@
     <div class="tab">
       <v-tabs v-model="tab" align-tabs="center" color="#D2B48C" hide-slider height="40px">
         <v-tab :value="1" @click="setCurrentTab('UserSheet')">
-          <div class="convert">PDF -> MXL</div>
+          <div class="convert">PDF 올리기</div>
         </v-tab>
         <v-tab :value="2" @click="setCurrentTab('BasicSheet')">
-          <div class="convert">음성 파일 -> MXL</div>
+          <div class="convert">음원 올리기</div>
         </v-tab>
       </v-tabs>
     </div>
