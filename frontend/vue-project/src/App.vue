@@ -106,7 +106,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url("@/assets/images/bg13.webp");
+  background-image: url("@/assets/images/bg40.webp");
   background-size: cover;
   opacity: 0.3;
   /* 여기서 opacity 값을 설정합니다 */
