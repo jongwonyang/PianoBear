@@ -2,9 +2,7 @@
   <div class="flex root">
     <glass-pane class="w-2/5">
       <div class="flex flex-row mb-8 items-center justify-center">
-        <div class="font-bold text-2xl text-black mr-2">
-          음악으로 악보 만들기
-        </div>
+        <div class="font-bold text-2xl text-black mr-2">음원 올리기</div>
         <div
           class="bg-blue-500 text-white pl-2 pr-3 py-1 rounded-full inline-flex items-center text-lg font-bold"
         >
@@ -55,14 +53,9 @@
           </div>
           <div v-else class="flex flex-col items-center">
             <div class="mb-1">{{ fileName }}</div>
-            <div class="mb-2">
-              {{ (file.size / (1024 * 1024)).toFixed(2) }} MB
-            </div>
+            <div class="mb-2">{{ (file.size / (1024 * 1024)).toFixed(2) }} MB</div>
             <div>
-              <button
-                class="p-2 text-red-400 hover:text-red-300"
-                @click="removeFile"
-              >
+              <button class="p-2 text-red-400 hover:text-red-300" @click="removeFile">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -80,12 +73,7 @@
               </button>
             </div>
           </div>
-          <input
-            type="file"
-            class="hidden"
-            ref="fileInput"
-            @change="handleFileUpload"
-          />
+          <input type="file" class="hidden" ref="fileInput" @change="handleFileUpload" />
         </div>
       </div>
     </glass-pane>
@@ -514,14 +502,7 @@ const downloadMidi = () => {
   position: absolute;
   height: 100%;
   width: 100%;
-  background-image: conic-gradient(
-    from var(--angle),
-    #ff4545,
-    #00ff99,
-    #006aff,
-    #ff0095,
-    #ff4545
-  );
+  background-image: conic-gradient(from var(--angle), #ff4545, #00ff99, #006aff, #ff0095, #ff4545);
   top: 50%;
   left: 50%;
   translate: -50% -50%;
