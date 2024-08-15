@@ -90,7 +90,6 @@ import { pageLoad, sheetSelect, createPlayer, num, reset, chaingingChallenge, st
 import { usePianoSheetStore } from '@/stores/pianosheet';
 import ChallengeModal from '@/components/PianoSheet/ChallengeModal.vue';
 import Piano from './Piano.vue';
-import { isCallChain } from 'typescript';
 
 // osmdLoadCheck
 // vue 변수
