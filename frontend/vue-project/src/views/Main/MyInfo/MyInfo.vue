@@ -28,19 +28,19 @@
               <div class="music-item">
                 <img src="@/assets/images/first.png" alt="" />
                 <div class="music-name">
-                  {{ favoriteMusic[0] }}
+                  {{ userInfo?.most[0] ? userInfo.most[0] : '-' }}
                 </div>
               </div>
               <div class="music-item">
                 <img src="@/assets/images/second.png" alt="" />
                 <div class="music-name">
-                  {{ favoriteMusic[1] }}
+                  {{ userInfo?.most[1] ? userInfo.most[1] : '-' }}
                 </div>
               </div>
               <div class="music-item">
                 <img src="@/assets/images/third.png" alt="" />
                 <div class="music-name">
-                  {{ favoriteMusic[2] }}
+                  {{ userInfo?.most[2] ? userInfo.most[2] : '-' }}
                 </div>
               </div>
             </div>
@@ -145,7 +145,6 @@ const handleChat = (friendId) => {
   });
 };
 
-const favoriteMusic = ref(["-", "-", "-"]);
 const practiceRecord = ref([]);
 const currentYear = ref(2024);
 const currentMonth = ref(8);
@@ -223,6 +222,7 @@ onMounted(async () => {
   // 유저 정보 가져오기
   await getUser()
   isLoading.value.profile = false;
+
 
   // 초기 연습 기록 가져오기
   updatePracticeDays(currentYear.value, currentMonth.value);
