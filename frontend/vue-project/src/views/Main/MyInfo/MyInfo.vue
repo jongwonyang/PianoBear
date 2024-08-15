@@ -33,19 +33,19 @@
               <div class="music-item">
                 <img src="@/assets/images/first.png" alt="" />
                 <div class="music-name">
-                  {{ userInfo?.most[0] ? userInfo.most[0] : '-' }}
+                  {{ userInfo?.most[0] ? userInfo.most[0] : "-" }}
                 </div>
               </div>
               <div class="music-item">
                 <img src="@/assets/images/second.png" alt="" />
                 <div class="music-name">
-                  {{ userInfo?.most[1] ? userInfo.most[1] : '-' }}
+                  {{ userInfo?.most[1] ? userInfo.most[1] : "-" }}
                 </div>
               </div>
               <div class="music-item">
                 <img src="@/assets/images/third.png" alt="" />
                 <div class="music-name">
-                  {{ userInfo?.most[2] ? userInfo.most[2] : '-' }}
+                  {{ userInfo?.most[2] ? userInfo.most[2] : "-" }}
                 </div>
               </div>
             </div>
@@ -258,7 +258,6 @@ onMounted(async () => {
   await getUser();
   isLoading.value.profile = false;
 
-
   // 초기 연습 기록 가져오기
   updatePracticeDays(currentYear.value, currentMonth.value);
   fetchPracticeRecords(currentYear.value, currentMonth.value);
@@ -401,6 +400,7 @@ async function LogOut() {
   background: #fff9e0;
   position: relative;
   padding-left: 1vw;
+  padding-right: 1vw;
   border-radius: 30px;
   text-align: center;
   color: #947650;
@@ -500,6 +500,8 @@ async function LogOut() {
   align-items: center;
   margin-top: 12px;
   margin-bottom: 12px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .friend-image {
