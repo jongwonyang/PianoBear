@@ -31,8 +31,6 @@ export const useWebSocketStore = defineStore("websocket", () => {
   const notificationCount = ref(0);
   const notifications = ref<any[]>([]);
 
-  const accessToken = ref(userStore.GetAccessToken());
-
   const GetNotificationList = async () => {
     try {
       const response = await apiClient.get(REST_NOTIFICATION_API);
@@ -89,7 +87,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
     }
 
     const headers = {
-      Authorization: "Bearer " + accessToken.value,
+      Authorization: "Bearer " + userStore.GetAccessToken(),
     };
 
     connectPromise = new Promise((resolve, reject) => {
@@ -168,7 +166,7 @@ export const useWebSocketStore = defineStore("websocket", () => {
       };
 
       const headers = {
-        Authorization: "Bearer " + accessToken.value,
+        Authorization: "Bearer " + userStore.GetAccessToken(),
       };
       stompClient.publish({
         destination: `/app/sendMessage`,
