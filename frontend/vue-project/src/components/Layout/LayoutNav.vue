@@ -313,16 +313,4 @@ const deleteChatMessage = (index) => {
   background: #fff9e0;
   color: #947650;
 }
-
-.v-list-item-title {
-  font-size: 1rem !important; /* 네비게이션 항목의 제목 글씨 크기 */
-}
-
-.v-list-item-subtitle {
-  font-size: 50px; /* 네비게이션 항목의 부제목 글씨 크기 */
-}
-
-.v-list-item {
-  font-size: 18px; /* 네비게이션 항목 전체에 대한 기본 글씨 크기 */
-}
 </style>
