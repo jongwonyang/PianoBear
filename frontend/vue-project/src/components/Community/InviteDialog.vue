@@ -6,7 +6,6 @@
         variant="text"
         prepend-icon="mdi-account"
         append-icon="mdi-plus"
-        :disabled="disabled || invitedTemp"
       >
         &nbsp; {{ props.user.name }}</v-btn
       >
@@ -63,7 +62,6 @@ const communityStore = useOpenviduStore();
 
 function invite(FriendId: string) {
   communityStore.inviteFriend(FriendId);
-  invitedTemp.value = true;
 }
 </script>
 <style scoped></style>

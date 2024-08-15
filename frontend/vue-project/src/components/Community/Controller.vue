@@ -26,17 +26,6 @@
           variant="tonal"
         />
         <EmoteList></EmoteList>
-        <v-btn
-          icon="mdi-music-note"
-          v-if="!openviduStore.isPlay"
-          @click="switchPlay"
-        />
-        <v-btn
-          icon="mdi-music-note"
-          v-else
-          @click="switchPlay"
-          variant="tonal"
-        />
         <FriendList variant="tonal" />
         <DialogsModal text="나가기" content="나가시겠습니까?" @join="exit" />
       </div>

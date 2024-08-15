@@ -55,6 +55,11 @@ const routes = [
       {
         path: "",
         name: "myInfo",
+        redirect: { name: "myInfoView" },
+      },
+      {
+        path: "myinfo",
+        name: "myInfoView",
         component: MyInfo,
       },
       {

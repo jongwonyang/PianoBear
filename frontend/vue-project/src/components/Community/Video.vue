@@ -49,8 +49,36 @@ const turnOnAudio = function () {
 };
 
 onMounted(() => {
-  openviduStore.initOpenvidu();
+  requestWebcamAndMicPermissions()
+    .then(() => {
+      // 권한이 승인된 후의 로직을 여기에 작성합니다.
+      openviduStore.initOpenvidu();
+      console.log("권한이 성공적으로 요청되었습니다.");
+    })
+    .catch((error) => {
+      // 권한 요청이 실패했을 때의 로직
+      alert("소통방에 참여하려면 카메라와 마이크 권한이 필요합니다.");
+      console.log("권한 요청이 실패했습니다:", error);
+    });
 });
+
+async function requestWebcamAndMicPermissions() {
+  try {
+    // 웹캠과 마이크 권한 요청
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true, // 웹캠 권한
+      audio: true, // 마이크 권한
+    });
+
+    // 스트림 사용 없이 권한만 요청하는 경우, 스트림을 바로 중지
+    stream.getTracks().forEach((track) => track.stop());
+
+    console.log("웹캠과 마이크 권한이 승인되었습니다.");
+  } catch (error) {
+    console.error("웹캠 또는 마이크 권한이 거부되었습니다:", error);
+    throw error; // 권한 요청 실패 시 에러를 던집니다.
+  }
+}
 </script>
 
 <style scoped>
