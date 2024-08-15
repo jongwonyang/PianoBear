@@ -286,6 +286,7 @@ onMounted(() => {
           name: "friends",
           query: { chatWith: router.currentRoute.value.query.chatWith },
         });
+        startChatting(chatWith);
       }
     })
     .catch((err) => {
