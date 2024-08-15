@@ -2,7 +2,7 @@
   <div class="flex root">
     <glass-pane class="w-2/5">
       <div class="flex flex-row mb-8 items-center justify-center">
-        <div class="font-bold text-2xl text-black mr-2">음원 올리기</div>
+        <div class="font-bold text-2xl text-black mr-2">음악으로 악보 만들기</div>
         <div
           class="bg-blue-500 text-white pl-2 pr-3 py-1 rounded-full inline-flex items-center text-lg font-bold"
         >
