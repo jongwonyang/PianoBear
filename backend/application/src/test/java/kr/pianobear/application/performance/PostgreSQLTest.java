@@ -22,7 +22,6 @@ public class PostgreSQLTest {
             stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (jti TEXT PRIMARY KEY)");
             stmt.execute("TRUNCATE TABLE " + TABLE_NAME);
 
-            // 10,000개의 JTI 데이터 삽입
             try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO " + TABLE_NAME + " (jti) VALUES (?)")) {
                 for (int i = 0; i < DATASET_SIZE; i++) {
                     pstmt.setString(1, "jti-" + i);
