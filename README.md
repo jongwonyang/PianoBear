@@ -56,3 +56,192 @@ https://github.com/user-attachments/assets/c402e797-e1bc-4bb8-81e2-6014b69d83ef
 https://github.com/user-attachments/assets/a06c1915-94e4-4139-a458-4808c2c77785
 
 # 나의 기여
+## Spring Security와 JWT를 이용한 회원 인증 기능
+### 상황
+클라이언트가 Vue.js 기반의 SPA이기 때문에 토큰을 이용한 회원 기능을 구현하였습니다.
+
+회원 기능은 대부분의 기능에서 광범위하게 사용되기 때문에 동료 백엔드 개발자가 인증이 필요한 부분에서 쉽고 간단하게 인증 정보를 가져올 수 있도록 작성하는것을 목표로 하였습니다.
+
+### Spring Security 설정
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/config/SecurityConfig.java
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@AllArgsConstructor
+public class SecurityConfig {
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    private static final String[] AUTH_WHITELIST = {"/api/v1/auth/**"};
+
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(AbstractHttpConfigurer::disable);
+        http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
+        http.addFilterBefore(new JwtAuthFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler));
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(AUTH_WHITELIST).permitAll()
+                .anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+위 설정에서는 CSRF 및 CORS 보호를 비활성화하고, 세션을 사용하지 않는 `STATELESS` 정책을 적용하였습니다. 또한, `JwtAuthFilter`를 추가하여 모든 요청에서 JWT 검증을 수행합니다.
+
+### JWTUtil 클래스
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/util/JwtUtil.java
+
+@Component
+public class JwtUtil {
+    private final SecretKey secretKey;
+    private final long accessTokenExpTime;
+    private final long refreshTokenExpTime;
+    private final CustomUserDetailsService userDetailsService;
+
+    public JwtUtil(@Value("${jwt.secret}") String secretKey,
+                   @Value("${jwt.access-expiration-time}") long accessTokenExpTime,
+                   @Value("${jwt.refresh-expiration-time}") long refreshTokenExpTime,
+                   CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+        this.accessTokenExpTime = accessTokenExpTime;
+        this.refreshTokenExpTime = refreshTokenExpTime;
+    }
+
+    public String createAccessToken(Member member) {
+        return createToken(member, accessTokenExpTime);
+    }
+
+    private String createToken(Member member, long expireTime) {
+        Claims claims = Jwts.claims()
+                .add("username", member.getId())
+                .add("role", member.getRole())
+                .build();
+
+        ZonedDateTime now = ZonedDateTime.now();
+        return Jwts.builder()
+                .claims(claims)
+                .issuedAt(Date.from(now.toInstant()))
+                .expiration(Date.from(now.plusSeconds(expireTime).toInstant()))
+                .signWith(this.secretKey)
+                .compact();
+    }
+
+    public String parseUsername(String token) {
+        return parseClaims(token).get("username", String.class);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(this.secretKey)
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+}
+```
+
+JWT를 생성하고 검증하는 역할을 수행하는 `JwtUtil` 클래스입니다. `createAccessToken()` 메서드를 통해 JWT를 생성하고, `validateToken()` 메서드에서 토큰이 유효한지 검사합니다.
+
+### JWTAuthFilter 필터
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/security/JwtAuthFilter.java
+
+@RequiredArgsConstructor
+public class JwtAuthFilter extends OncePerRequestFilter {
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService customUserDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            if (jwtUtil.validateToken(token)) {
+                String username = jwtUtil.parseUsername(token);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+}
+```
+
+이 필터는 요청이 들어올 때마다 JWT를 검증하고, 인증된 사용자인 경우 `SecurityContextHolder`에 저장하여 이후 요청에서 사용될 수 있도록 합니다.
+
+### SecurityUtil 클래스
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/util/SecurityUtil.java
+
+public class SecurityUtil {
+    private SecurityUtil() {}
+
+    public static String getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        return null;
+    }
+}
+```
+
+이 유틸리티 클래스는 SecurityContextHolder에서 현재 인증된 사용자의 ID를 쉽게 가져올 수 있도록 도와줍니다.
+
+사용 예시는 다음과 같습니다.
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/controller/UserController.java
+
+@GetMapping("/my-info")
+@Operation(summary = "내 정보 조회")
+@PreAuthorize("hasRole('ROLE_MEMBER')")
+public ResponseEntity<MyInfoDTO> myInfo() {
+    String currentUserId = SecurityUtil.getCurrentUserId();
+
+    Optional<MyInfoDTO> myInfo = userService.getMyInfo(currentUserId);
+
+    if (myInfo.isEmpty())
+        return ResponseEntity.notFound().build();
+
+    return ResponseEntity.ok(myInfo.get());
+}
+```
+
+### 결과
+- 위와 같이 Spring Security와 JWT를 활용하여 회원 인증을 구현하였습니다.
+- `JwtAuthFilter`를 통해 JWT를 검증하며, `JwtUtil`을 통해 토큰을 생성 및 관리합니다.
+- `SecurityUtil`을 추가하여 인증이 필요한 기능에서 쉽게 현재 사용자 정보를 가져올 수 있도록 구현하였습니다.
+
+## 회원 기능의 보안 및 성능 문제
