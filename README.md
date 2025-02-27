@@ -56,7 +56,7 @@ https://github.com/user-attachments/assets/c402e797-e1bc-4bb8-81e2-6014b69d83ef
 https://github.com/user-attachments/assets/a06c1915-94e4-4139-a458-4808c2c77785
 
 # 나의 기여
-## Spring Security와 JWT를 이용한 회원 인증 기능
+## 1️⃣ Spring Security와 JWT를 이용한 회원 인증 기능
 ### 상황
 클라이언트가 Vue.js 기반의 SPA이기 때문에 토큰을 이용한 회원 기능을 구현하였습니다.
 
@@ -244,4 +244,172 @@ public ResponseEntity<MyInfoDTO> myInfo() {
 - `JwtAuthFilter`를 통해 JWT를 검증하며, `JwtUtil`을 통해 토큰을 생성 및 관리합니다.
 - `SecurityUtil`을 추가하여 인증이 필요한 기능에서 쉽게 현재 사용자 정보를 가져올 수 있도록 구현하였습니다.
 
-## 회원 기능의 보안 및 성능 문제
+## 2️⃣ 회원 기능의 보안 및 성능 문제
+### 상황
+처음에 로그아웃 기능을 구현할 때, 단순히 클라이언트(브라우저)에서 저장된 토큰을 삭제하는 방식으로 구현했습니다.
+
+그러나 이 방식은 만약 사용자의 토큰이 탈취되어서 로그아웃을 한 경우, 여전히 탈취된 토큰의 사용을 막을 수 없다는 취약점이 있었습니다.
+
+이를 해결하기 위해 다음과 같은 과정으로 개선을 수행했습니다.
+
+### DB에 로그아웃된 토큰을 저장
+```java
+public void logout(String accessToken, String refreshToken) {
+    String accessTokenJti = jwtUtil.parseJti(accessToken);
+    String refreshTokenJti = jwtUtil.parseJti(refreshToken);
+
+    int accessExp = jwtUtil.parseExp(accessToken) - jwtUtil.parseIat(accessToken);
+    int refreshExp = jwtUtil.parseExp(refreshToken) - jwtUtil.parseIat(refreshToken);
+
+    logoutRepository.save(accessTokenJti, accessExp);
+    logoutRepository.save(refreshTokenJti, refreshExp);
+}
+```
+
+JTI는 JWT의 고유 ID입니다. 로그아웃된 JWT의 JTI를 DB에 저장함으로써 이후 요청마다 해당 토큰이 폐기된 토큰인지 아닌지를 검증할 수 있습니다.
+
+그러나 이 구현에는 2가지 문제점이 있었습니다.
+
+1. 매번 토큰을 인증할 때 마다 DB 접근이 발생한다.
+2. 유효기간이 지난 토큰을 DB에서 삭제하는데 추가적인 작업이 발생한다.
+
+2번 문제는 굳이 실시간으로 삭제할 필요는 없었지만 언젠가는 삭제해야 하기 때문에 조금이지만 추가적인 개발이 필요한 상황이었습니다.
+
+1번 문제는 다음과 같이 매번 인증에 쓰이는 `validateToken()`에서 사용되기 때문에 충분히 성능 저하가 있을 것 같았습니다.
+
+```java
+public boolean validateToken(String token) {
+    try {
+        Claims claims = Jwts.parser()
+                .verifyWith(this.secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        String jti = claims.get("jti", String.class);
+
+        if (logoutRepository.expired(jti))
+            return false;
+
+        return true;
+    } catch (JwtException | IllegalArgumentException e) {
+        return false;
+    }
+}
+```
+
+따라서 이를 해결하기 위해 인메모리 DB인 Redis를 도입하였습니다.
+
+### Redis에 로그아웃된 토큰을 저장
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/repository/RedisRepository.java
+
+@Repository
+public class RedisRepository {
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    public RedisRepository(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    public void save(String key, Object value, long timeout, TimeUnit unit) {
+        redisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
+
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+}
+```
+
+Redis는 Key-Value 구조의 인메모리 DB입니다. 따라서 파일시스템을 사용하는 PostgreSQL보다 성능이 좋을것이라 기대하고 도입했습니다.
+
+또한 저장된 정보에 timeout을 설정할 수도 있어 유효기간이 지난 토큰을 폐기하는 것도 자동으로 구현할 수 있었습니다.
+
+Redis 도입은 Spring Data를 통해 구현하였습니다.
+
+이제 로그아웃시 다음과 같이 Redis에 JTI를 저장하고,
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/service/AuthService.java
+
+public void logout(String accessToken, String refreshToken) {
+    String accessTokenJti = jwtUtil.parseJti(accessToken);
+    String refreshTokenJti = jwtUtil.parseJti(refreshToken);
+
+    int accessExp = jwtUtil.parseExp(accessToken) - jwtUtil.parseIat(accessToken);
+    int refreshExp = jwtUtil.parseExp(refreshToken) - jwtUtil.parseIat(refreshToken);
+
+    redisRepository.save(accessTokenJti, "logged_out", accessExp, TimeUnit.SECONDS);
+    redisRepository.save(refreshTokenJti, "logged_out", refreshExp, TimeUnit.SECONDS);
+}
+```
+
+토큰 검증시 `RedisRepository`에 요청합니다.
+
+```java
+// https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/main/java/kr/pianobear/application/util/JwtUtil.java
+
+public boolean validateToken(String token) {
+    try {
+        Claims claims = Jwts.parser()
+                .verifyWith(this.secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        String jti = claims.get("jti", String.class);
+
+        if (redisRepository.hasKey(jti))
+            return false;
+
+        return true;
+    } catch (JwtException | IllegalArgumentException e) {
+        return false;
+    }
+}
+```
+
+### 성능 비교
+구현 완료 후, 실제로 PostgreSQL과 Redis를 사용했을 때, 성능 차이가 어느 정도일지 궁금해져서 테스트를 진행했습니다.
+
+PostgreSQL과 Redis에서 각각 SELECT 성능을 비교했으며 10,000회 반복하여 평균을 측정했습니다.
+
+또한 실제 상황에서는 이 토큰이 폐기되었는지 아닌지를 DB에 존재하는지 아닌지로 구분하기 때문에, DB에 존재하는 경우(Found), 존재하지 않는 경우(Not Found)로 나눠서 측정했습니다.
+
+- [PostgreSQL 테스트 코드](https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/test/java/kr/pianobear/application/performance/PostgreSQLTest.java)
+- [Redis 테스트 코드](https://github.com/jongwonyang/PianoBear/blob/master/backend/application/src/test/java/kr/pianobear/application/performance/RedisTest.java)
+
+결과는 다음과 같습니다.
+
+- DB 사이즈: 1 ~ 100,000
+
+| Found | Not Found |
+| --- | --- |
+| ![pg-vs-redis-1-100000-found](img/pg-vs-redis-1-100000-found.png) | ![pg-vs-redis-1-100000-not-found](img/pg-vs-redis-1-100000-not-found.png) |
+| PostgreSQL 대비 Redis 성능 **-10.77%** | PostgreSQL 대비 Redis 성능 **-1.31%** |
+
+- DB 사이즈: 20,000 ~ 100,000
+
+| Found | Not Found |
+| --- | --- |
+| ![pg-vs-redis-20000-100000-found](img/pg-vs-redis-20000-100000-found.png) | ![pg-vs-redis-20000-100000-not-found](img/pg-vs-redis-20000-100000-not-found.png) |
+| PostgreSQL 대비 Redis 성능 **+7.98%** | PostgreSQL 대비 Redis 성능 **+7.94%** |
+
+예상과는 달리, 적은 데이터의 양에서는 Redis가 PostgreSQL보다 비슷하거나 조금 더 느린 속도를 보였습니다.
+
+하지만 데이터의 양이 많을 때는 Redis가 PostgreSQL보다 약 8% 정도 빠른 속도를 보였습니다.
+
+이러한 결과가 나온 이유를 다음과 같이 추측하였습니다.
+
+1. PostgreSQL도 메모리에 캐싱을 한다.
+2. 따라서 적은 양의 데이터에 대해서는 Redis가 크게 우위를 가지지 못한다.
+3. 하지만 데이터의 양의 많아질수록 캐시 miss가 많아지고, 이 때 PostgreSQL은 디스크에 접근해야한다.
+
+### 결과
+- 데이터베이스에 폐기된 토큰을 일정기간 저장함으로써 로그아웃에 대한 보안 취약점을 해결하였습니다.
+- PostgreSQL 대신 Redis를 사용함으로써 많은 양의 데이터에 대해 약 8%의 성능 향상을 달성했습니다.
+- 다만, 적은 양의 데이터에 대해서는 Redis가 비슷하거나 더 느린 속도를 보였습니다.
+- 실제 서비스시 적절한 DB를 선택하기 위해서는 운영 경험이 좀 더 필요하다는 것을 느꼈습니다.
